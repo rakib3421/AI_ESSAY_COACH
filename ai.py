@@ -186,10 +186,8 @@ def detect_essay_type(essay_text):
     Analyze the following essay and determine its type. Choose from:
     - argumentative
     - narrative
-    - literary
-    - expository
-    - descriptive
-    - compare
+    - literary_analysis
+    - hybrid
 
     Essay: {essay_text[:1000]}...
 
@@ -202,20 +200,55 @@ def detect_essay_type(essay_text):
         
         if response_content:
             essay_type = response_content.strip().lower()
-            valid_types = ['argumentative', 'narrative', 'literary', 'expository', 'descriptive', 'compare']
-            if essay_type in valid_types:
-                logger.info(f"Essay type detected: {essay_type}")
-                return essay_type
-            else:
-                logger.warning(f"Invalid essay type detected: {essay_type}, defaulting to expository")
-                return 'expository'
+            # Normalize essay type to match config
+            essay_type = normalize_essay_type(essay_type)
+            logger.info(f"Essay type detected: {essay_type}")
+            return essay_type
         else:
-            logger.warning("Failed to detect essay type, defaulting to expository")
-            return 'expository'
+            logger.warning("Failed to detect essay type, defaulting to hybrid")
+            return 'hybrid'
     
     except Exception as e:
         logger.error(f"Essay type detection error: {e}")
-        return 'expository'
+        return 'hybrid'
+
+def normalize_essay_type(essay_type):
+    """Normalize essay type to match database schema and config"""
+    from config import Config
+    
+    # Handle None or empty values
+    if not essay_type:
+        return 'hybrid'
+    
+    # Clean the input
+    essay_type = str(essay_type).strip().lower()
+    
+    # Map variations to standard types
+    type_mapping = {
+        'literary': 'literary_analysis',
+        'literary_analysis': 'literary_analysis',
+        'expository': 'hybrid',
+        'descriptive': 'hybrid',
+        'compare': 'hybrid',
+        'comparative': 'hybrid',
+        'argumentative': 'argumentative',
+        'narrative': 'narrative',
+        'persuasive': 'argumentative',
+        'informative': 'hybrid',
+        'analytical': 'literary_analysis'
+    }
+    
+    # Return mapped type or default to hybrid
+    normalized_type = type_mapping.get(essay_type, 'hybrid')
+    
+    # Ensure it's in the valid types from config
+    if normalized_type in Config.ESSAY_TYPES:
+        # Additional safety check for length (assuming VARCHAR(20) or similar)
+        if len(normalized_type) <= 20:
+            return normalized_type
+    
+    # Final fallback
+    return 'hybrid'
 
 def get_essay_specific_prompt(essay_type, coaching_level):
     """Get essay-specific prompts based on type and coaching level"""

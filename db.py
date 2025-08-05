@@ -130,6 +130,10 @@ def save_analysis_to_db(essay_text, analysis_data):
     
     try:
         with connection.cursor() as cursor:
+            # Normalize essay type to ensure it fits database schema
+            from ai import normalize_essay_type
+            normalized_essay_type = normalize_essay_type(analysis_data['essay_type'])
+            
             # Save essay analysis
             sql = """
             INSERT INTO essay_analyses (essay_text, essay_type, ideas_score, 
@@ -141,7 +145,7 @@ def save_analysis_to_db(essay_text, analysis_data):
             
             cursor.execute(sql, (
                 essay_text,
-                analysis_data['essay_type'],
+                normalized_essay_type,
                 analysis_data['scores']['ideas'],
                 analysis_data['scores']['organization'],
                 analysis_data['scores']['style'],

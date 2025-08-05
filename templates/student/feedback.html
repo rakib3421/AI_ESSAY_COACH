@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 style="color: #1e2839;">Teacher Feedback</h2>
-    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
     </a>
 </div>
@@ -19,6 +19,9 @@
                     Submitted: {{ essay[11].strftime('%B %d, %Y at %I:%M %p') }}
                     {% if essay[12] %}
                         • Teacher: {{ essay[12] }}
+                    {% endif %}
+                    {% if essay[13] %}
+                        • Feedback Date: {{ essay[13].strftime('%B %d, %Y at %I:%M %p') }}
                     {% endif %}
                 </small>
             </div>
@@ -40,16 +43,24 @@
                         <h5 class="mb-0"><i class="fas fa-comment-dots me-2"></i>Teacher Feedback</h5>
                     </div>
                     <div class="card-body">
-                        <div class="teacher-feedback">
-                            {{ essay[5]|nl2br|safe }}
-                        </div>
-                        
-                        {% if essay[11] %}
-                            <hr>
-                            <small class="text-muted">
-                                <i class="fas fa-clock me-1"></i>
-                                Feedback provided on {{ essay[11].strftime('%B %d, %Y at %I:%M %p') }}
-                            </small>
+                        {% if essay[5] %}
+                            <div class="teacher-feedback">
+                                {{ essay[5]|nl2br|safe }}
+                            </div>
+                            
+                            {% if essay[13] %}
+                                <hr>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Feedback provided on {{ essay[13].strftime('%B %d, %Y at %I:%M %p') }}
+                                </small>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-hourglass-half fa-2x text-muted mb-3"></i>
+                                <h6 class="text-muted">No Teacher Feedback Yet</h6>
+                                <p class="text-secondary small mb-0">Your teacher hasn't provided feedback for this essay yet. Check back later!</p>
+                            </div>
                         {% endif %}
                     </div>
                 </div>

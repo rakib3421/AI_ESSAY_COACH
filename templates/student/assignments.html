@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 style="color: #1e2839;">My Assignments</h2>
-    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
     </a>
 </div>
@@ -46,9 +46,13 @@
                             </a>
                             {% if assignment[8] %}
                                 <a href="{{ url_for('view_feedback', essay_id=assignment[7]) }}" 
-                                   class="btn btn-outline-info">
-                                    <i class="fas fa-comment me-2"></i>View Feedback
+                                   class="btn btn-success">
+                                    <i class="fas fa-comment me-2"></i>View Teacher Feedback
                                 </a>
+                            {% else %}
+                                <button class="btn btn-outline-secondary" disabled>
+                                    <i class="fas fa-clock me-2"></i>Awaiting Feedback
+                                </button>
                             {% endif %}
                         {% else %}
                             <a href="{{ url_for('submit_assignment', assignment_id=assignment[0]) }}" 

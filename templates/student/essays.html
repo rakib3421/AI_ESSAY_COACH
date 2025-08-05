@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}My Essays - AI Essay Coach{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card shadow-lg border-0 sticky-top" style="top: 110px;">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="fas fa-compass me-3"></i>Navigation
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('student.student_dashboard') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('student.upload_essay') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-cloud-upload-alt me-3" style="width: 20px;"></i>Upload Essay
+                    </a>
+                    <a href="{{ url_for('student_essays_list') }}" class="list-group-item list-group-item-action active border-0 fw-medium">
+                        <i class="fas fa-file-alt me-3" style="width: 20px;"></i>My Essays
+                    </a>
+                    <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-tasks me-3" style="width: 20px;"></i>Assignments
+                    </a>
+                    <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Progress Analytics
+                    </a>
+                    <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-bell me-3" style="width: 20px;"></i>Teacher Requests
+                    </a>
+                    <a href="{{ url_for('student_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in">
+                <div>
+                    <h2 class="fw-bold mb-2">My Essays 📝</h2>
+                    <p class="text-secondary mb-0">View all your submitted essays and feedback</p>
+                </div>
+                <a href="{{ url_for('student.upload_essay') }}" class="btn btn-primary btn-lg shadow-lg">
+                    <i class="fas fa-plus me-2"></i>New Essay
+                </a>
+            </div>
+
+            <!-- Essays List -->
+            <div class="card border-0 shadow-lg animate-scale-in">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="fas fa-file-alt me-3"></i>All Essays ({{ essays|length }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if essays %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="fw-bold">Title</th>
+                                        <th class="fw-bold">Type</th>
+                                        <th class="fw-bold">Submitted</th>
+                                        <th class="fw-bold">AI Score</th>
+                                        <th class="fw-bold">Status</th>
+                                        <th class="fw-bold">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for essay in essays %}
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <h6 class="mb-1 fw-bold">{{ essay[1] or 'Untitled Essay' }}</h6>
+                                                    {% if essay[0] in assignment_context %}
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-tasks me-1"></i>
+                                                            Assignment: {{ assignment_context[essay[0]]['title'] }}
+                                                        </small>
+                                                    {% else %}
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-edit me-1"></i>
+                                                            Individual submission
+                                                        </small>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark px-2 py-1">
+                                                    {{ essay[2]|title or 'General' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ essay[4].strftime('%m/%d/%Y at %I:%M %p') if essay[4] else 'N/A' }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                {% if essay[3] %}
+                                                    <span class="badge rounded-pill px-3 py-2 fw-bold" 
+                                                          style="background: {% if essay[3] >= 80 %}var(--success-gradient){% elif essay[3] >= 60 %}var(--warning-gradient){% else %}var(--error-gradient){% endif %};">
+                                                        {{ "%.1f"|format(essay[3]) }}%
+                                                    </span>
+                                                    <div class="mt-1">
+                                                        <small class="text-muted">
+                                                            Ideas: {{ "%.0f"|format(essay[7] or 0) }} | 
+                                                            Org: {{ "%.0f"|format(essay[8] or 0) }} | 
+                                                            Style: {{ "%.0f"|format(essay[9] or 0) }} | 
+                                                            Grammar: {{ "%.0f"|format(essay[10] or 0) }}
+                                                        </small>
+                                                    </div>
+                                                {% else %}
+                                                    <span class="badge bg-secondary rounded-pill px-3 py-2">
+                                                        Analyzing...
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span class="badge bg-{% if essay[5] == 'reviewed' %}success{% elif essay[5] == 'analyzed' %}info{% else %}warning{% endif %} mb-1">
+                                                        {{ essay[5]|title }}
+                                                    </span>
+                                                    {% if essay[6] %}
+                                                        <span class="badge bg-success px-2 py-1">
+                                                            <i class="fas fa-comment me-1"></i>Teacher Feedback Available
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary px-2 py-1">
+                                                            <i class="fas fa-clock me-1"></i>Awaiting Feedback
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group-vertical btn-group-sm">
+                                                    <a href="{{ url_for('view_essay', essay_id=essay[0]) }}" 
+                                                       class="btn btn-outline-primary mb-1">
+                                                        <i class="fas fa-eye me-1"></i>View Essay
+                                                    </a>
+                                                    {% if essay[6] %}
+                                                        <a href="{{ url_for('view_feedback', essay_id=essay[0]) }}" 
+                                                           class="btn btn-success">
+                                                            <i class="fas fa-comment me-1"></i>View Teacher Feedback
+                                                        </a>
+                                                    {% else %}
+                                                        <button class="btn btn-outline-secondary" disabled>
+                                                            <i class="fas fa-clock me-1"></i>No Feedback Yet
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No essays submitted yet</h6>
+                            <p class="text-secondary">Upload your first essay to get started with AI feedback!</p>
+                            <a href="{{ url_for('student.upload_essay') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Upload Your First Essay
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Summary Statistics -->
+            {% if essays %}
+                <div class="row g-4 mt-4">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px; background: var(--primary-gradient);">
+                                    <i class="fas fa-file-alt text-white"></i>
+                                </div>
+                                <div class="fw-bold h5 mb-1">{{ essays|length }}</div>
+                                <div class="text-muted small">Total Essays</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px; background: var(--success-gradient);">
+                                    <i class="fas fa-chart-line text-white"></i>
+                                </div>
+                                <div class="fw-bold h5 mb-1">
+                                    {% set scored_essays = essays|selectattr('3')|list %}
+                                    {% if scored_essays %}
+                                        {{ "%.1f"|format((scored_essays|sum(attribute='3')) / scored_essays|length) }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </div>
+                                <div class="text-muted small">Average Score</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px; background: var(--info-gradient);">
+                                    <i class="fas fa-comment text-white"></i>
+                                </div>
+                                <div class="fw-bold h5 mb-1">{{ essays|selectattr('6')|list|length }}</div>
+                                <div class="text-muted small">With Feedback</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px; background: var(--warning-gradient);">
+                                    <i class="fas fa-tasks text-white"></i>
+                                </div>
+                                <div class="fw-bold h5 mb-1">{{ assignment_context|length }}</div>
+                                <div class="text-muted small">Assignments</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.7s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+{% endblock %}

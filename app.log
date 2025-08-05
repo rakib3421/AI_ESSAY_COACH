@@ -335,3 +335,349 @@
 2025-08-05 13:38:56,237 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:56] "GET /teacher/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
 2025-08-05 13:38:56,259 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:56] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
 2025-08-05 13:39:04,725 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:39:04] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:42:26,867 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://10.10.12.31:5000
+2025-08-05 13:42:26,867 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 13:42:26,869 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:42:27,945 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:42:27,947 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:42:30,156 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:30] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:42:30,274 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 13:42:30,274 - db - INFO - Database connection obtained from pool
+2025-08-05 13:42:30,300 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:30] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:42:30,351 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:30] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:42:30,351 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:30] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:42:32,110 - db - INFO - Database connection obtained from pool
+2025-08-05 13:42:32,136 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:32] "[35m[1mGET /teacher/analytics HTTP/1.1[0m" 500 -
+2025-08-05 13:42:32,144 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:32] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-08-05 13:42:32,144 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:32] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:42:32,166 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:32] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:42:32,202 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:42:32] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:45:06,389 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:45:06,502 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:45:07,558 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:45:07,560 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:45:36,376 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:45:36,483 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:45:37,691 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:45:37,693 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:45:44,523 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 13:45:44,523 - db - INFO - Database connection obtained from pool
+2025-08-05 13:45:44,551 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:44] "GET /teacher/analytics HTTP/1.1" 200 -
+2025-08-05 13:45:44,616 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:44] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:45:44,618 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:44] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:45:47,271 - db - INFO - Database connection obtained from pool
+2025-08-05 13:45:47,276 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:47] "GET /teacher/profile HTTP/1.1" 200 -
+2025-08-05 13:45:47,295 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:47] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:45:47,295 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:47] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:45:51,134 - db - INFO - Database connection obtained from pool
+2025-08-05 13:45:51,150 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:51] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:45:51,161 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:51] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:45:51,161 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:51] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:45:54,182 - db - INFO - Database connection obtained from pool
+2025-08-05 13:45:54,191 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:54] "GET /teacher/submissions HTTP/1.1" 200 -
+2025-08-05 13:45:54,206 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:45:54,206 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:54] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:45:58,473 - db - INFO - Database connection obtained from pool
+2025-08-05 13:45:58,475 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:58] "GET /teacher/analytics HTTP/1.1" 200 -
+2025-08-05 13:45:58,487 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:58] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:45:58,487 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:45:58] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:46:01,190 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:46:01,375 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:46:02,707 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:46:02,709 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:46:03,018 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 13:46:03,019 - db - INFO - Database connection obtained from pool
+2025-08-05 13:46:03,037 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:03] "GET /teacher/submissions HTTP/1.1" 200 -
+2025-08-05 13:46:03,088 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:03] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:46:03,088 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:03] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:46:07,669 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:07] "GET /teacher/create_assignment HTTP/1.1" 200 -
+2025-08-05 13:46:07,684 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:07] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:46:07,685 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:07] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:46:10,902 - db - INFO - Database connection obtained from pool
+2025-08-05 13:46:10,905 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:10] "GET /teacher/submissions HTTP/1.1" 200 -
+2025-08-05 13:46:10,917 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:10] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:46:10,918 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:10] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:46:19,491 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:19] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:46:19,501 - db - INFO - Database connection obtained from pool
+2025-08-05 13:46:19,522 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:19] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:46:19,531 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:19] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:46:19,532 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:19] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:46:28,980 - db - INFO - Database connection obtained from pool
+2025-08-05 13:46:28,990 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:28] "GET /teacher/assignment/2/submissions HTTP/1.1" 200 -
+2025-08-05 13:46:29,004 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:29] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:46:29,005 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:46:29] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:46:38,157 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:46:38,276 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:46:39,454 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:46:39,456 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:52:10,876 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:52:10,959 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:52:12,066 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:52:12,068 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:52:21,265 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:52:21,354 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:52:22,424 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:52:22,427 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:53:18,790 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:53:18,904 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:53:20,097 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:53:20,099 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:53:34,282 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:53:34,372 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:53:35,456 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:53:35,458 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:53:49,561 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:53:49,671 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:53:50,829 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:53:50,831 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:54:10,001 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:54:10,107 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:54:11,173 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:54:11,176 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:54:27,873 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:54:27,994 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:54:29,153 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:54:29,154 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:54:55,619 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:54:55,734 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:54:56,841 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:54:56,842 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:55:12,171 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:55:12,253 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:55:13,337 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:55:13,340 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:55:26,176 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:55:26,265 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:55:27,363 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:55:27,364 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:56:58,096 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:56:58,248 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:56:59,403 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:56:59,405 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:57:09,741 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:57:09,840 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:57:11,019 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:57:11,022 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:58:33,964 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 13:58:34,086 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:58:35,227 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:58:35,229 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:59:56,417 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\database_migration_fix.py', reloading
+2025-08-05 13:59:56,517 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:59:57,613 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:59:57,616 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:00:10,523 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\database_migration_fix.py', reloading
+2025-08-05 14:00:10,637 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:00:11,685 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:00:11,687 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:00:46,919 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\database_migration_fix.py', reloading
+2025-08-05 14:00:47,005 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:00:48,089 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:00:48,091 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:00:54,725 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\database_migration_fix.py', reloading
+2025-08-05 14:00:54,821 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:00:55,905 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:00:55,907 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:01:40,969 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://10.10.12.31:5000
+2025-08-05 14:01:40,969 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 14:01:40,970 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:01:41,974 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:01:41,975 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:01:43,405 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:43] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:01:43,475 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 14:01:43,476 - db - INFO - Database connection obtained from pool
+2025-08-05 14:01:43,512 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:43] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 14:01:43,584 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:43] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:01:43,587 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:43] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:01:54,330 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:54] "[32mGET /logout HTTP/1.1[0m" 302 -
+2025-08-05 14:01:54,342 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:54] "GET / HTTP/1.1" 200 -
+2025-08-05 14:01:54,359 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:01:54,362 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:54] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:01:56,734 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:56] "GET /login HTTP/1.1" 200 -
+2025-08-05 14:01:56,744 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:56] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:01:56,745 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:56] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:01:59,238 - db - INFO - Database connection obtained from pool
+2025-08-05 14:01:59,338 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:59] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-08-05 14:01:59,342 - db - INFO - Database connection obtained from pool
+2025-08-05 14:01:59,358 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:59] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:01:59,379 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:59] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:01:59,381 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:01:59] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:02:12,784 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:12] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 14:02:12,802 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:12] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:02:12,805 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:12] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:02:15,501 - db - INFO - Database connection obtained from pool
+2025-08-05 14:02:15,502 - routes - INFO - Student 2 has 1 teacher assignments
+2025-08-05 14:02:15,503 - routes - INFO - Found 2 assignments for student 2
+2025-08-05 14:02:15,509 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:15] "GET /student/assignments HTTP/1.1" 200 -
+2025-08-05 14:02:15,523 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:15] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:02:15,523 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:15] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:02:19,391 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:19] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:02:19,397 - db - INFO - Database connection obtained from pool
+2025-08-05 14:02:19,403 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:19] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:02:19,414 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:19] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:02:19,415 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:19] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:02:21,667 - db - INFO - Database connection obtained from pool
+2025-08-05 14:02:21,682 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:21] "GET /student/progress HTTP/1.1" 200 -
+2025-08-05 14:02:21,694 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:21] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:02:21,696 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:21] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:02:26,368 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:26] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:02:26,385 - db - INFO - Database connection obtained from pool
+2025-08-05 14:02:26,391 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:26] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:02:26,405 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:26] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:02:26,406 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:26] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:02:29,612 - db - INFO - Database connection obtained from pool
+2025-08-05 14:02:29,614 - routes - INFO - Student 2 has 1 teacher assignments
+2025-08-05 14:02:29,615 - routes - INFO - Found 2 assignments for student 2
+2025-08-05 14:02:29,616 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:29] "GET /student/assignments HTTP/1.1" 200 -
+2025-08-05 14:02:29,626 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:29] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:02:29,627 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:29] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:02:47,154 - db - INFO - Database connection obtained from pool
+2025-08-05 14:02:47,176 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:47] "[35m[1mGET /student/essay/19 HTTP/1.1[0m" 500 -
+2025-08-05 14:02:47,192 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:47] "GET /student/essay/19?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-08-05 14:02:47,192 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:47] "GET /student/essay/19?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-08-05 14:02:47,232 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:47] "GET /student/essay/19?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-08-05 14:02:47,290 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:02:47] "[36mGET /student/essay/19?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 14:04:43,677 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 14:04:43,784 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:04:44,958 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:04:44,960 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:05:04,146 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 14:05:04,243 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:05:05,304 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:05:05,306 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:05:14,366 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:05:14,452 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:05:15,457 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:05:15,458 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:05:27,007 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 14:05:27,151 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:05:28,310 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:05:28,312 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:05:38,681 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:05:38,798 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:05:39,857 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:05:39,858 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:05:51,621 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:05:51,714 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:05:52,796 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:05:52,797 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:06:13,640 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 14:06:13,640 - db - INFO - Database connection obtained from pool
+2025-08-05 14:06:13,654 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:13] "GET /student/essay/19 HTTP/1.1" 200 -
+2025-08-05 14:06:13,720 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:13] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:06:13,721 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:13] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:06:27,687 - db - INFO - Database connection obtained from pool
+2025-08-05 14:06:27,707 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:27] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:06:27,725 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:27] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:06:27,725 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:27] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:06:48,911 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:48] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 14:06:48,927 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:48] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:06:48,927 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:48] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:06:52,459 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:52] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:06:52,463 - db - INFO - Database connection obtained from pool
+2025-08-05 14:06:52,467 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:52] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:06:52,482 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:06:52,483 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:52] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:06:53,439 - db - INFO - Database connection obtained from pool
+2025-08-05 14:06:53,440 - routes - INFO - Student 2 has 1 teacher assignments
+2025-08-05 14:06:53,441 - routes - INFO - Found 2 assignments for student 2
+2025-08-05 14:06:53,448 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:53] "GET /student/assignments HTTP/1.1" 200 -
+2025-08-05 14:06:53,465 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:06:53,466 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:53] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:06:56,164 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:56] "[32mGET /student/submit_assignment/2 HTTP/1.1[0m" 302 -
+2025-08-05 14:06:56,172 - db - INFO - Database connection obtained from pool
+2025-08-05 14:06:56,173 - db - INFO - Database connection obtained from pool
+2025-08-05 14:06:56,174 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:56] "GET /student/upload?assignment_id=2 HTTP/1.1" 200 -
+2025-08-05 14:06:56,187 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:56] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:06:56,188 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:06:56] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:07:12,364 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:07:12] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:07:12,374 - db - INFO - Database connection obtained from pool
+2025-08-05 14:07:12,376 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:07:12] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:07:12,395 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:07:12] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:07:12,396 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:07:12] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:07:32,648 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:07:32,800 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:07:34,093 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:07:34,095 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:07:44,820 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:07:44,975 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:07:46,066 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:07:46,068 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:09:17,203 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\simple_test.py', reloading
+2025-08-05 14:09:17,302 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:09:18,367 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:09:18,369 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:10:00,866 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://10.10.12.31:5000
+2025-08-05 14:10:00,867 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 14:10:00,868 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:10:01,835 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:10:01,837 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:10:04,683 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:04] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:10:04,796 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 14:10:04,796 - db - INFO - Database connection obtained from pool
+2025-08-05 14:10:04,824 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:04] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:10:04,889 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:04] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:10:04,890 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:04] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:10:18,597 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:18] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 14:10:18,614 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:18] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:10:18,614 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:18] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:10:32,636 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:32] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 14:10:32,649 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:32] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:10:32,650 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:32] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:10:34,288 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:34] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:10:34,302 - db - INFO - Database connection obtained from pool
+2025-08-05 14:10:34,308 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:34] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 14:10:34,334 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:34] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:10:34,335 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:10:34] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 14:13:11,280 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:13:11,421 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:13:12,535 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:13:12,537 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:15:18,526 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:15:18,646 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:15:19,729 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:15:19,731 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:23:04,528 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:23:04,714 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:23:05,841 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:23:05,843 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:23:32,419 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:23:32,512 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:23:33,606 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:23:33,608 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:23:56,500 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:23:56,600 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:23:57,637 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:23:57,640 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:27:30,986 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\app.py', reloading
+2025-08-05 14:27:31,136 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:27:32,267 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:27:32,269 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:28:03,684 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 14:28:03,684 - db - INFO - Database connection obtained from pool
+2025-08-05 14:28:03,721 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:03] "[35m[1mGET /student/dashboard HTTP/1.1[0m" 500 -
+2025-08-05 14:28:03,774 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:03] "[36mGET /student/dashboard?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:28:03,774 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:03] "[36mGET /student/dashboard?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-08-05 14:28:03,813 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:03] "[36mGET /student/dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 14:28:03,827 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:03] "[36mGET /student/dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 14:28:19,390 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:19] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 14:28:19,418 - db - INFO - Database connection obtained from pool
+2025-08-05 14:28:19,432 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:19] "[35m[1mGET /student/dashboard HTTP/1.1[0m" 500 -
+2025-08-05 14:28:19,452 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:19] "[36mGET /student/dashboard?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-08-05 14:28:19,452 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:19] "[36mGET /student/dashboard?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-08-05 14:28:19,557 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 14:28:19] "[36mGET /student/dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 14:29:27,913 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 14:29:28,044 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:29:29,265 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:29:29,267 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:29:55,217 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 14:29:55,343 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:29:56,630 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:29:56,633 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 14:30:45,102 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 14:30:45,236 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 14:30:46,510 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 14:30:46,512 - werkzeug - INFO -  * Debugger PIN: 125-609-958

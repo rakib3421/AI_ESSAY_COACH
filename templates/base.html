@@ -51,18 +51,18 @@
                     {% if session.user_id %}
                         {% if session.role == 'student' %}
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('student_dashboard') }}" role="menuitem" aria-label="Student Dashboard">
+                                <a class="nav-link px-3" href="{{ url_for('student.student_dashboard') }}" role="menuitem" aria-label="Student Dashboard">
                                     <i class="fas fa-chart-line me-2" aria-hidden="true"></i>Dashboard
                                 </a>
                             </li>
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('upload_essay') }}" role="menuitem" aria-label="Upload Essay for Analysis">
+                                <a class="nav-link px-3" href="{{ url_for('student.upload_essay') }}" role="menuitem" aria-label="Upload Essay for Analysis">
                                     <i class="fas fa-cloud-upload-alt me-2" aria-hidden="true"></i>Upload
                                 </a>
                             </li>
                         {% else %}
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('teacher_dashboard') }}" role="menuitem" aria-label="Teacher Dashboard">
+                                <a class="nav-link px-3" href="{{ url_for('teacher.teacher_dashboard') }}" role="menuitem" aria-label="Teacher Dashboard">
                                     <i class="fas fa-chart-line me-2" aria-hidden="true"></i>Dashboard
                                 </a>
                             </li>
@@ -91,7 +91,7 @@
                         </li>
                     {% else %}
                         <li class="nav-item" role="none">
-                            <a class="nav-link px-3" href="{{ url_for('login') }}" role="menuitem" aria-label="Login to your account">
+                            <a class="nav-link px-3" href="{{ url_for('auth.login') }}" role="menuitem" aria-label="Login to your account">
                                 <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>Login
                             </a>
                         </li>

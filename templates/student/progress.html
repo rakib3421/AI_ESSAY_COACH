@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 style="color: #1e2839;">My Progress</h2>
-    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
     </a>
 </div>
@@ -25,9 +25,13 @@
             <div class="card-body">
                 <h5 class="card-title">Average Score</h5>
                 <h3 class="display-6 mb-0" style="color: #1e2839;">
-                    {% set total_score = essays|selectattr(6)|map(attribute=6)|sum %}
-                    {% set score_count = essays|selectattr(6)|list|length %}
-                    {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                    {% if essays %}
+                        {% set total_score = essays|selectattr(7)|map(attribute=7)|sum %}
+                        {% set score_count = essays|selectattr(7)|list|length %}
+                        {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                    {% else %}
+                        0.0
+                    {% endif %}
                 </h3>
             </div>
         </div>
@@ -37,7 +41,11 @@
             <div class="card-body">
                 <h5 class="card-title">Best Score</h5>
                 <h3 class="display-6 mb-0" style="color: #1e2839;">
-                    {{ essays|selectattr(6)|map(attribute=6)|max if essays else 0 }}
+                    {% if essays %}
+                        {{ essays|selectattr(7)|map(attribute=7)|max if essays else 0 }}
+                    {% else %}
+                        0
+                    {% endif %}
                 </h3>
             </div>
         </div>
@@ -47,9 +55,9 @@
             <div class="card-body">
                 <h5 class="card-title">Improvement</h5>
                 <h3 class="display-6 mb-0" style="color: #1e2839;">
-                    {% if essays|length >= 2 %}
-                        {% set first_score = essays[0][6] or 0 %}
-                        {% set last_score = essays[-1][6] or 0 %}
+                    {% if essays and essays|length >= 2 %}
+                        {% set first_score = essays[0][7] or 0 %}
+                        {% set last_score = essays[-1][7] or 0 %}
                         +{{ "%.1f"|format(last_score - first_score) }}
                     {% else %}
                         -
@@ -82,42 +90,53 @@
             </div>
             <div class="col-md-6">
                 <div class="row">
-                    <div class="col-6 mb-3">
-                        <div class="text-center">
-                            <h6>Ideas</h6>
-                            <div class="progress mb-2">
-                                <div class="progress-bar" style="width: 85%; background-color: #1e2839;"></div>
+                    {% if essays %}
+                        {% set ideas_avg = essays|selectattr(3)|map(attribute=3)|sum / essays|selectattr(3)|list|length if essays|selectattr(3)|list|length > 0 else 0 %}
+                        {% set org_avg = essays|selectattr(4)|map(attribute=4)|sum / essays|selectattr(4)|list|length if essays|selectattr(4)|list|length > 0 else 0 %}
+                        {% set style_avg = essays|selectattr(5)|map(attribute=5)|sum / essays|selectattr(5)|list|length if essays|selectattr(5)|list|length > 0 else 0 %}
+                        {% set grammar_avg = essays|selectattr(6)|map(attribute=6)|sum / essays|selectattr(6)|list|length if essays|selectattr(6)|list|length > 0 else 0 %}
+                        
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Ideas</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {{ (ideas_avg/30*100)|round }}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ "%.1f"|format(ideas_avg) }}/30</small>
                             </div>
-                            <small>25.5/30</small>
                         </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="text-center">
-                            <h6>Organization</h6>
-                            <div class="progress mb-2">
-                                <div class="progress-bar" style="width: 80%; background-color: #1e2839;"></div>
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Organization</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {{ (org_avg/25*100)|round }}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ "%.1f"|format(org_avg) }}/25</small>
                             </div>
-                            <small>20.0/25</small>
                         </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="text-center">
-                            <h6>Style</h6>
-                            <div class="progress mb-2">
-                                <div class="progress-bar" style="width: 75%; background-color: #1e2839;"></div>
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Style</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {{ (style_avg/20*100)|round }}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ "%.1f"|format(style_avg) }}/20</small>
                             </div>
-                            <small>15.0/20</small>
                         </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="text-center">
-                            <h6>Grammar</h6>
-                            <div class="progress mb-2">
-                                <div class="progress-bar" style="width: 88%; background-color: #1e2839;"></div>
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Grammar</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {{ (grammar_avg/25*100)|round }}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ "%.1f"|format(grammar_avg) }}/25</small>
                             </div>
-                            <small>22.0/25</small>
                         </div>
-                    </div>
+                    {% else %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">No data available</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -168,7 +187,7 @@
                                        class="btn btn-sm btn-outline-primary me-1">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    {% if essay[12] %}
+                                    {% if essay[9] %}
                                         <a href="{{ url_for('view_feedback', essay_id=essay[0]) }}" 
                                            class="btn btn-sm btn-outline-info">
                                             <i class="fas fa-comment"></i>
@@ -185,7 +204,7 @@
                 <i class="fas fa-chart-line fa-4x mb-3" style="color: #dee2e6;"></i>
                 <h5 class="text-muted">No progress data available</h5>
                 <p class="text-muted">Upload your first essay to start tracking progress!</p>
-                <a href="{{ url_for('upload_essay') }}" class="btn" style="background-color: #1e2839; color: white;">
+                <a href="{{ url_for('student.upload_essay') }}" class="btn" style="background-color: #1e2839; color: white;">
                     <i class="fas fa-upload me-2"></i>Upload Essay
                 </a>
             </div>
@@ -197,15 +216,31 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Progress Chart Data
+const progressData = {{ progress_data|tojson if progress_data else '[]' }};
+const essaysData = {{ essays|tojson if essays else '[]' }};
+
 // Progress Chart
 const progressCtx = document.getElementById('progressChart').getContext('2d');
+
+let chartLabels = [];
+let chartData = [];
+
+if (progressData && progressData.length > 0) {
+    chartLabels = progressData.map(data => new Date(data[0]).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}));
+    chartData = progressData.map(data => parseFloat(data[1]));
+} else {
+    chartLabels = ['No Data'];
+    chartData = [0];
+}
+
 const progressChart = new Chart(progressCtx, {
     type: 'line',
     data: {
-        labels: [{% for data in progress_data %}'{{ data[0].strftime('%m/%d') }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        labels: chartLabels,
         datasets: [{
             label: 'Overall Score',
-            data: [{% for data in progress_data %}{{ data[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+            data: chartData,
             borderColor: '#1e2839',
             backgroundColor: 'rgba(30, 40, 57, 0.1)',
             tension: 0.1,
@@ -228,6 +263,32 @@ const progressChart = new Chart(progressCtx, {
     }
 });
 
+// Calculate category averages from essays data
+let categoryData = [0, 0, 0, 0]; // Ideas, Organization, Style, Grammar
+if (essaysData && essaysData.length > 0) {
+    let ideasSum = 0, orgSum = 0, styleSum = 0, grammarSum = 0;
+    let count = 0;
+    
+    essaysData.forEach(essay => {
+        if (essay[3] && essay[4] && essay[5] && essay[6]) { // Check if scores exist
+            ideasSum += parseFloat(essay[3]);
+            orgSum += parseFloat(essay[4]);
+            styleSum += parseFloat(essay[5]);
+            grammarSum += parseFloat(essay[6]);
+            count++;
+        }
+    });
+    
+    if (count > 0) {
+        categoryData = [
+            (ideasSum / count / 30 * 100).toFixed(1), // Convert to percentage
+            (orgSum / count / 25 * 100).toFixed(1),
+            (styleSum / count / 20 * 100).toFixed(1),
+            (grammarSum / count / 25 * 100).toFixed(1)
+        ];
+    }
+}
+
 // Category Chart
 const categoryCtx = document.getElementById('categoryChart').getContext('2d');
 const categoryChart = new Chart(categoryCtx, {
@@ -236,7 +297,7 @@ const categoryChart = new Chart(categoryCtx, {
         labels: ['Ideas', 'Organization', 'Style', 'Grammar'],
         datasets: [{
             label: 'Current Performance',
-            data: [85, 80, 75, 88],
+            data: categoryData,
             backgroundColor: 'rgba(30, 40, 57, 0.2)',
             borderColor: '#1e2839',
             borderWidth: 2

@@ -23,7 +23,7 @@
                             <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg px-4 animate-scale-in">
                                 <i class="fas fa-rocket me-2"></i>Start Writing Better
                             </a>
-                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg px-4 animate-scale-in">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4 animate-scale-in">
                                 <i class="fas fa-sign-in-alt me-2"></i>Sign In
                             </a>
                         </div>
@@ -156,7 +156,7 @@
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                             </button>
-                            <a href="{{ url_for('upload_essay') }}" class="btn btn-outline-primary btn-lg px-4">
+                            <a href="{{ url_for('student.upload_essay') }}" class="btn btn-outline-primary btn-lg px-4">
                                 <i class="fas fa-cloud-upload-alt me-2"></i>Upload File
                             </a>
                         </div>
@@ -324,7 +324,7 @@
                 <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-5">
                     <i class="fas fa-rocket me-2"></i>Get Started Free
                 </a>
-                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">
                     <i class="fas fa-sign-in-alt me-2"></i>Sign In
                 </a>
             </div>
