@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('student_dashboard') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{{ url_for('upload_essay') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-upload me-2"></i>Upload Essay
+                </a>
+                <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks me-2"></i>View Assignments
+                </a>
+                <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i>Progress Analytics
+                </a>
+                <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-bell me-2"></i>Teacher Requests
+                    {% if pending_requests_count > 0 %}
+                        <span class="badge bg-danger ms-2">{{ pending_requests_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('student_profile') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cog me-2"></i>profile
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: #1e2839;">Welcome back, {{ session.username }}!</h2>
+            <a href="{{ url_for('upload_essay') }}" class="btn" style="background-color: #1e2839; color: white;">
+                <i class="fas fa-upload me-2"></i>Upload Essay
+            </a>
+        </div>
+
+        <!-- Progress Snapshot -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Grammar</h5>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: {{ progress[3] or 0 }}%; background-color: #1e2839;"></div>
+                        </div>
+                        <span class="badge" style="background-color: #1e2839;">{{ "%.1f"|format(progress[3] or 0) }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Clarity</h5>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: {{ progress[1] or 0 }}%; background-color: #1e2839;"></div>
+                        </div>
+                        <span class="badge" style="background-color: #1e2839;">{{ "%.1f"|format(progress[1] or 0) }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Arguments</h5>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: {{ progress[0] or 0 }}%; background-color: #1e2839;"></div>
+                        </div>
+                        <span class="badge" style="background-color: #1e2839;">{{ "%.1f"|format(progress[0] or 0) }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Vocabulary</h5>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: {{ progress[2] or 0 }}%; background-color: #1e2839;"></div>
+                        </div>
+                        <span class="badge" style="background-color: #1e2839;">{{ "%.1f"|format(progress[2] or 0) }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Recent Submissions -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header" style="background-color: #1e2839; color: white;">
+                        <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Recent Submissions</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if submissions %}
+                            {% for submission in submissions %}
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <a href="{{ url_for('view_essay', essay_id=submission[0]) }}" class="text-decoration-none">
+                                                {{ submission[1] }}
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted">
+                                            {{ submission[2].title() }} • {{ submission[4].strftime('%m/%d/%Y') }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-{{ 'success' if submission[3] == 'analyzed' else 'warning' }}">
+                                            {{ submission[3].title() }}
+                                        </span>
+                                        {% if submission[5] %}
+                                            <div class="small">Score: {{ submission[5] }}/100</div>
+                                        {% endif %}
+                                        {% if submission[6] %}
+                                            <div class="mt-1">
+                                                <a href="{{ url_for('view_feedback', essay_id=submission[0]) }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-comment me-1"></i>View Feedback
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted text-center">No submissions yet. <a href="{{ url_for('upload_essay') }}">Upload your first essay!</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignments -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header" style="background-color: #1e2839; color: white;">
+                        <h6 class="mb-0"><i class="fas fa-tasks me-2"></i>Assignments</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if assignments %}
+                            {% for assignment in assignments %}
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <div>
+                                        <h6 class="mb-1">{{ assignment[1] }}</h6>
+                                        <small class="text-muted">
+                                            {{ assignment[3].title() }} • Due: {{ assignment[4].strftime('%m/%d/%Y') }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-{{ 'success' if assignment[5] == 'Submitted' else 'warning' }}">
+                                            {{ assignment[5] }}
+                                        </span>
+                                        {% if assignment[5] == 'Submitted' and assignment[6] %}
+                                            <div class="mt-1">
+                                                <a href="{{ url_for('view_feedback', essay_id=assignment[6]) }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-comment me-1"></i>View Feedback
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted text-center">No assignments available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Chart -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Progress Over Time</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="progressChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Progress Chart
+const ctx = document.getElementById('progressChart').getContext('2d');
+const progressChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+            label: 'Grammar',
+            data: [{{ progress[3] or 0 }}, {{ progress[3] or 0 }}, {{ progress[3] or 0 }}, {{ progress[3] or 0 }}],
+            borderColor: '#1e2839',
+            backgroundColor: 'rgba(30, 40, 57, 0.1)',
+            tension: 0.1
+        }, {
+            label: 'Clarity',
+            data: [{{ progress[1] or 0 }}, {{ progress[1] or 0 }}, {{ progress[1] or 0 }}, {{ progress[1] or 0 }}],
+            borderColor: '#6c757d',
+            backgroundColor: 'rgba(108, 117, 125, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

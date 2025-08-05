@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Student Progress - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1e2839;">My Progress</h2>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Progress Overview -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Essays</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">{{ essays|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Average Score</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {% set total_score = essays|selectattr(6)|map(attribute=6)|sum %}
+                    {% set score_count = essays|selectattr(6)|list|length %}
+                    {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Best Score</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {{ essays|selectattr(6)|map(attribute=6)|max if essays else 0 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Improvement</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {% if essays|length >= 2 %}
+                        {% set first_score = essays[0][6] or 0 %}
+                        {% set last_score = essays[-1][6] or 0 %}
+                        +{{ "%.1f"|format(last_score - first_score) }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Chart -->
+<div class="card mb-4">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Score Progression</h6>
+    </div>
+    <div class="card-body">
+        <canvas id="progressChart" height="100"></canvas>
+    </div>
+</div>
+
+<!-- Score Breakdown -->
+<div class="card mb-4">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Score Breakdown</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="categoryChart" height="200"></canvas>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="text-center">
+                            <h6>Ideas</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: 85%; background-color: #1e2839;"></div>
+                            </div>
+                            <small>25.5/30</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="text-center">
+                            <h6>Organization</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: 80%; background-color: #1e2839;"></div>
+                            </div>
+                            <small>20.0/25</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="text-center">
+                            <h6>Style</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: 75%; background-color: #1e2839;"></div>
+                            </div>
+                            <small>15.0/20</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="text-center">
+                            <h6>Grammar</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: 88%; background-color: #1e2839;"></div>
+                            </div>
+                            <small>22.0/25</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Essay History -->
+<div class="card">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-history me-2"></i>Essay History</h6>
+    </div>
+    <div class="card-body">
+        {% if essays %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Ideas</th>
+                            <th>Organization</th>
+                            <th>Style</th>
+                            <th>Grammar</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for essay in essays %}
+                            <tr>
+                                <td>{{ essay[1] }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ essay[2].replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>{{ essay[3] or '-' }}/30</td>
+                                <td>{{ essay[4] or '-' }}/25</td>
+                                <td>{{ essay[5] or '-' }}/20</td>
+                                <td>{{ essay[6] or '-' }}/25</td>
+                                <td>
+                                    <strong>{{ essay[7] or 0 }}/100</strong>
+                                </td>
+                                <td>{{ essay[8].strftime('%m/%d/%Y') }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_essay', essay_id=essay[0]) }}" 
+                                       class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if essay[12] %}
+                                        <a href="{{ url_for('view_feedback', essay_id=essay[0]) }}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-comment"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-chart-line fa-4x mb-3" style="color: #dee2e6;"></i>
+                <h5 class="text-muted">No progress data available</h5>
+                <p class="text-muted">Upload your first essay to start tracking progress!</p>
+                <a href="{{ url_for('upload_essay') }}" class="btn" style="background-color: #1e2839; color: white;">
+                    <i class="fas fa-upload me-2"></i>Upload Essay
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Progress Chart
+const progressCtx = document.getElementById('progressChart').getContext('2d');
+const progressChart = new Chart(progressCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for data in progress_data %}'{{ data[0].strftime('%m/%d') }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Overall Score',
+            data: [{% for data in progress_data %}{{ data[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+            borderColor: '#1e2839',
+            backgroundColor: 'rgba(30, 40, 57, 0.1)',
+            tension: 0.1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+// Category Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'radar',
+    data: {
+        labels: ['Ideas', 'Organization', 'Style', 'Grammar'],
+        datasets: [{
+            label: 'Current Performance',
+            data: [85, 80, 75, 88],
+            backgroundColor: 'rgba(30, 40, 57, 0.2)',
+            borderColor: '#1e2839',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            r: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

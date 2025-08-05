@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Assignment Requests - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1e2839;">Teacher Assign Requests</h2>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<div class="row">
+    {% if requests %}
+        {% for request in requests %}
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center" 
+                         style="background-color: #1e2839; color: white;">
+                        <h6 class="mb-0">Assignment Request</h6>
+                        <span class="badge bg-warning">Pending</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center me-3">
+                                <i class="fas fa-user-tie fa-2x text-muted"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">{{ request[1] }}</h5>
+                                <small class="text-muted">{{ request[2] }}</small>
+                                <br><small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Sent {{ request[3].strftime('%B %d, %Y at %I:%M %p') }}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>{{ request[1] }}</strong> wants to assign you as their student. 
+                            This will allow them to:
+                            <ul class="mt-2 mb-0">
+                                <li>Create assignments for you</li>
+                                <li>View your essay submissions</li>
+                                <li>Provide feedback on your work</li>
+                                <li>Track your progress</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <form method="POST" action="{{ url_for('reject_assignment_request', request_id=request[0]) }}" 
+                                  style="display: inline;">
+                                <button type="submit" class="btn btn-outline-danger" 
+                                        onclick="return confirm('Are you sure you want to reject this request?')">
+                                    <i class="fas fa-times me-2"></i>Reject
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('accept_assignment_request', request_id=request[0]) }}" 
+                                  style="display: inline;">
+                                <button type="submit" class="btn btn-success" 
+                                        onclick="return confirm('Accept assignment request from {{ request[1] }}?')">
+                                    <i class="fas fa-check me-2"></i>Accept
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-4x mb-3" style="color: #dee2e6;"></i>
+                <h4 class="text-muted">No assignment requests</h4>
+                <p class="text-muted">You don't have any pending assignment requests from teachers.</p>
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

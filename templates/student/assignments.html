@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Assignments - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1e2839;">My Assignments</h2>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<div class="row">
+    {% for assignment in assignments %}
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center" 
+                     style="background-color: #1e2839; color: white;">
+                    <h6 class="mb-0">{{ assignment[1] }}</h6>
+                    <span class="badge bg-{{ 'success' if assignment[6] == 'Submitted' else 'warning' }}">
+                        {{ assignment[6] }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">
+                        <strong>Type:</strong> {{ assignment[3].replace('_', ' ').title() }}
+                    </p>
+                    <p class="text-muted small mb-3">
+                        <strong>Due:</strong> {{ assignment[4].strftime('%B %d, %Y') }}
+                    </p>
+                    
+                    <p class="mb-3">{{ assignment[2] }}</p>
+                    
+                    {% if assignment[5] %}
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Guidelines</h6>
+                            <small>{{ assignment[5] }}</small>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        {% if assignment[6] == 'Submitted' %}
+                            <a href="{{ url_for('view_essay', essay_id=assignment[7]) }}" 
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-eye me-2"></i>View Submission
+                            </a>
+                            {% if assignment[8] %}
+                                <a href="{{ url_for('view_feedback', essay_id=assignment[7]) }}" 
+                                   class="btn btn-outline-info">
+                                    <i class="fas fa-comment me-2"></i>View Feedback
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('submit_assignment', assignment_id=assignment[0]) }}" 
+                               class="btn" style="background-color: #1e2839; color: white;">
+                                <i class="fas fa-upload me-2"></i>Submit Essay
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    
+    {% if not assignments %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-tasks fa-4x mb-3" style="color: #dee2e6;"></i>
+                <h4 class="text-muted">No assignments available</h4>
+                <p class="text-muted">Your teacher hasn't assigned any essays yet.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

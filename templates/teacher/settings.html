@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Settings - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('teacher_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{{ url_for('view_submissions') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt me-2"></i>View Submissions
+                </a>
+                <a href="{{ url_for('create_assignment') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus me-2"></i>Create Assignment
+                </a>
+                <a href="{{ url_for('student_management') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i>Student Management
+                </a>
+                <a href="{{ url_for('teacher_analytics') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i>Analytics
+                </a>
+                <a href="{{ url_for('teacher_settings') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-cog me-2"></i>Settings
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <h2 style="color: #1e2839;" class="mb-4">Teacher Settings</h2>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Teaching Preferences</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user_settings[0] or '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="default_feedback_template" class="form-label">Default Feedback Template</label>
+                        <textarea class="form-control" id="default_feedback_template" name="default_feedback_template" rows="4" placeholder="Enter your default feedback template...">{{ user_settings[1] or '' }}</textarea>
+                        <small class="form-text text-muted">This template will be pre-filled when providing feedback to students.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="auto_grade_essays" name="auto_grade_essays" {% if user_settings[2] %}checked{% endif %}>
+                            <label class="form-check-label" for="auto_grade_essays">
+                                Auto-grade essays using AI scores
+                            </label>
+                        </div>
+                        <small class="form-text text-muted">When enabled, AI scores will be automatically applied to student submissions.</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

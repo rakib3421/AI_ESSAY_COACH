@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Essay - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Essay for AI Analysis</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Essay Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required 
+                               placeholder="Enter a descriptive title for your essay">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="essay_type" class="form-label">Essay Type</label>
+                        <select class="form-select" id="essay_type" name="essay_type" required>
+                            <option value="">Select essay type</option>
+                            <option value="argumentative">Argumentative Essay</option>
+                            <option value="narrative">Narrative Essay</option>
+                            <option value="literary_analysis">Literary Analysis</option>
+                            <option value="hybrid">Hybrid/Mixed Type</option>
+                        </select>
+                        <div class="form-text">
+                            Choose the type that best describes your essay. This helps our AI provide more targeted feedback.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="file" class="form-label">Upload Essay File</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".docx" required>
+                        <div class="form-text">
+                            <strong>Supported format:</strong> Microsoft Word (.docx) files only. 
+                            Maximum file size: 16MB.
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>What happens after upload?</h6>
+                        <ul class="mb-0">
+                            <li>Our AI will analyze your essay for grammar, clarity, and structure</li>
+                            <li>You'll receive specific suggestions with explanations</li>
+                            <li>Suggestions will be marked with blue strikethrough (deletions) and red underline (additions)</li>
+                            <li>You can accept or reject each suggestion individually</li>
+                            <li>Progress scores will be calculated and tracked</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn" style="background-color: #1e2839; color: white;">
+                            <i class="fas fa-upload me-2"></i>Upload & Analyze
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Instructions Section -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card border-0" style="background-color: #f8f9fa;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-pen-fancy fa-2x mb-3" style="color: #1e2839;"></i>
+                        <h6>Argumentative Essays</h6>
+                        <small class="text-muted">
+                            AI checks thesis clarity, evidence quality, counterarguments, and source authenticity
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0" style="background-color: #f8f9fa;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-book-open fa-2x mb-3" style="color: #1e2839;"></i>
+                        <h6>Narrative Essays</h6>
+                        <small class="text-muted">
+                            AI analyzes dialogue effectiveness, imagery, narrative arc, and pacing
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0" style="background-color: #f8f9fa;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-2x mb-3" style="color: #1e2839;"></i>
+                        <h6>Literary Analysis</h6>
+                        <small class="text-muted">
+                            AI checks title italicization, present tense usage, and quotation integration
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

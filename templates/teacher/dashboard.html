@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('teacher_dashboard') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{{ url_for('view_submissions') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-alt me-2"></i>View Submissions
+                </a>
+                <a href="{{ url_for('create_assignment') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus me-2"></i>Create Assignment
+                </a>
+                <a href="{{ url_for('student_management') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i>Student Management
+                </a>
+                <a href="{{ url_for('teacher_analytics') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i>Progress Analytics
+                </a>
+                <a href="{{ url_for('teacher_profile') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cog me-2"></i>Settings
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: #1e2839;">Teacher Dashboard</h2>
+            <a href="{{ url_for('create_assignment') }}" class="btn" style="background-color: #1e2839; color: white;">
+                <i class="fas fa-plus me-2"></i>Create Assignment
+            </a>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Submissions</h5>
+                        <h3 class="display-6 mb-0" style="color: #1e2839;">{{ submissions|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Active Assignments</h5>
+                        <h3 class="display-6 mb-0" style="color: #1e2839;">{{ assignments|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Avg. Score</h5>
+                        <h3 class="display-6 mb-0" style="color: #1e2839;">
+                            {% set total_score = submissions|selectattr(3)|map(attribute=3)|sum %}
+                            {% set score_count = submissions|selectattr(3)|list|length %}
+                            {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Assigned Students</h5>
+                        <h3 class="display-6 mb-0" style="color: #1e2839;">{{ assigned_students_count or 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Recent Submissions -->
+            <div class="col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-header" style="background-color: #1e2839; color: white;">
+                        <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Recent Student Submissions</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if submissions %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Essay Title</th>
+                                            <th>Type</th>
+                                            <th>Score</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for submission in submissions %}
+                                            <tr>
+                                                <td>{{ submission[5] }}</td>
+                                                <td>{{ submission[1] }}</td>
+                                                <td>
+                                                    <span class="badge bg-secondary">
+                                                        {{ submission[2].replace('_', ' ').title() }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% if submission[3] %}
+                                                        <span class="badge bg-{{ 'success' if submission[3] >= 80 else 'warning' if submission[3] >= 60 else 'danger' }}">
+                                                            {{ submission[3] }}/100
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ submission[4].strftime('%m/%d/%Y') }}</td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary btn-sm" onclick="viewSubmission({{ submission[0] }})">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm" onclick="provideFeedback({{ submission[0] }})">
+                                                            <i class="fas fa-comment"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted text-center">No submissions yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignments -->
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-header" style="background-color: #1e2839; color: white;">
+                        <h6 class="mb-0"><i class="fas fa-tasks me-2"></i>My Assignments</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if assignments %}
+                            {% for assignment in assignments %}
+                                <div class="border-bottom py-2">
+                                    <h6 class="mb-1">{{ assignment[1] }}</h6>
+                                    <small class="text-muted">
+                                        {{ assignment[2].replace('_', ' ').title() }} • Due: {{ assignment[3].strftime('%m/%d/%Y') }}
+                                    </small>
+                                    <div class="mt-1">
+                                        <button class="btn btn-outline-primary btn-sm me-1" onclick="viewAssignment({{ assignment[0] }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm me-1" onclick="viewAssignmentSubmissions({{ assignment[0] }})">
+                                            <i class="fas fa-comments"></i> Feedback
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="editAssignment({{ assignment[0] }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted text-center">
+                                No assignments created yet. 
+                                <a href="{{ url_for('create_assignment') }}">Create your first assignment!</a>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cohort Insights -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Cohort Insights</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="scoreDistributionChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="essayTypeChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function viewSubmission(submissionId) {
+    // Redirect to view essay page
+    window.location.href = '/student/essay/' + submissionId;
+}
+
+function provideFeedback(submissionId) {
+    // Redirect to feedback page
+    window.location.href = '/teacher/feedback/' + submissionId;
+}
+
+function viewAssignment(assignmentId) {
+    // Redirect to view assignment page
+    window.location.href = '/teacher/assignment/' + assignmentId;
+}
+
+function viewAssignmentSubmissions(assignmentId) {
+    // Redirect to assignment submissions page for feedback
+    window.location.href = '/teacher/assignment/' + assignmentId + '/submissions';
+}
+
+function editAssignment(assignmentId) {
+    // Redirect to edit assignment page
+    window.location.href = '/teacher/assignment/' + assignmentId + '/edit';
+}
+
+// Charts
+const scoreCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+const scoreChart = new Chart(scoreCtx, {
+    type: 'bar',
+    data: {
+        labels: ['0-59', '60-69', '70-79', '80-89', '90-100'],
+        datasets: [{
+            label: 'Number of Essays',
+            data: [2, 5, 8, 12, 3],
+            backgroundColor: 'rgba(30, 40, 57, 0.8)',
+            borderColor: '#1e2839',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Score Distribution'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+const typeCtx = document.getElementById('essayTypeChart').getContext('2d');
+const typeChart = new Chart(typeCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Argumentative', 'Narrative', 'Literary Analysis', 'Hybrid'],
+        datasets: [{
+            data: [15, 8, 12, 5],
+            backgroundColor: [
+                '#1e2839',
+                '#6c757d',
+                '#adb5bd',
+                '#dee2e6'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Essay Types'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

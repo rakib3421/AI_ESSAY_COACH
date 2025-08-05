@@ -1,0 +1,775 @@
+/* Custom CSS for AI Essay Revision Application */
+
+:root {
+    --primary-color: #1e2839;
+    --secondary-color: #6c757d;
+    --light-bg: #f8f9fa;
+    --border-color: #dee2e6;
+    --delete-color: #dc3545;
+    --add-color: #007bff;
+    --replace-color: #28a745;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+}
+
+/* Word-level suggestion styles */
+.word-suggestion {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin: 0 1px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.word-suggestion:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+.word-suggestion-delete {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: var(--delete-color);
+    text-decoration: line-through;
+}
+
+.word-suggestion-add {
+    background-color: rgba(0, 123, 255, 0.2);
+    color: var(--add-color);
+    text-decoration: underline;
+}
+
+.word-suggestion-replace {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: var(--replace-color);
+    border-bottom: 2px solid var(--replace-color);
+}
+
+.suggestion-accepted {
+    opacity: 1;
+    background-color: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    border: none !important;
+    cursor: default !important;
+    pointer-events: none;
+}
+
+.suggestion-rejected {
+    opacity: 1;
+    background-color: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    border: none !important;
+    cursor: default !important;
+    pointer-events: none;
+}
+
+/* Smooth transitions for suggestion changes */
+.word-suggestion {
+    transition: all 0.3s ease-in-out;
+}
+
+.word-suggestion.suggestion-accepted,
+.word-suggestion.suggestion-rejected {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Suggestion tooltip */
+.suggestion-tooltip {
+    position: absolute;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 5px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.suggestion-tooltip:after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.suggestion-word:hover .suggestion-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Essay analysis container */
+.essay-analysis-container {
+    position: relative;
+}
+
+.essay-content {
+    line-height: 1.8;
+    font-size: 16px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: white;
+    min-height: 400px;
+}
+
+/* Suggestion modal styles */
+.suggestion-modal .modal-body {
+    padding: 20px;
+}
+
+.suggestion-detail {
+    margin-bottom: 15px;
+}
+
+.suggestion-detail h6 {
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.suggestion-detail p {
+    margin-bottom: 0;
+    color: #666;
+}
+
+.suggestion-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.suggestion-actions .btn {
+    flex: 1;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Cards */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #16202f;
+    border-color: #16202f;
+}
+
+/* Progress bars */
+.progress {
+    height: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.progress-sm {
+    height: 0.5rem;
+}
+
+.progress-bar {
+    border-radius: 0.375rem;
+}
+
+/* Essay content styling */
+#essay-content {
+    font-family: 'Times New Roman', serif;
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+/* AI suggestions styling */
+.suggestion-delete {
+    background-color: rgba(0, 123, 255, 0.1);
+    text-decoration: line-through;
+    color: #0056b3;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    padding: 0.125rem;
+}
+
+.suggestion-add {
+    background-color: rgba(220, 53, 69, 0.1);
+    text-decoration: underline;
+    color: #dc3545;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    padding: 0.125rem;
+}
+
+.suggestion-delete:hover,
+.suggestion-add:hover {
+    opacity: 0.8;
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(135deg, rgba(30, 40, 57, 0.1), rgba(30, 40, 57, 0.05));
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Feature icons */
+.feature-icon {
+    margin-bottom: 1rem;
+}
+
+/* Dashboard specific styles */
+.sidebar {
+    background-color: var(--light-bg);
+    border-radius: 0.5rem;
+}
+
+.list-group-item.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.list-group-item:hover {
+    background-color: var(--light-bg);
+}
+
+/* Table styles */
+.table-hover tbody tr:hover {
+    background-color: var(--light-bg);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Badge styles */
+.badge {
+    font-weight: 500;
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(30, 40, 57, 0.25);
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(30, 40, 57, 0.25);
+}
+
+/* Alert styles */
+.alert-info {
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(30, 40, 57, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Tooltip customization */
+.tooltip-inner {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 0.375rem;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--primary-color);
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--primary-color);
+}
+
+/* Modal customization */
+.modal-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+/* File upload area */
+.file-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.file-upload-area:hover {
+    border-color: var(--primary-color);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--primary-color);
+    background-color: rgba(30, 40, 57, 0.05);
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 1rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+    /* Dark mode styles can be added here */
+}
+
+/* Print styles for essay export */
+@media print {
+    .navbar,
+    .btn,
+    .card-header,
+    .sidebar {
+        display: none;
+    }
+    
+    #essay-content {
+        font-size: 12pt;
+        line-height: 2;
+    }
+    
+    .suggestion-delete {
+        color: blue !important;
+        background-color: transparent !important;
+    }
+    
+    .suggestion-add {
+        color: red !important;
+        background-color: transparent !important;
+    }
+}
+
+/* Enhanced Analysis Styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+}
+
+.score-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.score-card:hover {
+    transform: translateY(-5px);
+}
+
+.score-circle {
+    width: 80px;
+    height: 80px;
+    border: 4px solid #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    transition: border-color 0.3s ease;
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.score-reason {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.suggestion-item {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.suggestion-item:hover {
+    border-left-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.suggestion-item.accepted {
+    background-color: #d4edda;
+    border-left-color: #28a745;
+}
+
+.suggestion-reason {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.tagged-essay {
+    font-family: 'Times New Roman', serif;
+    line-height: 2;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+}
+
+.suggestion-delete {
+    background-color: #f8d7da;
+    color: #721c24;
+    text-decoration: line-through;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.suggestion-add {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    text-decoration: underline;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.suggestion-replace {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+}
+
+.suggestion-replace:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+.example-item {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.analysis-section {
+    margin-bottom: 2rem;
+}
+
+.analysis-section h4 {
+    color: var(--primary-color);
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.export-buttons {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+#analysisResults {
+    display: none;
+    margin-top: 2rem;
+}
+
+.form-floating label {
+    font-weight: 500;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(30, 40, 57, 0.25);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .score-circle {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .score-value {
+        font-size: 1.25rem;
+    }
+    
+    .suggestion-item {
+        padding: 1rem !important;
+    }
+}
+
+/* Step-wise Checklist Styles */
+.checklist-step {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.checklist-step.step-completed {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: #28a745;
+}
+
+.checklist-step.step-unlocked {
+    background-color: rgba(0, 123, 255, 0.05);
+    border-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.checklist-step.step-locked {
+    background-color: rgba(108, 117, 125, 0.05);
+    border-color: #6c757d;
+    opacity: 0.7;
+}
+
+.step-icon {
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-content h6 {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.complete-step-btn {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.step-locked .complete-step-btn {
+    display: none;
+}
+
+/* Enhanced suggestion tooltips */
+.suggestion-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    max-width: 250px;
+    white-space: normal;
+    text-align: center;
+}
+
+.suggestion-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+}
+
+.word-suggestion:hover .suggestion-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Enhanced progress tracking */
+.progress-tracking-enhanced {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+}
+
+.progress-tracking-enhanced .card-body {
+    padding: 1.5rem;
+}
+
+.progress-metric {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+.progress-metric h6 {
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.progress-metric .metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+/* Enhanced analytics */
+.analytics-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.analytics-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.at-risk-indicator {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.at-risk-indicator.danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+/* Rubric configuration styles */
+.rubric-weight-slider {
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+.weight-display {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.rubric-preview {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+/* Enhanced export styling */
+.export-options {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.export-options .btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.export-options .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}

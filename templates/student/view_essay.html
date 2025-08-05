@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}View Essay - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('student_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{{ url_for('upload_essay') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-upload me-2"></i>Upload Essay
+                </a>
+                <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks me-2"></i>View Assignments
+                </a>
+                <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i>Progress Analytics
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <h2 style="color: #1e2839;" class="mb-4">{{ essay[1] }}</h2>
+        
+        <!-- Essay Details -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Essay Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Type:</strong> {{ essay[3] }}</p>
+                <p><strong>Status:</strong> 
+                    <span class="badge {% if essay[10] == 'reviewed' %}bg-success{% elif essay[10] == 'analyzed' %}bg-info{% else %}bg-secondary{% endif %}">
+                        {{ essay[10].title() }}
+                    </span>
+                </p>
+                {% if essay[5] or essay[6] or essay[7] or essay[8] %}
+                <div class="row">
+                    <div class="col-md-3">
+                        <p><strong>Ideas:</strong> {{ essay[5] or 'N/A' }}/30</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>Organization:</strong> {{ essay[6] or 'N/A' }}/25</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>Style:</strong> {{ essay[7] or 'N/A' }}/20</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>Grammar:</strong> {{ essay[8] or 'N/A' }}/25</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% if essay[9] %}
+                <p><strong>Total Score:</strong> {{ essay[9] }}/100</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Essay Content -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Essay Content</h5>
+            </div>
+            <div class="card-body">
+                <div style="white-space: pre-wrap; line-height: 1.6;">{{ essay[2] }}</div>
+            </div>
+        </div>
+
+        <!-- AI Feedback -->
+        {% if essay[4] %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">AI Analysis & Feedback</h5>
+            </div>
+            <div class="card-body">
+                <div id="feedback-content">{{ essay[4]|nl2br|safe }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-body">
+                <a href="{{ url_for('export_essay_file', essay_id=essay[0]) }}" class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Export as DOCX
+                </a>
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

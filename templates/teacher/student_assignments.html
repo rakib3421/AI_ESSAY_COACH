@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student_name }}'s Assignments - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="color: #1e2839;">{{ student_name }}'s Assignment Progress</h2>
+        <p class="text-muted mb-0">Track assignment submissions and provide feedback</p>
+    </div>
+    <div>
+        <a href="{{ url_for('view_student_essays', student_id=student_id) }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-file-alt me-2"></i>View Essays
+        </a>
+        <a href="{{ url_for('student_management') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Students
+        </a>
+    </div>
+</div>
+
+<!-- Assignment Progress -->
+<div class="card">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-tasks me-2"></i>Assignment Progress ({{ assignments|length }})</h6>
+    </div>
+    <div class="card-body">
+        {% if assignments %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Assignment</th>
+                            <th>Type</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                            <tr>
+                                <td>
+                                    <strong>{{ assignment[1] }}</strong>
+                                    {% if assignment[7] %}
+                                        <br><small class="text-success">
+                                            <i class="fas fa-comment me-1"></i>Feedback provided
+                                        </small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ assignment[2].replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small>{{ assignment[3].strftime('%m/%d/%Y') }}</small>
+                                    {% if assignment[3] < today %}
+                                        <br><span class="badge bg-danger">Overdue</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assignment[4] == 'Submitted' %}
+                                        <span class="badge bg-success">Submitted</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assignment[6] %}
+                                        <span class="badge bg-{{ 'success' if assignment[6] >= 80 else 'warning' if assignment[6] >= 60 else 'danger' }}">
+                                            {{ assignment[6] }}/100
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assignment[8] %}
+                                        <small class="text-muted">
+                                            {{ assignment[8].strftime('%m/%d/%Y') }}<br>
+                                            {{ assignment[8].strftime('%I:%M %p') }}
+                                        </small>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('view_assignment', assignment_id=assignment[0]) }}" 
+                                           class="btn btn-outline-primary btn-sm" title="View Assignment">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if assignment[4] == 'Submitted' %}
+                                            <a href="{{ url_for('view_essay', essay_id=assignment[5]) }}" 
+                                               class="btn btn-outline-info btn-sm" title="View Submission">
+                                                <i class="fas fa-file-alt"></i>
+                                            </a>
+                                            <a href="{{ url_for('provide_assignment_feedback', assignment_id=assignment[0], essay_id=assignment[5]) }}" 
+                                               class="btn btn-outline-success btn-sm" title="Provide Feedback">
+                                                <i class="fas fa-comment"></i>
+                                            </a>
+                                        {% else %}
+                                            <button class="btn btn-outline-secondary btn-sm" disabled title="Not submitted">
+                                                <i class="fas fa-clock"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-tasks fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">No assignments created</h5>
+                <p class="text-muted">
+                    <a href="{{ url_for('create_assignment') }}">Create your first assignment</a> 
+                    for {{ student_name }} to complete.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

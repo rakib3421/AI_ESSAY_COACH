@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Student Management - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1e2839;">Student Management</h2>
+    <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Stats Overview -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Assigned Students</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">{{ assigned_students|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Pending Requests</h5>
+                <h3 class="display-6 mb-0" style="color: #dc3545;">{{ pending_requests|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">All Students</h5>
+                <h3 class="display-6 mb-0" style="color: #6c757d;">{{ all_students|length }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Assigned Students -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-users me-2"></i>My Assigned Students</h6>
+            </div>
+            <div class="card-body">
+                {% if assigned_students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Essays</th>
+                                    <th>Assignments</th>
+                                    <th>Avg Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in assigned_students %}
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ student[1] }}</strong>
+                                                <br><small class="text-muted">{{ student[2] }}</small>
+                                                <br><small class="text-muted">Assigned: {{ student[3].strftime('%m/%d/%Y') }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ student[4] or 0 }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">{{ student[5] or 0 }}</span>
+                                        </td>
+                                        <td>
+                                            {% if student[6] %}
+                                                <span class="badge bg-{{ 'success' if student[6] >= 80 else 'warning' if student[6] >= 60 else 'danger' }}">
+                                                    {{ "%.1f"|format(student[6]) }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('view_student_essays', student_id=student[0]) }}" 
+                                                   class="btn btn-outline-primary btn-sm" title="View Essays">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </a>
+                                                <a href="{{ url_for('view_student_assignments', student_id=student[0]) }}" 
+                                                   class="btn btn-outline-success btn-sm" title="View Assignments">
+                                                    <i class="fas fa-tasks"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No assigned students</h5>
+                        <p class="text-muted">Send assignment requests to students to start managing them.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- All Students & Requests -->
+    <div class="col-lg-6 mb-4">
+        <!-- Pending Requests -->
+        {% if pending_requests %}
+        <div class="card mb-3">
+            <div class="card-header" style="background-color: #dc3545; color: white;">
+                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Pending Requests</h6>
+            </div>
+            <div class="card-body">
+                {% for request in pending_requests %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <strong>{{ request[1] }}</strong>
+                            <br><small class="text-muted">{{ request[2] }}</small>
+                            <br><small class="text-muted">Sent: {{ request[3].strftime('%m/%d/%Y') }}</small>
+                        </div>
+                        <span class="badge bg-warning">{{ request[4].title() }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- All Students -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-search me-2"></i>All Students</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="studentSearch" placeholder="Search students...">
+                </div>
+                
+                <div style="max-height: 400px; overflow-y: auto;">
+                    {% for student in all_students %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2 student-item">
+                            <div>
+                                <strong class="student-name">{{ student[1] }}</strong>
+                                <br><small class="text-muted student-email">{{ student[2] }}</small>
+                                <br><small class="text-muted">Joined: {{ student[3].strftime('%m/%d/%Y') }}</small>
+                            </div>
+                            <div>
+                                {% if student[4] == 'assigned' %}
+                                    <span class="badge bg-success">Assigned</span>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            onclick="sendRequest({{ student[0] }}, '{{ student[1] }}')">
+                                        <i class="fas fa-plus me-1"></i>Assign
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search functionality
+document.getElementById('studentSearch').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const studentItems = document.querySelectorAll('.student-item');
+    
+    studentItems.forEach(item => {
+        const name = item.querySelector('.student-name').textContent.toLowerCase();
+        const email = item.querySelector('.student-email').textContent.toLowerCase();
+        
+        if (name.includes(searchTerm) || email.includes(searchTerm)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+
+function sendRequest(studentId, studentName) {
+    if (confirm(`Send assignment request to ${studentName}?`)) {
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/teacher/students/${studentId}/request`;
+        
+        // Add CSRF token if needed
+        const csrfToken = document.querySelector('meta[name=csrf-token]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('student_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{{ url_for('upload_essay') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-upload me-2"></i>Upload Essay
+                </a>
+                <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks me-2"></i>View Assignments
+                </a>
+                <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i>Progress Analytics
+                </a>
+                <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-bell me-2"></i>Assignment Requests
+                </a>
+                <a href="{{ url_for('student_profile') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-cog me-2"></i>Profile
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <h2 style="color: #1e2839;" class="mb-4">My Profile</h2>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Profile Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user_info[0] }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user_info[1] }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="created_at" class="form-label">Member Since</label>
+                        <input type="text" class="form-control" id="created_at" value="{{ user_info[2].strftime('%B %d, %Y') }}" readonly>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Update Profile
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

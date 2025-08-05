@@ -1,0 +1,30 @@
+# Development dependencies
+Flask
+pymysql
+python-dotenv
+openai>=1.0.0
+python-docx
+werkzeug
+cryptography
+
+# Development and testing tools
+pytest
+pytest-flask
+black
+flake8
+autopep8
+
+# Database tools
+alembic
+SQLAlchemy
+
+# Monitoring and debugging
+flask-debugtoolbar
+
+# Documentation
+sphinx
+sphinx-rtd-theme
+
+# Additional dependencies for enhanced functionality
+regex
+python-dateutil

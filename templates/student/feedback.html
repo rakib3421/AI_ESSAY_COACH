@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Feedback - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1e2839;">Teacher Feedback</h2>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h4 class="mb-0">{{ essay[1] }}</h4>
+                <small class="text-light">
+                    Submitted: {{ essay[11].strftime('%B %d, %Y at %I:%M %p') }}
+                    {% if essay[12] %}
+                        • Teacher: {{ essay[12] }}
+                    {% endif %}
+                </small>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="badge bg-secondary me-2">{{ essay[3].replace('_', ' ').title() }}</span>
+                    {% if essay[10] %}
+                        <span class="badge bg-success">Score: {{ essay[10] }}/100</span>
+                    {% endif %}
+                </div>
+                
+                <div id="essay-content" class="border rounded p-3 mb-4" style="min-height: 300px; background-color: #fafafa;">
+                    {{ essay[2]|nl2br|safe }}
+                </div>
+                
+                <!-- Teacher Feedback Section -->
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-comment-dots me-2"></i>Teacher Feedback</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="teacher-feedback">
+                            {{ essay[5]|nl2br|safe }}
+                        </div>
+                        
+                        {% if essay[11] %}
+                            <hr>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Feedback provided on {{ essay[11].strftime('%B %d, %Y at %I:%M %p') }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- AI Analysis -->
+        {% if essay[4] %}
+        <div class="card mb-3">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-robot me-2"></i>AI Analysis</h6>
+            </div>
+            <div class="card-body">
+                <div style="max-height: 300px; overflow-y: auto;">
+                    {{ essay[4]|nl2br|safe }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Rubric Scores -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Rubric Breakdown</h6>
+            </div>
+            <div class="card-body">
+                {% if essay[6] or essay[7] or essay[8] or essay[9] %}
+                    <div class="mb-3">
+                        <small class="text-muted">Ideas & Content (30%)</small>
+                        <div class="progress progress-sm mb-1">
+                            <div class="progress-bar bg-primary" style="width: {{ (essay[6] or 0) * 100 / 30 }}%"></div>
+                        </div>
+                        <small><strong>{{ essay[6] or 0 }}/30</strong></small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Organization & Structure (25%)</small>
+                        <div class="progress progress-sm mb-1">
+                            <div class="progress-bar bg-success" style="width: {{ (essay[7] or 0) * 100 / 25 }}%"></div>
+                        </div>
+                        <small><strong>{{ essay[7] or 0 }}/25</strong></small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Voice & Style (20%)</small>
+                        <div class="progress progress-sm mb-1">
+                            <div class="progress-bar bg-warning" style="width: {{ (essay[8] or 0) * 100 / 20 }}%"></div>
+                        </div>
+                        <small><strong>{{ essay[8] or 0 }}/20</strong></small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Grammar & Conventions (25%)</small>
+                        <div class="progress progress-sm mb-1">
+                            <div class="progress-bar bg-info" style="width: {{ (essay[9] or 0) * 100 / 25 }}%"></div>
+                        </div>
+                        <small><strong>{{ essay[9] or 0 }}/25</strong></small>
+                    </div>
+                    
+                    <hr>
+                    <div class="text-center">
+                        <h5 class="mb-0">Total Score</h5>
+                        <h3 class="text-primary">{{ essay[10] or 0 }}/100</h3>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No detailed scores available</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('view_essay', essay_id=essay[0]) }}" class="btn btn-primary">
+                        <i class="fas fa-eye me-2"></i>View Full Analysis
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="printFeedback()">
+                        <i class="fas fa-print me-2"></i>Print Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.teacher-feedback {
+    line-height: 1.6;
+    font-size: 1.1em;
+}
+
+.progress-sm {
+    height: 10px;
+}
+
+@media print {
+    .card-header, .btn, .navbar, .sidebar {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+
+<script>
+function printFeedback() {
+    window.print();
+}
+</script>
+{% endblock %}

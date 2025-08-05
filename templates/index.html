@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}AI Essay Revision - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <div class="hero-section py-5">
+            <h1 class="display-4 fw-bold mb-4" style="color: #1e2839;">
+                AI-Powered Essay Revision Platform
+            </h1>
+            <p class="lead mb-4">
+                Enhance your writing with intelligent feedback, detailed analysis, and personalized suggestions 
+                while preserving your unique voice.
+            </p>
+            
+            {% if not session.user_id %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-5">
+                    <a href="{{ url_for('signup') }}" class="btn btn-lg px-4 me-md-2" style="background-color: #1e2839; color: white;">
+                        <i class="fas fa-user-plus me-2"></i>Get Started
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-dark btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </div>
+            {% else %}
+                <!-- Quick Analysis Section for Logged In Users -->
+                <div class="card mt-4 mb-5 shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Quick Essay Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="analyzeForm">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="essay_text" name="essay_text" 
+                                                style="height: 200px" placeholder="Enter your essay text here..."></textarea>
+                                        <label for="essay_text">Enter your essay text here...</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="essay_type" name="essay_type">
+                                            <option value="auto">Auto-detect</option>
+                                            <option value="argumentative">Argumentative</option>
+                                            <option value="narrative">Narrative</option>
+                                            <option value="literary">Literary Analysis</option>
+                                            <option value="expository">Expository</option>
+                                            <option value="descriptive">Descriptive</option>
+                                            <option value="compare">Compare & Contrast</option>
+                                        </select>
+                                        <label for="essay_type">Essay Type</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="coaching_level" name="coaching_level">
+                                            <option value="light">Light Coaching</option>
+                                            <option value="medium" selected>Medium Coaching</option>
+                                            <option value="intensive">Intensive Coaching</option>
+                                        </select>
+                                        <label for="coaching_level">Coaching Level</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="suggestion_aggressiveness" name="suggestion_aggressiveness">
+                                            <option value="low">Low (3-5 suggestions)</option>
+                                            <option value="medium" selected>Medium (5-7 suggestions)</option>
+                                            <option value="high">High (10+ suggestions)</option>
+                                        </select>
+                                        <label for="suggestion_aggressiveness">Suggestion Level</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-microscope me-2"></i>Analyze Essay
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Analysis Results Section -->
+                <div id="analysisResults" class="analysis-results mb-5">
+                    <div class="analysis-section">
+                        <h4><i class="fas fa-chart-line me-2"></i>Scores</h4>
+                        <div id="scoresContainer"></div>
+                    </div>
+
+                    <div class="analysis-section">
+                        <h4><i class="fas fa-lightbulb me-2"></i>Suggestions</h4>
+                        <div id="suggestionsContainer"></div>
+                    </div>
+
+                    <div class="analysis-section">
+                        <h4><i class="fas fa-star me-2"></i>Examples</h4>
+                        <div id="examplesContainer"></div>
+                    </div>
+
+                    <div class="analysis-section">
+                        <h4><i class="fas fa-file-alt me-2"></i>Essay with Suggestions</h4>
+                        <div id="taggedEssayContainer"></div>
+                    </div>
+
+                    <div class="export-buttons text-center">
+                        <button type="button" class="btn btn-success btn-lg" onclick="exportToWord()">
+                            <i class="fas fa-file-word me-2"></i>Export to Word
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-brain fa-3x" style="color: #1e2839;"></i>
+                        </div>
+                        <h5 class="card-title">AI-Powered Analysis</h5>
+                        <p class="card-text">
+                            Advanced AI analyzes your essays for grammar, clarity, argument strength, 
+                            and vocabulary while maintaining your unique writing voice.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-users fa-3x" style="color: #1e2839;"></i>
+                        </div>
+                        <h5 class="card-title">Student & Teacher Portals</h5>
+                        <p class="card-text">
+                            Separate interfaces for students to submit essays and teachers to 
+                            create assignments, provide feedback, and track progress.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-line fa-3x" style="color: #1e2839;"></i>
+                        </div>
+                        <h5 class="card-title">Progress Tracking</h5>
+                        <p class="card-text">
+                            Comprehensive analytics and progress tracking to monitor improvement 
+                            in writing skills over time with detailed scoring rubrics.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-lg-10 mx-auto">
+                <h3 class="text-center mb-4" style="color: #1e2839;">Supported Essay Types</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-0" style="background-color: #f8f9fa;">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Argumentative Essays</h6>
+                                <p class="card-text small">
+                                    Thesis analysis, evidence evaluation, counterargument checking
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-0" style="background-color: #f8f9fa;">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Narrative Essays</h6>
+                                <p class="card-text small">
+                                    Dialogue effectiveness, imagery, narrative arc analysis
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-0" style="background-color: #f8f9fa;">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Literary Analysis</h6>
+                                <p class="card-text small">
+                                    Citation checking, present tense, quotation integration
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

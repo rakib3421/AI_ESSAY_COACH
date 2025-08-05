@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Assignment Submissions - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="color: #1e2839;">{{ assignment[0] }} - Submissions</h2>
+        <p class="text-muted mb-0">
+            <span class="badge bg-secondary me-2">{{ assignment[2].replace('_', ' ').title() }}</span>
+            Due: {{ assignment[3].strftime('%B %d, %Y') }}
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('view_assignment', assignment_id=assignment_id) }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-eye me-2"></i>View Assignment
+        </a>
+        <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Submissions</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">{{ submissions|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">With Feedback</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {{ submissions|selectattr(5)|list|length }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Avg. Score</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {% set scored_submissions = submissions|selectattr(2)|list %}
+                    {% if scored_submissions %}
+                        {{ "%.1f"|format(scored_submissions|map(attribute=2)|sum / scored_submissions|length) }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Pending Review</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {{ submissions|rejectattr(5)|list|length }}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submissions Table -->
+<div class="card">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Student Submissions</h6>
+    </div>
+    <div class="card-body">
+        {% if submissions %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Essay Title</th>
+                            <th>Score</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submissions %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                        <strong>{{ submission[4] }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ submission[1] }}</strong>
+                                        {% if submission[5] %}
+                                            <br><small class="text-muted">
+                                                <i class="fas fa-comment text-success me-1"></i>Feedback provided
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if submission[2] %}
+                                        <span class="badge bg-{{ 'success' if submission[2] >= 80 else 'warning' if submission[2] >= 60 else 'danger' }}">
+                                            {{ submission[2] }}/100
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">Not scored</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ submission[3].strftime('%m/%d/%Y') }}<br>
+                                        {{ submission[3].strftime('%I:%M %p') }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if submission[5] %}
+                                        <span class="badge bg-success">Reviewed</span>
+                                    {% elif submission[6] == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ submission[6].title() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary btn-sm" 
+                                                onclick="viewSubmission({{ submission[0] }})"
+                                                title="View Essay">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" 
+                                                onclick="provideFeedback({{ submission[0] }})"
+                                                title="Provide Feedback">
+                                            <i class="fas fa-comment"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info btn-sm" 
+                                                onclick="analyzeEssay({{ submission[0] }})"
+                                                title="AI Analysis">
+                                            <i class="fas fa-robot"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No submissions yet</h5>
+                <p class="text-muted">Students haven't submitted essays for this assignment yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewSubmission(submissionId) {
+    // Redirect to view essay page
+    window.location.href = '/student/essay/' + submissionId;
+}
+
+function provideFeedback(submissionId) {
+    // Redirect to assignment feedback page
+    window.location.href = '/teacher/assignment/{{ assignment_id }}/feedback/' + submissionId;
+}
+
+function analyzeEssay(submissionId) {
+    // Redirect to essay analysis page
+    window.location.href = '/teacher/analysis/' + submissionId;
+}
+</script>
+{% endblock %}
