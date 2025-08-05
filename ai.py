@@ -11,6 +11,14 @@ import datetime
 from config import Config
 from db import save_analysis_to_db, save_step_wise_checklist
 
+# Import caching if available
+try:
+    from cache import get_cached_analysis, cache_analysis, get_cache_stats
+    CACHE_AVAILABLE = True
+except ImportError:
+    CACHE_AVAILABLE = False
+    logging.warning("Caching not available, analysis results will not be cached")
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -250,11 +258,42 @@ def get_essay_specific_prompt(essay_type, coaching_level):
     return essay_info, intensity
 
 def analyze_essay_with_ai(essay_text, essay_type='auto', coaching_level='medium', suggestion_aggressiveness='medium'):
-    """Analyze essay using AI and return comprehensive feedback"""
-    if essay_type == 'auto':
-        essay_type = detect_essay_type(essay_text)
+    """
+    Analyze essay using AI and return comprehensive feedback
+    Uses caching to avoid redundant API calls for identical essays
+    """
+    # Import performance monitoring
+    try:
+        from performance_monitor import AIAnalysisTimer
+        MONITORING_AVAILABLE = True
+    except ImportError:
+        MONITORING_AVAILABLE = False
     
-    essay_info, intensity = get_essay_specific_prompt(essay_type, coaching_level)
+    # Check cache first if available
+    if CACHE_AVAILABLE:
+        cached_result = get_cached_analysis(essay_text, essay_type, coaching_level, suggestion_aggressiveness)
+        if cached_result:
+            logger.info("Returning cached analysis result")
+            # Record cache hit
+            if MONITORING_AVAILABLE:
+                with AIAnalysisTimer(was_cached=True):
+                    pass  # Just record the cache hit
+            return cached_result
+    
+    # Perform AI analysis with performance monitoring
+    analysis_context = AIAnalysisTimer(was_cached=False) if MONITORING_AVAILABLE else None
+    
+    if analysis_context:
+        analysis_context.__enter__()
+    
+    try:
+        # Perform AI analysis
+        logger.info(f"Performing new AI analysis for essay type: {essay_type}, coaching: {coaching_level}, aggressiveness: {suggestion_aggressiveness}")
+        
+        if essay_type == 'auto':
+            essay_type = detect_essay_type(essay_text)
+        
+        essay_info, intensity = get_essay_specific_prompt(essay_type, coaching_level)
     
     # Map aggressiveness to descriptive text for prompt with explicit instructions and examples
     aggressiveness_map = {
@@ -469,6 +508,11 @@ Essay to analyze:
         else:
             logger.warning("Failed to save analysis to database")
         
+        # Cache the result if caching is available
+        if CACHE_AVAILABLE:
+            cache_analysis(essay_text, analysis_data, essay_type, coaching_level, suggestion_aggressiveness)
+            logger.info("Analysis result cached for future use")
+        
         return analysis_data
         
     except Exception as e:
@@ -484,6 +528,11 @@ Essay to analyze:
         fallback['error_occurred'] = True
         fallback['error_type'] = error_type
         return fallback
+    
+    finally:
+        # Close performance monitoring context
+        if analysis_context:
+            analysis_context.__exit__(None, None, None)
 
 def generate_step_wise_checklist(essay_text, essay_type, analysis_data):
     """Generate step-wise checklist based on essay analysis"""

@@ -9,11 +9,20 @@ import logging
 import time
 from config import Config
 
+# Import connection pooling if enabled
+try:
+    from db_pool import get_db_connection_pooled, get_pooled_connection, return_pooled_connection
+    POOL_AVAILABLE = True
+except ImportError:
+    POOL_AVAILABLE = False
+    logging.warning("Database connection pooling not available, falling back to direct connections")
+
 logger = logging.getLogger(__name__)
 
 def get_db_connection(max_retries=3, retry_delay=1):
     """
     Get database connection with retry logic and comprehensive error handling
+    Uses connection pooling if enabled, falls back to direct connections
     
     Args:
         max_retries (int): Maximum number of connection attempts
@@ -22,6 +31,16 @@ def get_db_connection(max_retries=3, retry_delay=1):
     Returns:
         pymysql.Connection or None: Database connection object or None if failed
     """
+    # Use connection pooling if available and enabled
+    if POOL_AVAILABLE and Config.PERFORMANCE.get('db_pool_enabled', True):
+        try:
+            connection = get_pooled_connection()
+            logger.info("Database connection obtained from pool")
+            return connection
+        except Exception as e:
+            logger.warning(f"Failed to get pooled connection, falling back to direct connection: {e}")
+    
+    # Fall back to direct connection with retry logic
     for attempt in range(max_retries):
         try:
             connection = pymysql.connect(**Config.DB_CONFIG)
@@ -66,6 +85,32 @@ def get_db_connection(max_retries=3, retry_delay=1):
                 return None
     
     return None
+
+def close_db_connection(connection):
+    """
+    Close database connection properly (return to pool or close direct connection)
+    
+    Args:
+        connection: Database connection to close
+    """
+    if not connection:
+        return
+        
+    try:
+        # If using connection pooling, return to pool
+        if POOL_AVAILABLE and Config.PERFORMANCE.get('db_pool_enabled', True):
+            return_pooled_connection(connection)
+            logger.debug("Connection returned to pool")
+        else:
+            # Direct connection, close it
+            connection.close()
+            logger.debug("Direct connection closed")
+    except Exception as e:
+        logger.warning(f"Error closing database connection: {e}")
+        try:
+            connection.close()
+        except:
+            pass
 
 def save_analysis_to_db(essay_text, analysis_data):
     """
@@ -174,10 +219,7 @@ def save_analysis_to_db(essay_text, analysis_data):
         return False
     
     finally:
-        try:
-            connection.close()
-        except:
-            pass
+        close_db_connection(connection)
 
 def save_submission_to_db(student_id, analysis_id, assignment_id=None):
     """
@@ -218,10 +260,7 @@ def save_submission_to_db(student_id, analysis_id, assignment_id=None):
         return False
     
     finally:
-        try:
-            connection.close()
-        except:
-            pass
+        close_db_connection(connection)
 
 def save_step_wise_checklist(analysis_id, steps):
     """Save step-wise checklist to database"""
@@ -253,7 +292,7 @@ def save_step_wise_checklist(analysis_id, steps):
         logger.error(f"Error saving step-wise checklist: {e}")
         return False
     finally:
-        connection.close()
+        close_db_connection(connection)
 
 def update_checklist_progress(analysis_id, step_name, completed=True):
     """Update checklist step completion and unlock next step if applicable"""
@@ -293,7 +332,7 @@ def update_checklist_progress(analysis_id, step_name, completed=True):
         logger.error(f"Error updating checklist progress: {e}")
         return False
     finally:
-        connection.close()
+        close_db_connection(connection)
 
 def get_checklist_progress(analysis_id):
     """Get current checklist progress for an analysis"""
@@ -327,7 +366,7 @@ def get_checklist_progress(analysis_id):
         logger.error(f"Error getting checklist progress: {e}")
         return []
     finally:
-        connection.close()
+        close_db_connection(connection)
 
 def create_modular_rubric_engine(teacher_id, rubric_name, weights, custom_criteria=None):
     """Create a custom rubric configuration"""
@@ -352,4 +391,4 @@ def create_modular_rubric_engine(teacher_id, rubric_name, weights, custom_criter
         logger.error(f"Error creating rubric configuration: {e}")
         return False
     finally:
-        connection.close()
+        close_db_connection(connection)

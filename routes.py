@@ -1204,3 +1204,49 @@ def register_routes(app):
     def nl2br_filter(text):
         """Convert newlines to HTML breaks"""
         return text.replace('\n', '<br>') if text else ''
+    
+    # Performance Monitoring Routes
+    @app.route('/admin/performance')
+    @login_required
+    @role_required('teacher')  # Only teachers can access performance stats
+    def performance_dashboard():
+        """Performance monitoring dashboard"""
+        try:
+            from performance_monitor import get_performance_stats
+            stats = get_performance_stats()
+            return jsonify(stats)
+        except ImportError:
+            return jsonify({'error': 'Performance monitoring not available'}), 503
+        except Exception as e:
+            logger.error(f"Error getting performance stats: {e}")
+            return jsonify({'error': 'Failed to get performance statistics'}), 500
+    
+    @app.route('/admin/performance/cache/clear', methods=['POST'])
+    @login_required
+    @role_required('teacher')
+    def clear_analysis_cache():
+        """Clear the analysis cache"""
+        try:
+            from cache import clear_cache
+            clear_cache()
+            return jsonify({'message': 'Cache cleared successfully'})
+        except ImportError:
+            return jsonify({'error': 'Caching not available'}), 503
+        except Exception as e:
+            logger.error(f"Error clearing cache: {e}")
+            return jsonify({'error': 'Failed to clear cache'}), 500
+    
+    @app.route('/admin/performance/reset', methods=['POST'])
+    @login_required
+    @role_required('teacher')
+    def reset_performance_stats():
+        """Reset performance statistics"""
+        try:
+            from performance_monitor import reset_performance_stats
+            reset_performance_stats()
+            return jsonify({'message': 'Performance statistics reset successfully'})
+        except ImportError:
+            return jsonify({'error': 'Performance monitoring not available'}), 503
+        except Exception as e:
+            logger.error(f"Error resetting performance stats: {e}")
+            return jsonify({'error': 'Failed to reset performance statistics'}), 500
