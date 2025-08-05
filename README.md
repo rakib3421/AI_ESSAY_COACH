@@ -134,7 +134,7 @@ A comprehensive web application that provides AI-powered essay analysis and revi
 
 ## AI Integration
 
-The application uses OpenAI's GPT-3.5-turbo model to:
+The application uses OpenAI's GPT-4o-mini model to:
 - Analyze essay content based on type
 - Generate specific improvement suggestions
 - Provide explanations for recommendations
