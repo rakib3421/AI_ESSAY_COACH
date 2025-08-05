@@ -1,53 +1,206 @@
 {% extends "base.html" %}
 
-{% block title %}Student Dashboard - AI Essay Revision{% endblock %}
+{% block title %}Student Dashboard - AI Essay Coach{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-3">
-        <div class="card">
-            <div class="card-header" style="background-color: #1e2839; color: white;">
-                <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
-            </div>
-            <div class="list-group list-group-flush">
-                <a href="{{ url_for('student_dashboard') }}" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                </a>
-                <a href="{{ url_for('upload_essay') }}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-upload me-2"></i>Upload Essay
-                </a>
-                <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tasks me-2"></i>View Assignments
-                </a>
-                <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-chart-line me-2"></i>Progress Analytics
-                </a>
-                <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-bell me-2"></i>Teacher Requests
-                    {% if pending_requests_count > 0 %}
-                        <span class="badge bg-danger ms-2">{{ pending_requests_count }}</span>
-                    {% endif %}
-                </a>
-                <a href="{{ url_for('student_profile') }}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-cog me-2"></i>profile
-                </a>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Modern Sidebar Navigation -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card shadow-lg border-0 sticky-top" style="top: 110px;">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="fas fa-compass me-3"></i>Navigation
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('student_dashboard') }}" class="list-group-item list-group-item-action active border-0 fw-medium">
+                        <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('upload_essay') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-cloud-upload-alt me-3" style="width: 20px;"></i>Upload Essay
+                    </a>
+                    <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-tasks me-3" style="width: 20px;"></i>Assignments
+                    </a>
+                    <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Progress Analytics
+                    </a>
+                    <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action border-0 fw-medium position-relative">
+                        <i class="fas fa-bell me-3" style="width: 20px;"></i>Teacher Requests
+                        {% if pending_requests_count > 0 %}
+                            <span class="position-absolute top-50 end-0 translate-middle-y me-3">
+                                <span class="badge rounded-pill" style="background: var(--error-gradient);">{{ pending_requests_count }}</span>
+                            </span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('student_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Profile
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="col-lg-9">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 style="color: #1e2839;">Welcome back, {{ session.username }}!</h2>
-            <a href="{{ url_for('upload_essay') }}" class="btn" style="background-color: #1e2839; color: white;">
-                <i class="fas fa-upload me-2"></i>Upload Essay
-            </a>
-        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Welcome Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in">
+                <div>
+                    <h2 class="fw-bold mb-2">Welcome back, {{ session.username }}! 👋</h2>
+                    <p class="text-secondary mb-0">Ready to improve your writing today?</p>
+                </div>
+                <a href="{{ url_for('upload_essay') }}" class="btn btn-primary btn-lg shadow-lg">
+                    <i class="fas fa-plus me-2"></i>New Essay
+                </a>
+            </div>
 
-        <!-- Progress Snapshot -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
+            <!-- Quick Stats Cards -->
+            <div class="row g-4 mb-5 animate-slide-up">
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--primary-gradient);">
+                                <i class="fas fa-file-alt fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ total_essays or 0 }}</div>
+                            <div class="stat-label">Essays Submitted</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--success-gradient);">
+                                <i class="fas fa-chart-line fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ average_score or 0 }}%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--info-gradient);">
+                                <i class="fas fa-tasks fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ pending_assignments or 0 }}</div>
+                            <div class="stat-label">Pending Tasks</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--warning-gradient);">
+                                <i class="fas fa-clock fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ days_streak or 0 }}</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & Recent Activity -->
+            <div class="row g-4 mb-5">
+                <!-- Quick Actions -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-lg h-100 animate-scale-in">
+                        <div class="card-header bg-gradient-primary text-white py-3">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                <i class="fas fa-bolt me-3"></i>Quick Actions
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-grid gap-3">
+                                <a href="{{ url_for('upload_essay') }}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
+                                    <i class="fas fa-upload me-3"></i>
+                                    <div>
+                                        <div class="fw-bold">Upload New Essay</div>
+                                        <small class="text-muted">Get instant AI feedback</small>
+                                    </div>
+                                </a>
+                                
+                                <a href="{{ url_for('view_assignments') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
+                                    <i class="fas fa-tasks me-3"></i>
+                                    <div>
+                                        <div class="fw-bold">View Assignments</div>
+                                        <small class="text-muted">Check pending tasks</small>
+                                    </div>
+                                </a>
+                                
+                                <a href="{{ url_for('student_progress') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">
+                                    <i class="fas fa-chart-bar me-3"></i>
+                                    <div>
+                                        <div class="fw-bold">Progress Report</div>
+                                        <small class="text-muted">Track your improvement</small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-lg h-100 animate-scale-in" style="animation-delay: 0.2s;">
+                        <div class="card-header bg-gradient-secondary text-white py-3">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                <i class="fas fa-clock me-3"></i>Recent Activity
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if recent_essays %}
+                                <div class="list-group list-group-flush">
+                                    {% for essay in recent_essays %}
+                                        <div class="list-group-item border-0 py-3 px-4">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 fw-bold">{{ essay.title or 'Untitled Essay' }}</h6>
+                                                    <p class="mb-1 text-muted">{{ essay.essay_type|title }} Essay</p>
+                                                    <small class="text-secondary">
+                                                        <i class="fas fa-calendar me-1"></i>
+                                                        {{ essay.created_at.strftime('%B %d, %Y') }}
+                                                    </small>
+                                                </div>
+                                                <div class="text-end">
+                                                    {% if essay.score %}
+                                                        <div class="badge rounded-pill fw-bold px-3 py-2" 
+                                                             style="background: var(--success-gradient);">
+                                                            {{ essay.score }}%
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="badge bg-secondary rounded-pill px-3 py-2">
+                                                            Pending
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">No essays submitted yet</h6>
+                                    <p class="text-secondary">Upload your first essay to get started!</p>
+                                    <a href="{{ url_for('upload_essay') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>Upload Essay
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
                         <h5 class="card-title">Grammar</h5>
                         <div class="progress mb-2">
                             <div class="progress-bar" style="width: {{ progress[3] or 0 }}%; background-color: #1e2839;"></div>

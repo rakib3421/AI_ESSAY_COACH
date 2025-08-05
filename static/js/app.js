@@ -1,4 +1,4 @@
-// Main JavaScript for AI Essay Revision Application
+// Modern AI Essay Coach Application JavaScript
 
 // Global variables
 let currentEssayId = null;
@@ -8,10 +8,169 @@ let acceptedSuggestions = [];
 let acceptedWordSuggestions = new Set();
 let rejectedWordSuggestions = new Set();
 let currentWordSuggestionId = null;
+let currentFocusedSuggestion = null;
+
+// Modern animation and UI enhancements
+class ModernUI {
+    static init() {
+        this.setupAnimations();
+        this.setupInteractiveElements();
+        this.setupProgressBars();
+        this.setupLoadingStates();
+        this.setupToastNotifications();
+    }
+
+    static setupAnimations() {
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements with animation classes
+        document.querySelectorAll('.animate-fade-in, .animate-slide-up, .animate-scale-in').forEach(el => {
+            observer.observe(el);
+        });
+    }
+
+    static setupInteractiveElements() {
+        // Enhanced button interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Card hover effects
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '';
+            });
+        });
+    }
+
+    static setupProgressBars() {
+        // Animated progress bars
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            
+            setTimeout(() => {
+                bar.style.transition = 'width 1.5s ease-out';
+                bar.style.width = width;
+            }, 300);
+        });
+    }
+
+    static setupLoadingStates() {
+        // Loading button states
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    const spinner = submitBtn.querySelector('.spinner-border');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    submitBtn.disabled = true;
+                    if (spinner) {
+                        spinner.classList.remove('d-none');
+                    }
+                    
+                    // Re-enable after 3 seconds (fallback)
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        if (spinner) {
+                            spinner.classList.add('d-none');
+                        }
+                    }, 3000);
+                }
+            });
+        });
+    }
+
+    static setupToastNotifications() {
+        // Create toast container if it doesn't exist
+        if (!document.querySelector('.toast-container')) {
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+    }
+
+    static showToast(message, type = 'info', duration = 5000) {
+        const toastContainer = document.querySelector('.toast-container');
+        const toastId = 'toast-' + Date.now();
+        
+        const toastHTML = `
+            <div id="${toastId}" class="toast shadow-lg border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header bg-${type} text-white border-0">
+                    <i class="fas fa-${this.getToastIcon(type)} me-2"></i>
+                    <strong class="me-auto">${this.getToastTitle(type)}</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, { delay: duration });
+        toast.show();
+        
+        // Remove toast element after it's hidden
+        toastElement.addEventListener('hidden.bs.toast', () => {
+            toastElement.remove();
+        });
+    }
+
+    static getToastIcon(type) {
+        const icons = {
+            'success': 'check-circle',
+            'danger': 'exclamation-triangle',
+            'warning': 'exclamation-circle',
+            'info': 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+
+    static getToastTitle(type) {
+        const titles = {
+            'success': 'Success',
+            'danger': 'Error',
+            'warning': 'Warning',
+            'info': 'Information'
+        };
+        return titles[type] || 'Notification';
+    }
+}
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
     initializeApplication();
+    initializeAccessibility();
+    ModernUI.init();
 });
 
 function initializeApplication() {
@@ -34,6 +193,169 @@ function initializeApplication() {
     
     // Initialize tooltips
     initializeTooltips();
+    
+    // Initialize modern features
+    initializeModernFeatures();
+}
+
+function initializeModernFeatures() {
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Auto-resize textareas
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    });
+
+    // Enhanced form validation feedback
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('invalid', function(e) {
+            e.preventDefault();
+            const firstInvalid = this.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, true);
+    });
+}
+
+function initializeAccessibility() {
+    // Add keyboard navigation for suggestion elements
+    setupKeyboardNavigation();
+    
+    // Setup focus management for modals
+    setupModalFocusManagement();
+    
+    // Setup screen reader announcements
+    setupScreenReaderAnnouncements();
+    
+    // Add skip link functionality
+    setupSkipLinks();
+}
+
+function setupKeyboardNavigation() {
+    document.addEventListener('keydown', function(event) {
+        // Handle Tab navigation through suggestions
+        if (event.key === 'Tab') {
+            handleSuggestionTabNavigation(event);
+        }
+        
+        // Handle Enter/Space to activate suggestions
+        if (event.key === 'Enter' || event.key === ' ') {
+            handleSuggestionActivation(event);
+        }
+        
+        // Handle Escape to close modal
+        if (event.key === 'Escape') {
+            handleEscapeKey(event);
+        }
+    });
+}
+
+function handleSuggestionTabNavigation(event) {
+    const suggestions = document.querySelectorAll('.word-suggestion[tabindex="0"]');
+    const currentIndex = Array.from(suggestions).indexOf(document.activeElement);
+    
+    if (currentIndex >= 0) {
+        event.preventDefault();
+        let nextIndex;
+        
+        if (event.shiftKey) {
+            nextIndex = currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1;
+        } else {
+            nextIndex = currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0;
+        }
+        
+        suggestions[nextIndex].focus();
+        announceToScreenReader(`Suggestion ${nextIndex + 1} of ${suggestions.length}: ${suggestions[nextIndex].textContent}`);
+    }
+}
+
+function handleSuggestionActivation(event) {
+    if (event.target.classList.contains('word-suggestion')) {
+        event.preventDefault();
+        event.target.click();
+    }
+}
+
+function handleEscapeKey(event) {
+    if (suggestionModal && suggestionModal._isShown) {
+        event.preventDefault();
+        suggestionModal.hide();
+    }
+}
+
+function setupModalFocusManagement() {
+    const modalElement = document.getElementById('suggestionModal');
+    if (modalElement) {
+        modalElement.addEventListener('shown.bs.modal', function() {
+            // Focus the first focusable element in modal
+            const firstFocusable = modalElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (firstFocusable) {
+                firstFocusable.focus();
+            }
+        });
+        
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            // Return focus to the element that opened the modal
+            if (currentFocusedSuggestion) {
+                currentFocusedSuggestion.focus();
+                currentFocusedSuggestion = null;
+            }
+        });
+    }
+}
+
+function setupScreenReaderAnnouncements() {
+    // Create or get the announcement area
+    let announcementArea = document.getElementById('sr-announcements');
+    if (!announcementArea) {
+        announcementArea = document.createElement('div');
+        announcementArea.id = 'sr-announcements';
+        announcementArea.className = 'visually-hidden';
+        announcementArea.setAttribute('aria-live', 'polite');
+        announcementArea.setAttribute('aria-atomic', 'true');
+        document.body.appendChild(announcementArea);
+    }
+}
+
+function announceToScreenReader(message) {
+    const announcementArea = document.getElementById('sr-announcements');
+    if (announcementArea) {
+        announcementArea.textContent = message;
+    }
+}
+
+function setupSkipLinks() {
+    const skipLink = document.querySelector('.skip-link');
+    if (skipLink) {
+        skipLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            const target = document.querySelector(skipLink.getAttribute('href'));
+            if (target) {
+                target.setAttribute('tabindex', '-1');
+                target.focus();
+                target.addEventListener('blur', function() {
+                    target.removeAttribute('tabindex');
+                }, { once: true });
+            }
+        });
+    }
 }
 
 function initializeBootstrap() {
@@ -321,6 +643,29 @@ function rejectWordSuggestion(suggestionElement) {
     sendSuggestionAction('reject', suggestionId, type, text);
     
     showAlert('Suggestion rejected', 'info');
+}
+
+// Functions to handle current suggestion from modal
+function acceptCurrentSuggestion() {
+    if (currentWordSuggestionId !== null) {
+        const suggestionElement = document.querySelector(`[data-suggestion-id="${currentWordSuggestionId}"]`);
+        if (suggestionElement) {
+            acceptWordSuggestion(suggestionElement);
+            suggestionModal.hide();
+            announceToScreenReader('Suggestion accepted');
+        }
+    }
+}
+
+function rejectCurrentSuggestion() {
+    if (currentWordSuggestionId !== null) {
+        const suggestionElement = document.querySelector(`[data-suggestion-id="${currentWordSuggestionId}"]`);
+        if (suggestionElement) {
+            rejectWordSuggestion(suggestionElement);
+            suggestionModal.hide();
+            announceToScreenReader('Suggestion rejected');
+        }
+    }
 }
 
 // Send suggestion action to backend
@@ -726,15 +1071,96 @@ function displayTaggedEssay(taggedEssay) {
     // Process tagged essay to add styling
     let processedEssay = taggedEssay;
     
-    // Replace tags with styled spans
+    // Replace tags with styled spans with accessibility attributes
     processedEssay = processedEssay.replace(/<delete>(.*?)<\/delete>/g, 
-        '<span class="suggestion-delete" title="Suggested deletion">$1</span>');
-    processedEssay = processedEssay.replace(/<add>(.*?)<\/add>/g, 
-        '<span class="suggestion-add" title="Suggested addition">$1</span>');
-    processedEssay = processedEssay.replace(/<replace>(.*?)\|(.*?)<\/replace>/g, 
-        '<span class="suggestion-replace" title="Suggested replacement: $1 → $2">$1</span>');
+        '<span class="suggestion-delete word-suggestion" role="button" tabindex="0" ' +
+        'aria-label="Suggested deletion: $1. Press Enter or Space to review this suggestion." ' +
+        'title="Suggested deletion">$1</span>');
     
-    essayContainer.innerHTML = `<div class="tagged-essay">${processedEssay}</div>`;
+    processedEssay = processedEssay.replace(/<add>(.*?)<\/add>/g, 
+        '<span class="suggestion-add word-suggestion" role="button" tabindex="0" ' +
+        'aria-label="Suggested addition: $1. Press Enter or Space to review this suggestion." ' +
+        'title="Suggested addition">$1</span>');
+    
+    processedEssay = processedEssay.replace(/<replace>(.*?)\|(.*?)<\/replace>/g, 
+        '<span class="suggestion-replace word-suggestion" role="button" tabindex="0" ' +
+        'aria-label="Suggested replacement: replace $1 with $2. Press Enter or Space to review this suggestion." ' +
+        'title="Suggested replacement: $1 → $2">$1</span>');
+    
+    essayContainer.innerHTML = `<div class="tagged-essay" role="article" aria-label="Essay with AI suggestions">${processedEssay}</div>`;
+    
+    // Add event listeners for accessibility
+    addSuggestionEventListeners();
+    
+    // Announce to screen reader
+    const suggestionCount = essayContainer.querySelectorAll('.word-suggestion').length;
+    announceToScreenReader(`Essay loaded with ${suggestionCount} AI suggestions. Use Tab to navigate through suggestions and Enter to review details.`);
+}
+
+function addSuggestionEventListeners() {
+    const suggestions = document.querySelectorAll('.word-suggestion');
+    suggestions.forEach((suggestion, index) => {
+        // Store focus reference
+        suggestion.addEventListener('focus', function() {
+            currentFocusedSuggestion = this;
+        });
+        
+        // Add click handler
+        suggestion.addEventListener('click', function() {
+            handleWordSuggestionClick(this);
+        });
+        
+        // Add keyboard handler
+        suggestion.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                handleWordSuggestionClick(this);
+            }
+        });
+        
+        // Add unique ID for reference
+        suggestion.setAttribute('data-suggestion-id', index);
+    });
+}
+
+function handleWordSuggestionClick(element) {
+    const suggestionType = element.classList.contains('suggestion-delete') ? 'delete' : 
+                          element.classList.contains('suggestion-add') ? 'add' : 'replace';
+    const text = element.textContent;
+    const title = element.getAttribute('title') || 'No explanation provided';
+    
+    // Store current focus for return
+    currentFocusedSuggestion = element;
+    
+    showWordSuggestionModal(suggestionType, text, title, element);
+}
+
+function showWordSuggestionModal(type, text, title, element) {
+    if (!suggestionModal) return;
+    
+    // Set modal content
+    document.getElementById('suggestion-type').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById('suggestion-current').textContent = text;
+    document.getElementById('suggestion-reason').textContent = title;
+    
+    // Handle replacement suggestions
+    const newContainer = document.getElementById('suggestion-new-container');
+    if (type === 'replace' && title.includes('→')) {
+        const replacement = title.split('→')[1].trim();
+        document.getElementById('suggestion-new').textContent = replacement;
+        newContainer.style.display = 'block';
+    } else {
+        newContainer.style.display = 'none';
+    }
+    
+    // Store current suggestion for accept/reject actions
+    currentWordSuggestionId = element.getAttribute('data-suggestion-id');
+    
+    // Show modal
+    suggestionModal.show();
+    
+    // Announce to screen reader
+    announceToScreenReader(`Reviewing ${type} suggestion: ${text}`);
 }
 
 function acceptSuggestion(index) {
@@ -832,12 +1258,64 @@ function getScoreColor(score) {
     return '#dc3545';
 }
 
-function showLoadingOverlay(message = 'Loading...') {
+function showLoadingOverlay(message = 'Loading...', showProgress = false) {
     let overlay = document.getElementById('loadingOverlay');
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'loadingOverlay';
         overlay.className = 'loading-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    if (showProgress) {
+        overlay.innerHTML = `
+            <div class="loading-content">
+                <div class="progress-ring">
+                    <svg class="progress-ring" width="80" height="80">
+                        <circle class="progress-ring-circle" cx="40" cy="40" r="36"></circle>
+                        <circle class="progress-ring-progress" cx="40" cy="40" r="36"
+                                style="stroke-dasharray: 226.19; stroke-dashoffset: 226.19;"></circle>
+                    </svg>
+                </div>
+                <h5 class="mb-3">Analyzing Your Essay</h5>
+                <div class="analysis-progress">
+                    <div class="progress-steps" id="progressSteps">
+                        <div class="progress-step" data-step="1">
+                            <div class="step-icon active">
+                                <i class="fas fa-file-text"></i>
+                            </div>
+                            <div class="step-label active">Reading Text</div>
+                        </div>
+                        <div class="progress-step" data-step="2">
+                            <div class="step-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="step-label">Detecting Type</div>
+                        </div>
+                        <div class="progress-step" data-step="3">
+                            <div class="step-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="step-label">AI Analysis</div>
+                        </div>
+                        <div class="progress-step" data-step="4">
+                            <div class="step-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="step-label">Generating Scores</div>
+                        </div>
+                        <div class="progress-step" data-step="5">
+                            <div class="step-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="step-label">Creating Suggestions</div>
+                        </div>
+                    </div>
+                    <p class="loading-message text-center mb-0">${message}</p>
+                </div>
+            </div>
+        `;
+    } else {
         overlay.innerHTML = `
             <div class="loading-content">
                 <div class="spinner-border text-primary mb-3" role="status">
@@ -846,14 +1324,88 @@ function showLoadingOverlay(message = 'Loading...') {
                 <p class="loading-message">${message}</p>
             </div>
         `;
-        document.body.appendChild(overlay);
-    } else {
-        overlay.querySelector('.loading-message').textContent = message;
     }
     overlay.style.display = 'flex';
+    
+    if (showProgress) {
+        startProgressAnimation();
+    }
+}
+
+let progressInterval;
+let currentStep = 1;
+
+function startProgressAnimation() {
+    const totalSteps = 5;
+    const progressCircle = document.querySelector('.progress-ring-progress');
+    const circumference = 2 * Math.PI * 36; // radius = 36
+    
+    progressInterval = setInterval(() => {
+        // Update step indicators
+        updateProgressStep(currentStep);
+        
+        // Update circular progress
+        const progress = (currentStep / totalSteps) * 100;
+        const offset = circumference - (progress / 100) * circumference;
+        if (progressCircle) {
+            progressCircle.style.strokeDashoffset = offset;
+        }
+        
+        // Update message
+        const messages = [
+            'Reading and processing your essay text...',
+            'Detecting essay type and structure...',
+            'Running AI analysis algorithms...',
+            'Calculating rubric scores...',
+            'Generating personalized suggestions...'
+        ];
+        
+        const messageElement = document.querySelector('.loading-message');
+        if (messageElement && messages[currentStep - 1]) {
+            messageElement.textContent = messages[currentStep - 1];
+        }
+        
+        currentStep++;
+        if (currentStep > totalSteps) {
+            clearInterval(progressInterval);
+            // Complete all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                updateProgressStep(i, true);
+            }
+        }
+    }, 1500); // Each step takes 1.5 seconds
+}
+
+function updateProgressStep(stepNumber, completed = false) {
+    const step = document.querySelector(`[data-step="${stepNumber}"]`);
+    if (!step) return;
+    
+    const icon = step.querySelector('.step-icon');
+    const label = step.querySelector('.step-label');
+    
+    if (completed) {
+        icon.classList.remove('active');
+        icon.classList.add('completed');
+        label.classList.remove('active');
+    } else {
+        // Remove active from previous steps
+        document.querySelectorAll('.step-icon.active, .step-label.active').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        // Add active to current step
+        icon.classList.add('active');
+        label.classList.add('active');
+    }
 }
 
 function hideLoadingOverlay() {
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+    currentStep = 1;
+    
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) {
         overlay.style.display = 'none';
@@ -884,6 +1436,83 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+function startProgressAnimation() {
+    const totalSteps = 5;
+    const progressCircle = document.querySelector('.progress-ring-progress');
+    const circumference = 2 * Math.PI * 36; // radius = 36
+    
+    progressInterval = setInterval(() => {
+        // Update step indicators
+        updateProgressStep(currentStep);
+        
+        // Update circular progress
+        const progress = (currentStep / totalSteps) * 100;
+        const offset = circumference - (progress / 100) * circumference;
+        if (progressCircle) {
+            progressCircle.style.strokeDashoffset = offset;
+        }
+        
+        // Update message
+        const messages = [
+            'Reading and processing your essay text...',
+            'Detecting essay type and structure...',
+            'Running AI analysis algorithms...',
+            'Calculating rubric scores...',
+            'Generating personalized suggestions...'
+        ];
+        
+        const messageElement = document.querySelector('.loading-message');
+        if (messageElement && messages[currentStep - 1]) {
+            messageElement.textContent = messages[currentStep - 1];
+        }
+        
+        currentStep++;
+        if (currentStep > totalSteps) {
+            clearInterval(progressInterval);
+            // Complete all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                updateProgressStep(i, true);
+            }
+        }
+    }, 1500); // Each step takes 1.5 seconds
+}
+
+function updateProgressStep(stepNumber, completed = false) {
+    const step = document.querySelector(`[data-step="${stepNumber}"]`);
+    if (!step) return;
+    
+    const icon = step.querySelector('.step-icon');
+    const label = step.querySelector('.step-label');
+    
+    if (completed) {
+        icon.classList.remove('active');
+        icon.classList.add('completed');
+        label.classList.remove('active');
+    } else {
+        // Remove active from previous steps
+        document.querySelectorAll('.step-icon.active, .step-label.active').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        // Add active to current step
+        icon.classList.add('active');
+        label.classList.add('active');
+    }
+}
+
+function hideLoadingOverlay() {
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+    currentStep = 1;
+    
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
 }
 
 // Export functions for use in templates

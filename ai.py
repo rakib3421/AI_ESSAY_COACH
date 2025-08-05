@@ -286,14 +286,13 @@ def analyze_essay_with_ai(essay_text, essay_type='auto', coaching_level='medium'
     if analysis_context:
         analysis_context.__enter__()
     
-    try:
-        # Perform AI analysis
-        logger.info(f"Performing new AI analysis for essay type: {essay_type}, coaching: {coaching_level}, aggressiveness: {suggestion_aggressiveness}")
-        
-        if essay_type == 'auto':
-            essay_type = detect_essay_type(essay_text)
-        
-        essay_info, intensity = get_essay_specific_prompt(essay_type, coaching_level)
+    # Perform AI analysis
+    logger.info(f"Performing new AI analysis for essay type: {essay_type}, coaching: {coaching_level}, aggressiveness: {suggestion_aggressiveness}")
+    
+    if essay_type == 'auto':
+        essay_type = detect_essay_type(essay_text)
+    
+    essay_info, intensity = get_essay_specific_prompt(essay_type, coaching_level)
     
     # Map aggressiveness to descriptive text for prompt with explicit instructions and examples
     aggressiveness_map = {
@@ -318,7 +317,7 @@ def analyze_essay_with_ai(essay_text, essay_type='auto', coaching_level='medium'
     }
     aggressiveness_text = aggressiveness_map.get(suggestion_aggressiveness.lower(), aggressiveness_map['medium'])
     
-    # Compose prompt with system message style for clarity
+    # Compose prompt with system message style for clarity and enhanced score explanations
     content = f"""
 You are an expert writing coach focused on helping students improve their writing through specific, actionable suggestions.
 
@@ -334,19 +333,43 @@ CRITICAL INSTRUCTIONS:
 2. For each suggestion, provide a clear, educational explanation in the "reason" field explaining WHY the change improves the writing.
 
 3. Provide scores (0-100) for: ideas, organization, style, grammar
-4. Provide score explanations in "score_reasons"
-5. Provide 2 specific examples per rubric dimension in "examples"
 
-EXAMPLE OF GOOD SUGGESTIONS:
-Input: "He is a goodest player in the team. He do practice every day."
-Output: 
-- <replace>goodest|best</replace> (reason: "Use 'best' instead of 'goodest' - 'good' becomes 'best' in superlative form")
-- <replace>do|does</replace> (reason: "Use 'does' with 'he' - third person singular requires 'does'")
+4. ENHANCED SCORE EXPLANATIONS: For each score, provide detailed explanations that include:
+   - Current strengths in this area
+   - Specific areas for improvement
+   - Examples from the essay
+   - Actionable next steps
+   
+5. Provide 2-3 specific examples per rubric dimension that demonstrate both strengths and areas for growth
 
-Focus on these common student errors:
-- Grammar: subject-verb agreement, tense consistency, article usage
-- Style: word choice, sentence variety, clarity
-- Mechanics: punctuation, capitalization
+RUBRIC SCORING GUIDE:
+- IDEAS (0-100): Content quality, thesis strength, argument development, evidence support
+  90-100: Exceptional thesis, compelling evidence, sophisticated analysis
+  80-89: Strong main ideas, good evidence, clear analysis
+  70-79: Adequate ideas, some evidence, basic analysis
+  60-69: Unclear ideas, weak evidence, superficial analysis
+  Below 60: Poorly developed ideas, lacking evidence
+
+- ORGANIZATION (0-100): Structure, flow, transitions, paragraph development
+  90-100: Seamless flow, masterful transitions, perfect structure
+  80-89: Clear organization, good transitions, logical flow
+  70-79: Generally organized, adequate transitions
+  60-69: Some organizational issues, unclear structure
+  Below 60: Poor organization, confusing structure
+
+- STYLE (0-100): Voice, word choice, sentence variety, engagement
+  90-100: Distinctive voice, sophisticated vocabulary, varied syntax
+  80-89: Clear voice, good word choice, some variety
+  70-79: Adequate voice, appropriate vocabulary
+  60-69: Weak voice, limited vocabulary, repetitive
+  Below 60: No clear voice, poor word choice
+
+- GRAMMAR (0-100): Mechanics, usage, conventions, clarity
+  90-100: Error-free, sophisticated mechanics
+  80-89: Few minor errors, strong mechanics
+  70-79: Some errors, but doesn't impede understanding
+  60-69: Several errors, occasionally confusing
+  Below 60: Many errors, significantly impedes understanding
 
 COACHING INTENSITY: {intensity}
 SUGGESTION LEVEL: {aggressiveness_text}
@@ -354,15 +377,25 @@ SUGGESTION LEVEL: {aggressiveness_text}
 Essay Type Focus: {essay_info['focus']}
 Specific Checks: {', '.join(essay_info['specific_checks'])}
 
-Return ONLY valid JSON with this structure:
+Return ONLY valid JSON with this enhanced structure:
 {{
     "tagged_essay": "essay with inline tags",
     "scores": {{"ideas": 85, "organization": 80, "style": 75, "grammar": 90}},
-    "score_reasons": {{"ideas": "Clear main points...", "organization": "Good structure...", "style": "Engaging voice...", "grammar": "Few errors..."}},
+    "score_reasons": {{
+        "ideas": "STRENGTHS: Your thesis is clearly stated and arguable. You provide relevant evidence to support your main points. AREAS FOR IMPROVEMENT: Consider developing counterarguments to strengthen your position. Add more specific examples to support key claims. NEXT STEPS: Research 1-2 opposing viewpoints and address them in a dedicated paragraph.",
+        "organization": "STRENGTHS: Your essay follows a logical structure with clear introduction and conclusion. Topic sentences guide each paragraph. AREAS FOR IMPROVEMENT: Transitions between paragraphs could be smoother. Some paragraphs contain multiple ideas that could be separated. NEXT STEPS: Add transitional phrases between paragraphs and consider splitting complex paragraphs.",
+        "style": "STRENGTHS: Your writing voice is clear and appropriate for the audience. Word choice is generally effective. AREAS FOR IMPROVEMENT: Sentence structure could be more varied. Some word repetition throughout. NEXT STEPS: Practice varying sentence beginnings and length. Use a thesaurus to find synonyms for repeated words.",
+        "grammar": "STRENGTHS: Strong command of basic grammar rules. Few mechanical errors that don't impede understanding. AREAS FOR IMPROVEMENT: Occasional subject-verb agreement issues. Some comma splices present. NEXT STEPS: Review comma rules and practice identifying complete vs. incomplete sentences."
+    }},
     "suggestions": [
-        {{"type": "replace", "text": "goodest -> best", "reason": "Use 'best' instead of 'goodest' - superlative form"}}
+        {{"type": "replace", "text": "goodest -> best", "reason": "Use 'best' instead of 'goodest' - superlative form of 'good' is 'best', not 'goodest'"}}
     ],
-    "examples": {{"ideas": ["Strong thesis", "Clear evidence"], "organization": ["Good transitions", "Logical flow"], "style": ["Varied sentences", "Engaging tone"], "grammar": ["Correct tenses", "Proper punctuation"]}}
+    "examples": {{
+        "ideas": ["Strong thesis clearly states position", "Evidence supports main argument", "Could benefit from addressing counterarguments"], 
+        "organization": ["Clear introduction sets up essay well", "Good topic sentences", "Transitions between paragraphs need improvement"], 
+        "style": ["Appropriate academic tone", "Clear voice throughout", "Could vary sentence structure more"], 
+        "grammar": ["Correct verb tenses", "Proper punctuation in most cases", "Some subject-verb agreement issues"]
+    }}
 }}
 
 Essay to analyze:

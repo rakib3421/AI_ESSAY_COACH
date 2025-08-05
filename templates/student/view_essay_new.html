@@ -9,24 +9,27 @@
         <div class="col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #1e2839; color: white;">
-                    <h4 class="mb-0">
-                        <i class="fas fa-file-alt me-2"></i>
+                    <h1 class="h4 mb-0" id="essay-title">
+                        <i class="fas fa-file-alt me-2" aria-hidden="true"></i>
                         {{ essay[1] if essay else 'Essay Analysis' }}
-                    </h4>
+                    </h1>
                     <div>
-                        <span class="badge bg-light text-dark me-2">{{ essay[3].replace('_', ' ').title() if essay else 'Unknown Type' }}</span>
-                        <button class="btn btn-sm btn-outline-light" onclick="exportEssayWithSuggestions()" id="exportBtn">
-                            <i class="fas fa-download me-1"></i>Export Word
+                        <span class="badge bg-light text-dark me-2" aria-label="Essay type: {{ essay[3].replace('_', ' ').title() if essay else 'Unknown Type' }}">
+                            {{ essay[3].replace('_', ' ').title() if essay else 'Unknown Type' }}
+                        </span>
+                        <button class="btn btn-sm btn-outline-light" onclick="exportEssayWithSuggestions()" id="exportBtn"
+                                aria-label="Export essay with suggestions to Word document">
+                            <i class="fas fa-download me-1" aria-hidden="true"></i>Export Word
                         </button>
                     </div>
                 </div>
                 
                 <div class="card-body">
                     <!-- Essay Content with AI Suggestions -->
-                    <div id="essay-analysis-container" class="essay-analysis-container">
-                        <div id="essay-content" class="essay-content">
+                    <div id="essay-analysis-container" class="essay-analysis-container" role="article" aria-labelledby="essay-title">
+                        <div id="essay-content" class="essay-content" role="main" aria-label="Essay content with AI suggestions">
                             <!-- This will be populated by JavaScript with interactive suggestions -->
-                            <div class="text-center py-5">
+                            <div class="text-center py-5" role="status" aria-live="polite">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading analysis...</span>
                                 </div>
@@ -36,14 +39,15 @@
                     </div>
                     
                     <!-- Analysis Controls -->
-                    <div class="mt-4 p-3 bg-light rounded">
+                    <div class="mt-4 p-3 bg-light rounded" role="region" aria-label="Analysis controls">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <h6 class="mb-2">Analysis Options</h6>
+                                <h2 class="h6 mb-2">Analysis Options</h2>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <label class="form-label small">Essay Type</label>
-                                        <select id="essayType" class="form-select form-select-sm">
+                                        <label class="form-label small" for="essayType">Essay Type</label>
+                                        <select id="essayType" class="form-select form-select-sm" 
+                                                aria-label="Select essay type for re-analysis">
                                             <option value="auto">Auto-detect</option>
                                             <option value="argumentative">Argumentative</option>
                                             <option value="narrative">Narrative</option>
@@ -54,16 +58,18 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label small">Coaching Level</label>
-                                        <select id="coachingLevel" class="form-select form-select-sm">
+                                        <label class="form-label small" for="coachingLevel">Coaching Level</label>
+                                        <select id="coachingLevel" class="form-select form-select-sm"
+                                                aria-label="Select coaching level for feedback">
                                             <option value="light">Light</option>
                                             <option value="medium" selected>Medium</option>
                                             <option value="intensive">Intensive</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label small">Suggestion Level</label>
-                                        <select id="suggestionLevel" class="form-select form-select-sm">
+                                        <label class="form-label small" for="suggestionLevel">Suggestion Level</label>
+                                        <select id="suggestionLevel" class="form-select form-select-sm"
+                                                aria-label="Select number of suggestions to receive">
                                             <option value="low">Conservative</option>
                                             <option value="medium" selected>Balanced</option>
                                             <option value="high">Comprehensive</option>
@@ -72,28 +78,30 @@
                                 </div>
                             </div>
                             <div class="col-md-4 text-end">
-                                <button class="btn btn-primary" onclick="reanalyzeEssay()" id="reanalyzeBtn">
-                                    <i class="fas fa-sync-alt me-1"></i>Re-analyze
+                                <button class="btn btn-primary" onclick="reanalyzeEssay()" id="reanalyzeBtn"
+                                        aria-label="Re-analyze essay with current settings">
+                                    <span class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
+                                    <i class="fas fa-sync-alt me-1" aria-hidden="true"></i>Re-analyze
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Suggestion Legend -->
-                    <div class="mt-3">
-                        <h6>Suggestion Legend:</h6>
+                    <div class="mt-3" role="region" aria-label="Suggestion legend">
+                        <h2 class="h6">Suggestion Legend:</h2>
                         <div class="row">
                             <div class="col-md-4">
-                                <span class="suggestion-word suggestion-delete">Delete</span> - Remove this word
+                                <span class="suggestion-word suggestion-delete" aria-label="Example of delete suggestion">Delete</span> - Remove this word
                             </div>
                             <div class="col-md-4">
-                                <span class="suggestion-word suggestion-add">Add</span> - Insert this word
+                                <span class="suggestion-word suggestion-add" aria-label="Example of add suggestion">Add</span> - Insert this word
                             </div>
                             <div class="col-md-4">
-                                <span class="suggestion-word suggestion-replace">Replace</span> - Change this word
+                                <span class="suggestion-word suggestion-replace" aria-label="Example of replace suggestion">Replace</span> - Change this word
                             </div>
                         </div>
-                        <small class="text-muted">Click on any highlighted word to see the reason and accept/reject the suggestion.</small>
+                        <small class="text-muted">Click on any highlighted word to see the reason and accept/reject the suggestion. Use Tab and Enter keys to navigate suggestions with keyboard.</small>
                     </div>
                 </div>
             </div>
@@ -177,39 +185,43 @@
 </div>
 
 <!-- Suggestion Detail Modal -->
-<div class="modal fade" id="suggestionModal" tabindex="-1" aria-labelledby="suggestionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="suggestionModal" tabindex="-1" aria-labelledby="suggestionModalLabel" aria-hidden="true" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="suggestionModalLabel">Suggestion Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title h5" id="suggestionModalLabel">Suggestion Details</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close suggestion details"></button>
             </div>
             <div class="modal-body">
                 <div class="suggestion-detail">
-                    <h6>Suggestion Type:</h6>
-                    <p id="suggestion-type"></p>
+                    <h2 class="h6">Suggestion Type:</h2>
+                    <p id="suggestion-type" aria-live="polite"></p>
                 </div>
                 <div class="suggestion-detail">
-                    <h6>Current Text:</h6>
-                    <p id="suggestion-current"></p>
+                    <h2 class="h6">Current Text:</h2>
+                    <p id="suggestion-current" aria-live="polite"></p>
                 </div>
                 <div class="suggestion-detail" id="suggestion-new-container" style="display: none;">
-                    <h6>Suggested Text:</h6>
-                    <p id="suggestion-new"></p>
+                    <h2 class="h6">Suggested Text:</h2>
+                    <p id="suggestion-new" aria-live="polite"></p>
                 </div>
                 <div class="suggestion-detail">
-                    <h6>Explanation:</h6>
-                    <p id="suggestion-reason"></p>
+                    <h2 class="h6">Explanation:</h2>
+                    <p id="suggestion-reason" aria-live="polite"></p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close without making changes">Close</button>
                 <button type="button" class="btn btn-danger" onclick="rejectCurrentSuggestion()" aria-label="Reject this suggestion">
                     <i class="fas fa-times me-1" aria-hidden="true"></i>Reject
                 </button>
                 <button type="button" class="btn btn-success" onclick="acceptCurrentSuggestion()" aria-label="Accept this suggestion">
                     <i class="fas fa-check me-1" aria-hidden="true"></i>Accept
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
             </div>
         </div>
     </div>
@@ -306,8 +318,12 @@ function analyzeEssayText(text, options = {}) {
     const coachingLevel = options.coachingLevel || document.getElementById('coachingLevel')?.value || 'medium';
     const suggestionLevel = options.suggestionLevel || document.getElementById('suggestionLevel')?.value || 'medium';
     
-    // Show loading state
-    showLoadingState();
+    // Show enhanced loading state with progress indicators (check if function exists)
+    if (typeof showLoadingOverlay === 'function') {
+        showLoadingOverlay('Initializing AI analysis...', true);
+    } else {
+        console.log('Initializing AI analysis...');
+    }
     
     fetch('/analyze', {
         method: 'POST',
@@ -323,6 +339,10 @@ function analyzeEssayText(text, options = {}) {
     })
     .then(response => response.json())
     .then(data => {
+        if (typeof hideLoadingOverlay === 'function') {
+            hideLoadingOverlay();
+        }
+        
         if (data.error) {
             showError(data.error);
             return;
@@ -340,8 +360,14 @@ function analyzeEssayText(text, options = {}) {
         } else {
             loadChecklistProgress();
         }
+        
+        // Show success message
+        showSuccess('Essay analysis completed successfully!');
     })
     .catch(error => {
+        if (typeof hideLoadingOverlay === 'function') {
+            hideLoadingOverlay();
+        }
         console.error('Error:', error);
         showError('Failed to analyze essay. Please try again.');
     });
@@ -596,16 +622,67 @@ function renderScores(scores, reasons) {
         const percentage = Math.round(score);
         const color = percentage >= 80 ? 'success' : percentage >= 60 ? 'warning' : 'danger';
         
+        // Split enhanced reason into parts if it contains STRENGTHS/AREAS FOR IMPROVEMENT
+        let strengthsText = '';
+        let improvementsText = '';
+        let nextStepsText = '';
+        
+        if (reason.includes('STRENGTHS:') && reason.includes('AREAS FOR IMPROVEMENT:')) {
+            const parts = reason.split('AREAS FOR IMPROVEMENT:');
+            strengthsText = parts[0].replace('STRENGTHS:', '').trim();
+            
+            if (parts[1].includes('NEXT STEPS:')) {
+                const remaining = parts[1].split('NEXT STEPS:');
+                improvementsText = remaining[0].trim();
+                nextStepsText = remaining[1].trim();
+            } else {
+                improvementsText = parts[1].trim();
+            }
+        }
+        
         html += `
-            <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="fw-medium">${dimension.charAt(0).toUpperCase() + dimension.slice(1)}</span>
-                    <span class="badge bg-${color}">${score}/100</span>
+            <div class="score-item mb-4">
+                <div class="score-header">
+                    <span class="fw-bold">${dimension.charAt(0).toUpperCase() + dimension.slice(1)}</span>
+                    <span class="badge bg-${color} fs-6">${score}/100</span>
                 </div>
-                <div class="progress mb-1" style="height: 8px;">
-                    <div class="progress-bar bg-${color}" style="width: ${percentage}%"></div>
+                <div class="score-progress mb-2">
+                    <div class="score-progress-bar bg-${color}" style="width: ${percentage}%"></div>
                 </div>
-                <small class="text-muted">${reason}</small>
+                
+                ${strengthsText ? `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small class="fw-semibold text-success">Strengths</small>
+                        </div>
+                        <small class="text-muted ps-3">${strengthsText}</small>
+                    </div>
+                ` : ''}
+                
+                ${improvementsText ? `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            <small class="fw-semibold text-warning">Areas for Improvement</small>
+                        </div>
+                        <small class="text-muted ps-3">${improvementsText}</small>
+                    </div>
+                ` : ''}
+                
+                ${nextStepsText ? `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-arrow-right text-primary me-2"></i>
+                            <small class="fw-semibold text-primary">Next Steps</small>
+                        </div>
+                        <small class="text-muted ps-3">${nextStepsText}</small>
+                    </div>
+                ` : ''}
+                
+                ${!strengthsText && !improvementsText ? `
+                    <small class="text-muted">${reason}</small>
+                ` : ''}
             </div>
         `;
     });
@@ -719,26 +796,58 @@ function exportEssayWithSuggestions() {
 }
 
 function showLoadingState() {
+    // Show enhanced skeleton loading for essay content
     document.getElementById('essay-content').innerHTML = `
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading analysis...</span>
+        <div class="p-4">
+            <div class="d-flex justify-content-center mb-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading analysis...</span>
+                </div>
             </div>
-            <p class="mt-2">Analyzing your essay with AI...</p>
+            <h5 class="text-center mb-4">Analyzing your essay with AI...</h5>
+            <div class="skeleton-loading">
+                <div class="skeleton skeleton-text long"></div>
+                <div class="skeleton skeleton-text medium"></div>
+                <div class="skeleton skeleton-text long"></div>
+                <div class="skeleton skeleton-text short"></div>
+                <div class="skeleton skeleton-text long"></div>
+                <div class="skeleton skeleton-text medium"></div>
+            </div>
         </div>
     `;
     
+    // Show skeleton loading for scores
     document.getElementById('scores-container').innerHTML = `
-        <div class="text-center py-3">
-            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-            <p class="small mt-2 mb-0">Loading scores...</p>
+        <div class="p-3">
+            <div class="text-center mb-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <p class="small mt-2 mb-0">Calculating scores...</p>
+            </div>
+            <div class="skeleton skeleton-text long mb-3"></div>
+            <div class="skeleton skeleton-text medium mb-3"></div>
+            <div class="skeleton skeleton-text long mb-3"></div>
+            <div class="skeleton skeleton-text short"></div>
         </div>
     `;
     
+    // Show skeleton loading for suggestions
     document.getElementById('suggestion-summary').innerHTML = `
-        <div class="text-center py-3">
-            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-            <p class="small mt-2 mb-0">Analyzing...</p>
+        <div class="p-3">
+            <div class="text-center mb-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <p class="small mt-2 mb-0">Generating suggestions...</p>
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="skeleton skeleton-text short"></div>
+                </div>
+                <div class="col-4">
+                    <div class="skeleton skeleton-text short"></div>
+                </div>
+                <div class="col-4">
+                    <div class="skeleton skeleton-text short"></div>
+                </div>
+            </div>
         </div>
     `;
 }

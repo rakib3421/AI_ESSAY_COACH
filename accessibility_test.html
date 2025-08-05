@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Test - AI Essay Revision</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Skip to main content link -->
+    <a href="#main-content" class="visually-hidden-focusable skip-link" aria-label="Skip to main content">Skip to main content</a>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1e2839;" role="navigation" aria-label="Main navigation">
+        <div class="container">
+            <a class="navbar-brand" href="#" aria-label="AI Essay Revision - Home">
+                <i class="fas fa-edit me-2" aria-hidden="true"></i>
+                AI Essay Revision
+            </a>
+        </div>
+    </nav>
+
+    <main class="container mt-4" id="main-content" role="main" aria-label="Main content">
+        <div id="sr-announcements" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+        
+        <h1>Accessibility Test Page</h1>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Sample Essay with AI Suggestions</h2>
+            </div>
+            <div class="card-body">
+                <div class="essay-content" role="article" aria-label="Sample essay with AI suggestions">
+                    <p>
+                        This is a <span class="word-suggestion suggestion-delete" role="button" tabindex="0" 
+                        aria-label="Suggested deletion: sample. Press Enter or Space to review this suggestion." 
+                        title="Suggested deletion" data-suggestion-id="1">sample</span> essay with AI suggestions. 
+                        
+                        The <span class="word-suggestion suggestion-add" role="button" tabindex="0" 
+                        aria-label="Suggested addition: innovative. Press Enter or Space to review this suggestion." 
+                        title="Suggested addition" data-suggestion-id="2">innovative</span> technology helps 
+                        
+                        <span class="word-suggestion suggestion-replace" role="button" tabindex="0" 
+                        aria-label="Suggested replacement: replace improve with enhance. Press Enter or Space to review this suggestion." 
+                        title="Suggested replacement: improve → enhance" data-suggestion-id="3">improve</span> writing quality.
+                    </p>
+                </div>
+                
+                <div class="mt-3" role="region" aria-label="Suggestion legend">
+                    <h3 class="h6">Suggestion Legend:</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span class="suggestion-delete" aria-label="Example of delete suggestion">Delete</span> - Remove this word
+                        </div>
+                        <div class="col-md-4">
+                            <span class="suggestion-add" aria-label="Example of add suggestion">Add</span> - Insert this word  
+                        </div>
+                        <div class="col-md-4">
+                            <span class="suggestion-replace" aria-label="Example of replace suggestion">Replace</span> - Change this word
+                        </div>
+                    </div>
+                    <small class="text-muted">Use Tab to navigate suggestions and Enter/Space to review details.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2>Accessibility Features Tested</h2>
+            <ul>
+                <li><strong>Keyboard Navigation:</strong> Tab through suggestions, use Enter/Space to activate</li>
+                <li><strong>Screen Reader:</strong> All elements have proper ARIA labels and roles</li>
+                <li><strong>Focus Indicators:</strong> High-contrast focus outlines for all interactive elements</li>
+                <li><strong>Color Contrast:</strong> All text meets WCAG AA contrast requirements</li>
+                <li><strong>Skip Links:</strong> Jump to main content for screen reader users</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Modal for suggestion details -->
+    <div class="modal fade" id="suggestionModal" tabindex="-1" aria-labelledby="suggestionModalLabel" aria-hidden="true" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title h5" id="suggestionModalLabel">Suggestion Details</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close suggestion details"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="suggestion-detail">
+                        <h2 class="h6">Suggestion Type:</h2>
+                        <p id="suggestion-type" aria-live="polite">Delete</p>
+                    </div>
+                    <div class="suggestion-detail">
+                        <h2 class="h6">Current Text:</h2>
+                        <p id="suggestion-current" aria-live="polite">sample</p>
+                    </div>
+                    <div class="suggestion-detail">
+                        <h2 class="h6">Explanation:</h2>
+                        <p id="suggestion-reason" aria-live="polite">This word is redundant in this context.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close without making changes">Close</button>
+                    <button type="button" class="btn btn-danger" aria-label="Reject this suggestion">
+                        <i class="fas fa-times me-1" aria-hidden="true"></i>Reject
+                    </button>
+                    <button type="button" class="btn btn-success" aria-label="Accept this suggestion">
+                        <i class="fas fa-check me-1" aria-hidden="true"></i>Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple demo script for accessibility testing
+        document.addEventListener('DOMContentLoaded', function() {
+            const suggestions = document.querySelectorAll('.word-suggestion');
+            const modal = new bootstrap.Modal(document.getElementById('suggestionModal'));
+            
+            suggestions.forEach(suggestion => {
+                suggestion.addEventListener('click', function() {
+                    showSuggestionModal(this);
+                });
+                
+                suggestion.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        showSuggestionModal(this);
+                    }
+                });
+            });
+            
+            function showSuggestionModal(element) {
+                const type = element.classList.contains('suggestion-delete') ? 'Delete' : 
+                           element.classList.contains('suggestion-add') ? 'Add' : 'Replace';
+                const text = element.textContent;
+                const explanation = element.getAttribute('title');
+                
+                document.getElementById('suggestion-type').textContent = type;
+                document.getElementById('suggestion-current').textContent = text;
+                document.getElementById('suggestion-reason').textContent = explanation;
+                
+                modal.show();
+                
+                // Announce to screen reader
+                const announcement = document.getElementById('sr-announcements');
+                announcement.textContent = `Reviewing ${type.toLowerCase()} suggestion: ${text}`;
+            }
+            
+            // Skip link functionality
+            const skipLink = document.querySelector('.skip-link');
+            if (skipLink) {
+                skipLink.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const target = document.querySelector('#main-content');
+                    if (target) {
+                        target.setAttribute('tabindex', '-1');
+                        target.focus();
+                        target.addEventListener('blur', function() {
+                            target.removeAttribute('tabindex');
+                        }, { once: true });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

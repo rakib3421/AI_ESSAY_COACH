@@ -27,19 +27,21 @@
         
         <div class="card shadow">
             <div class="card-header" style="background-color: #1e2839; color: white;">
-                <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Essay for AI Analysis</h4>
+                <h1 class="h4 mb-0" id="upload-heading"><i class="fas fa-upload me-2" aria-hidden="true"></i>Upload Essay for AI Analysis</h1>
             </div>
             <div class="card-body">
                 <!-- Tab Navigation -->
-                <ul class="nav nav-tabs" role="tablist">
+                <ul class="nav nav-tabs" role="tablist" aria-labelledby="upload-heading">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-upload" type="button">
-                            <i class="fas fa-file-upload me-1"></i>Upload File
+                        <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-upload" 
+                                type="button" role="tab" aria-controls="file-upload" aria-selected="true">
+                            <i class="fas fa-file-upload me-1" aria-hidden="true"></i>Upload File
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-input" type="button">
-                            <i class="fas fa-keyboard me-1"></i>Paste Text
+                        <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-input" 
+                                type="button" role="tab" aria-controls="text-input" aria-selected="false">
+                            <i class="fas fa-keyboard me-1" aria-hidden="true"></i>Paste Text
                         </button>
                     </li>
                 </ul>
@@ -47,44 +49,47 @@
                 <!-- Tab Content -->
                 <div class="tab-content mt-4">
                     <!-- File Upload Tab -->
-                    <div class="tab-pane fade show active" id="file-upload">
-                        <form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+                    <div class="tab-pane fade show active" id="file-upload" role="tabpanel" aria-labelledby="file-tab">
+                        <form method="POST" enctype="multipart/form-data" id="fileUploadForm" aria-label="File upload form">
                             {% if assignment %}
                             <input type="hidden" name="assignment_id" value="{{ assignment[0] }}">
                             {% endif %}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="title" class="form-label">Essay Title</label>
+                                        <label for="title" class="form-label">Essay Title <span class="text-danger" aria-label="required">*</span></label>
                                         <input type="text" class="form-control" id="title" name="title" required 
-                                               placeholder="Enter a descriptive title for your essay">
+                                               placeholder="Enter a descriptive title for your essay"
+                                               aria-describedby="title-help">
+                                        <div id="title-help" class="form-text">Provide a clear, descriptive title for your essay</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="essay_type" class="form-label">Essay Type</label>
-                                        <select class="form-select" id="essay_type" name="essay_type" 
-                                                {% if assignment and assignment[2] and assignment[2] != 'auto' %}disabled{% endif %}>
-                                            {% if assignment and assignment[2] and assignment[2] != 'auto' %}
-                                                <option value="{{ assignment[2] }}" selected>{{ assignment[2].replace('_', ' ').title() }} (Required by Assignment)</option>
-                                            {% else %}
-                                                <option value="auto" selected>Auto-detect essay type</option>
-                                                <option value="argumentative">Argumentative Essay</option>
-                                                <option value="narrative">Narrative Essay</option>
-                                                <option value="literary">Literary Analysis</option>
-                                                <option value="expository">Expository Essay</option>
-                                                <option value="descriptive">Descriptive Essay</option>
-                                                <option value="compare">Compare/Contrast Essay</option>
-                                            {% endif %}
-                                        </select>
+                                        <label for="essay_type_file" class="form-label">Essay Type</label>
                                         {% if assignment and assignment[2] and assignment[2] != 'auto' %}
-                                            <div class="form-text text-info">
-                                                Essay type is set by the assignment requirements.
-                                            </div>
+                                        <select class="form-select" id="essay_type_file" name="essay_type" disabled
+                                                aria-describedby="essay-type-help"
+                                                aria-label="Essay type set by assignment: {{ assignment[2].replace('_', ' ').title() }}">
+                                            <option value="{{ assignment[2] }}" selected>{{ assignment[2].replace('_', ' ').title() }} (Required by Assignment)</option>
+                                        </select>
+                                        <div id="essay-type-help" class="form-text text-info">
+                                            Essay type is set by the assignment requirements.
+                                        </div>
                                         {% else %}
-                                            <div class="form-text">
-                                                Select a specific type or let AI automatically detect it from your content.
-                                            </div>
+                                        <select class="form-select" id="essay_type_file" name="essay_type" 
+                                                aria-describedby="essay-type-help-manual" aria-label="Select essay type">
+                                            <option value="auto" selected>Auto-detect essay type</option>
+                                            <option value="argumentative">Argumentative Essay</option>
+                                            <option value="narrative">Narrative Essay</option>
+                                            <option value="literary">Literary Analysis</option>
+                                            <option value="expository">Expository Essay</option>
+                                            <option value="descriptive">Descriptive Essay</option>
+                                            <option value="compare">Compare/Contrast Essay</option>
+                                        </select>
+                                        <div id="essay-type-help-manual" class="form-text">
+                                            Select a specific type or let AI automatically detect it from your content.
+                                        </div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -95,56 +100,65 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="coaching_level" class="form-label">Coaching Level</label>
-                                        <select class="form-select" id="coaching_level" name="coaching_level">
+                                        <select class="form-select" id="coaching_level" name="coaching_level"
+                                                aria-describedby="coaching-level-help" aria-label="Select coaching level">
                                             <option value="light">Light - Basic feedback</option>
                                             <option value="medium" selected>Medium - Balanced feedback</option>
                                             <option value="intensive">Intensive - Detailed feedback</option>
                                         </select>
+                                        <div id="coaching-level-help" class="form-text">Choose how detailed you want the feedback to be</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="suggestion_level" class="form-label">Suggestion Level</label>
-                                        <select class="form-select" id="suggestion_level" name="suggestion_level">
+                                        <select class="form-select" id="suggestion_level" name="suggestion_level"
+                                                aria-describedby="suggestion-level-help" aria-label="Select suggestion level">
                                             <option value="low">Low - Conservative suggestions</option>
                                             <option value="medium" selected>Medium - Balanced suggestions</option>
-                                            <option value="high">High - Aggressive suggestions</option>
+                                            <option value="high">High - Comprehensive suggestions</option>
                                         </select>
+                                        <div id="suggestion-level-help" class="form-text">Choose how many suggestions you want to receive</div>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="mb-4">
-                                <label for="file" class="form-label">Upload Essay File</label>
-                                <input type="file" class="form-control" id="file" name="file" accept=".docx,.txt" required>
-                                <div class="form-text">
+                                <label for="file" class="form-label">Upload Essay File <span class="text-danger" aria-label="required">*</span></label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".docx,.txt" required
+                                       aria-describedby="file-help" aria-label="Select essay file to upload">
+                                <div id="file-help" class="form-text">
                                     <strong>Supported formats:</strong> Microsoft Word (.docx) and text (.txt) files. 
                                     Maximum file size: 16MB.
                                 </div>
                             </div>
                             
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="submit" class="btn" style="background-color: #1e2839; color: white;">
-                                    <i class="fas fa-upload me-2"></i>Upload & Analyze
+                                <button type="submit" class="btn" style="background-color: #1e2839; color: white;"
+                                        aria-label="Upload file and start AI analysis">
+                                    <i class="fas fa-upload me-2" aria-hidden="true"></i>Upload & Analyze
                                 </button>
                             </div>
                         </form>
                     </div>
                     
                     <!-- Text Input Tab -->
-                    <div class="tab-pane fade" id="text-input">
-                        <form id="textAnalysisForm">
+                    <div class="tab-pane fade" id="text-input" role="tabpanel" aria-labelledby="text-tab">
+                        <form id="textAnalysisForm" aria-label="Text input form">
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="textTitle" class="form-label">Essay Title</label>
-                                        <input type="text" class="form-control" id="textTitle" placeholder="Enter essay title">
+                                        <label for="textTitle" class="form-label">Essay Title <span class="text-danger" aria-label="required">*</span></label>
+                                        <input type="text" class="form-control" id="textTitle" placeholder="Enter essay title" required
+                                               aria-describedby="text-title-help">
+                                        <div id="text-title-help" class="form-text">Provide a clear, descriptive title for your essay</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="textEssayType" class="form-label">Essay Type</label>
-                                        <select class="form-select" id="textEssayType">
+                                        <select class="form-select" id="textEssayType" aria-label="Select essay type for text input"
+                                                aria-describedby="text-essay-type-help">
                                             <option value="auto">Auto-detect</option>
                                             <option value="argumentative">Argumentative</option>
                                             <option value="narrative">Narrative</option>
@@ -153,16 +167,19 @@
                                             <option value="descriptive">Descriptive</option>
                                             <option value="compare">Compare/Contrast</option>
                                         </select>
+                                        <div id="text-essay-type-help" class="form-text">Select the type of essay you're submitting</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="analysisLevel" class="form-label">Coaching Level</label>
-                                        <select class="form-select" id="analysisLevel">
+                                        <label for="textAnalysisLevel" class="form-label">Coaching Level</label>
+                                        <select class="form-select" id="textAnalysisLevel" aria-label="Select coaching level"
+                                                aria-describedby="text-analysis-level-help">
                                             <option value="light">Light - Basic feedback</option>
                                             <option value="medium" selected>Medium - Balanced feedback</option>
                                             <option value="intensive">Intensive - Detailed feedback</option>
                                         </select>
+                                        <div id="text-analysis-level-help" class="form-text">Choose how detailed you want the feedback to be</div>
                                     </div>
                                 </div>
                             </div>
@@ -170,31 +187,37 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="suggestionLevel" class="form-label">Suggestion Level</label>
-                                        <select class="form-select" id="suggestionLevel">
+                                        <label for="textSuggestionLevel" class="form-label">Suggestion Level</label>
+                                        <select class="form-select" id="textSuggestionLevel" aria-label="Select suggestion level"
+                                                aria-describedby="text-suggestion-level-help">
                                             <option value="low">Low - Conservative suggestions</option>
                                             <option value="medium" selected>Medium - Balanced suggestions</option>
-                                            <option value="high">High - Aggressive suggestions</option>
+                                            <option value="high">High - Comprehensive suggestions</option>
                                         </select>
+                                        <div id="text-suggestion-level-help" class="form-text">Choose how many suggestions you want to receive</div>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="mb-4">
-                                <label for="essayText" class="form-label">Essay Text</label>
+                                <label for="essayText" class="form-label">Essay Text <span class="text-danger" aria-label="required">*</span></label>
                                 <textarea class="form-control" id="essayText" rows="15" 
-                                          placeholder="Paste your essay text here..." required></textarea>
-                                <div class="form-text">
-                                    Character count: <span id="charCount">0</span> / 10,000 maximum
+                                          placeholder="Paste your essay text here..." required
+                                          aria-describedby="essay-text-help"
+                                          aria-label="Essay content text area"></textarea>
+                                <div id="essay-text-help" class="form-text">
+                                    Character count: <span id="charCount" aria-live="polite">0</span> / 10,000 maximum
                                 </div>
                             </div>
                             
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="button" class="btn btn-outline-secondary" onclick="clearTextForm()">
-                                    <i class="fas fa-eraser me-1"></i>Clear
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearTextForm()"
+                                        aria-label="Clear all text input fields">
+                                    <i class="fas fa-eraser me-1" aria-hidden="true"></i>Clear
                                 </button>
-                                <button type="submit" class="btn" style="background-color: #1e2839; color: white;" id="analyzeBtn">
-                                    <i class="fas fa-magic me-2"></i>Analyze with AI
+                                <button type="submit" class="btn" style="background-color: #1e2839; color: white;" id="analyzeBtn"
+                                        aria-label="Analyze essay text with AI">
+                                    <i class="fas fa-magic me-2" aria-hidden="true"></i>Analyze with AI
                                 </button>
                             </div>
                         </form>

@@ -1,53 +1,196 @@
 {% extends "base.html" %}
 
-{% block title %}Sign Up - AI Essay Revision{% endblock %}
+{% block title %}Create Account - AI Essay Coach{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow">
-            <div class="card-body">
-                <h3 class="card-title text-center mb-4" style="color: #1e2839;">
-                    <i class="fas fa-user-plus me-2"></i>Create Account
-                </h3>
-                
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
-                        <div class="form-text">Choose a unique username</div>
+<div class="container-fluid">
+    <div class="row min-vh-100 align-items-center justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-xl border-0 animate-scale-in">
+                <div class="card-body p-5">
+                    <!-- Logo/Header -->
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px; background: var(--success-gradient);">
+                            <i class="fas fa-user-plus fa-2x text-white"></i>
+                        </div>
+                        <h2 class="fw-bold mb-2">Join AI Essay Coach</h2>
+                        <p class="text-secondary">Start your journey to better writing today</p>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       placeholder="Choose a username" required>
+                                <label for="username">
+                                    <i class="fas fa-user me-2"></i>Username
+                                </label>
+                                <div class="invalid-feedback">
+                                    Please choose a unique username.
+                                </div>
+                                <div class="form-text">
+                                    <small class="text-muted">Choose a unique username (3-20 characters)</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="Enter your email" required>
+                                <label for="email">
+                                    <i class="fas fa-envelope me-2"></i>Email Address
+                                </label>
+                                <div class="invalid-feedback">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="Create a password" required minlength="6">
+                                <label for="password">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                                <div class="invalid-feedback">
+                                    Password must be at least 6 characters long.
+                                </div>
+                                <div class="form-text">
+                                    <small class="text-muted">Use at least 6 characters with a mix of letters and numbers</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="">Select your role</option>
+                                    <option value="student">🎓 Student</option>
+                                    <option value="teacher">👨‍🏫 Teacher/Educator</option>
+                                </select>
+                                <label for="role">
+                                    <i class="fas fa-users me-2"></i>I am a...
+                                </label>
+                                <div class="invalid-feedback">
+                                    Please select your role.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> 
+                                    and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                </label>
+                                <div class="invalid-feedback">
+                                    You must agree to the terms to continue.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-rocket me-2"></i>Create Account
+                                <div class="spinner-border spinner-border-sm d-none ms-2" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
                     
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                        <div class="form-text">Choose a strong password</div>
+                    <div class="text-center">
+                        <hr class="my-4">
+                        <p class="mb-0">
+                            Already have an account? 
+                            <a href="{{ url_for('login') }}" class="text-decoration-none fw-medium">
+                                Sign in here
+                            </a>
+                        </p>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="role" class="form-label">I am a:</label>
-                        <select class="form-select" id="role" name="role" required>
-                            <option value="">Select your role</option>
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
-                        </select>
+                </div>
+            </div>
+            
+            <!-- Benefits Section -->
+            <div class="row g-3 mt-4">
+                <div class="col-md-4">
+                    <div class="card border-0 glass text-center">
+                        <div class="card-body py-3">
+                            <i class="fas fa-magic text-primary fa-lg mb-2"></i>
+                            <h6 class="fw-bold mb-1">AI-Powered</h6>
+                            <small class="text-muted">Advanced feedback</small>
+                        </div>
                     </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-lg" style="background-color: #1e2839; color: white;">
-                            <i class="fas fa-user-plus me-2"></i>Create Account
-                        </button>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 glass text-center">
+                        <div class="card-body py-3">
+                            <i class="fas fa-chart-line text-success fa-lg mb-2"></i>
+                            <h6 class="fw-bold mb-1">Track Progress</h6>
+                            <small class="text-muted">See improvement</small>
+                        </div>
                     </div>
-                </form>
-                
-                <div class="text-center mt-3">
-                    <p class="mb-0">Already have an account? 
-                        <a href="{{ url_for('login') }}" style="color: #1e2839;">Login here</a>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 glass text-center">
+                        <div class="card-body py-3">
+                            <i class="fas fa-users text-info fa-lg mb-2"></i>
+                            <h6 class="fw-bold mb-1">Community</h6>
+                            <small class="text-muted">Join thousands</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Password strength indicator
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const strength = calculatePasswordStrength(password);
+    updatePasswordStrengthIndicator(strength);
+});
+
+function calculatePasswordStrength(password) {
+    let score = 0;
+    if (password.length >= 6) score++;
+    if (password.length >= 10) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^a-zA-Z0-9]/.test(password)) score++;
+    return score;
+}
+
+function updatePasswordStrengthIndicator(strength) {
+    // Implementation for visual password strength indicator
+    // Can be added later for enhanced UX
+}
+</script>
+{% endblock %}
                     </p>
                 </div>
             </div>

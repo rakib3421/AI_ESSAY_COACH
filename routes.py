@@ -1011,7 +1011,7 @@ def register_routes(app):
     @app.route('/analyze', methods=['POST'])
     @login_required
     def analyze_essay():
-        """Analyze essay with AI"""
+        """Analyze essay with AI with enhanced progress tracking"""
         try:
             data = request.get_json()
             
@@ -1071,6 +1071,10 @@ def register_routes(app):
                 # Check if fallback was used
                 if analysis_result.get('fallback_used'):
                     logger.warning("AI analysis used fallback due to service unavailability")
+                    analysis_result['warning'] = 'AI service was temporarily unavailable. Results may be limited.'
+                
+                # Add processing time for user feedback
+                analysis_result['processing_time'] = 'Analysis completed in real-time'
                 
             except Exception as e:
                 logger.error(f"AI analysis failed completely: {e}")

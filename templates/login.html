@@ -1,41 +1,133 @@
 {% extends "base.html" %}
 
-{% block title %}Login - AI Essay Revision{% endblock %}
+{% block title %}Sign In - AI Essay Coach{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow">
-            <div class="card-body">
-                <h3 class="card-title text-center mb-4" style="color: #1e2839;">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login
-                </h3>
-                
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+<div class="container-fluid">
+    <div class="row min-vh-100 align-items-center justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-4">
+            <div class="card shadow-xl border-0 animate-scale-in">
+                <div class="card-body p-5">
+                    <!-- Logo/Header -->
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px; background: var(--primary-gradient);">
+                            <i class="fas fa-graduation-cap fa-2x text-white"></i>
+                        </div>
+                        <h2 class="fw-bold mb-2">Welcome Back!</h2>
+                        <p class="text-secondary">Sign in to continue your writing journey</p>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       placeholder="Enter your username" required>
+                                <label for="username">
+                                    <i class="fas fa-user me-2"></i>Username
+                                </label>
+                                <div class="invalid-feedback">
+                                    Please enter your username.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="Enter your password" required>
+                                <label for="password">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                                <div class="invalid-feedback">
+                                    Please enter your password.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                                <label class="form-check-label" for="remember">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                <div class="spinner-border spinner-border-sm d-none ms-2" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
                     
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-lg" style="background-color: #1e2839; color: white;">
-                            <i class="fas fa-sign-in-alt me-2"></i>Login
-                        </button>
+                    <div class="text-center">
+                        <p class="text-muted mb-3">
+                            <a href="#" class="text-decoration-none">Forgot your password?</a>
+                        </p>
+                        <hr class="my-4">
+                        <p class="mb-0">
+                            Don't have an account? 
+                            <a href="{{ url_for('signup') }}" class="text-decoration-none fw-medium">
+                                Create one here
+                            </a>
+                        </p>
                     </div>
-                </form>
-                
-                <div class="text-center mt-3">
-                    <p class="mb-0">Don't have an account? 
-                        <a href="{{ url_for('signup') }}" style="color: #1e2839;">Sign up here</a>
-                    </p>
+                </div>
+            </div>
+            
+            <!-- Additional Features -->
+            <div class="text-center mt-4">
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="card border-0 glass">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-shield-alt text-primary mb-2"></i>
+                                <small class="d-block text-muted fw-medium">Secure</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card border-0 glass">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-bolt text-warning mb-2"></i>
+                                <small class="d-block text-muted fw-medium">Fast</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card border-0 glass">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-brain text-info mb-2"></i>
+                                <small class="d-block text-muted fw-medium">Smart</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
 {% endblock %}

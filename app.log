@@ -1,0 +1,337 @@
+2025-08-05 12:35:03,197 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://10.10.12.31:5000
+2025-08-05 12:35:03,197 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 12:35:03,198 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 12:35:04,222 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 12:35:04,224 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 12:35:08,816 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:08] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 12:35:08,915 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 12:35:08,916 - db - INFO - Database connection obtained from pool
+2025-08-05 12:35:08,945 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:08] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:35:09,004 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:09] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:35:09,005 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:09] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:35:17,496 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:17] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 12:35:17,511 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:17] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:35:17,512 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:17] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:35:51,497 - routes - INFO - Essay uploaded successfully by user 2, length: 2456 characters
+2025-08-05 12:35:51,497 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:51] "[32mPOST /student/upload HTTP/1.1[0m" 302 -
+2025-08-05 12:35:51,512 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:51] "GET /student/analyze-view HTTP/1.1" 200 -
+2025-08-05 12:35:51,528 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:51] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:35:51,528 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:35:51] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:35:51,554 - routes - INFO - Processing essay: 2456 chars, type: auto, level: intensive, aggressiveness: high
+2025-08-05 12:35:51,560 - ai - INFO - Performing new AI analysis for essay type: auto, coaching: intensive, aggressiveness: high
+2025-08-05 12:35:52,708 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-05 12:35:52,723 - ai - INFO - Essay type detected: argumentative
+2025-08-05 12:35:52,724 - ai - INFO - Starting AI analysis for essay of length 2456 characters with aggressiveness high
+2025-08-05 12:36:36,124 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-05 12:36:36,131 - ai - INFO - AI analysis completed in 43.41 seconds
+2025-08-05 12:36:36,133 - db - INFO - Database connection obtained from pool
+2025-08-05 12:36:36,142 - db - INFO - Analysis and examples saved to database successfully
+2025-08-05 12:36:36,143 - ai - INFO - Analysis saved with ID: 17
+2025-08-05 12:36:36,143 - db - INFO - Database connection obtained from pool
+2025-08-05 12:36:36,148 - ai - INFO - Step-wise checklist generated and saved
+2025-08-05 12:36:36,148 - cache - INFO - Cached analysis result: bcf19d9b68e6dc6e... (cache size: 1)
+2025-08-05 12:36:36,148 - ai - INFO - Analysis result cached for future use
+2025-08-05 12:36:36,148 - db - INFO - Database connection obtained from pool
+2025-08-05 12:36:36,150 - db - INFO - Submission saved successfully for student 2
+2025-08-05 12:36:36,151 - routes - INFO - Submission saved successfully
+2025-08-05 12:36:36,152 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:36] "POST /analyze HTTP/1.1" 200 -
+2025-08-05 12:36:42,374 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:42] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:36:44,362 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:44] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:36:46,744 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:46] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:36:48,823 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:48] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:36:50,841 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:50] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:36:53,201 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:53] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:36:55,217 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:55] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:36:58,106 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:36:58] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:37:00,816 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:37:00] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:37:03,792 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:37:03] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:37:06,150 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:37:06] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:37:08,448 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:37:08] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:37:10,833 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:37:10] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 12:42:46,631 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\ai.py', reloading
+2025-08-05 12:42:46,813 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 12:42:47,896 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 12:42:47,897 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 12:44:28,797 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\ai.py', reloading
+2025-08-05 12:44:28,896 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 12:44:30,065 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 12:44:30,066 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 12:45:30,763 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:45:30] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 12:45:30,843 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 12:45:30,844 - db - INFO - Database connection obtained from pool
+2025-08-05 12:45:30,863 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:45:30] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:45:30,933 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:45:30] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-08-05 12:45:30,954 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:45:30] "GET /static/js/app.js HTTP/1.1" 200 -
+2025-08-05 12:47:09,502 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 12:47:09,599 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 12:47:10,697 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 12:47:10,699 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 12:49:36,780 - werkzeug - INFO -  * Detected change in 'C:\\Users\\rakib\\Projects\\ESSAY\\routes.py', reloading
+2025-08-05 12:49:36,912 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 12:49:38,112 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 12:49:38,115 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 12:57:21,085 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 12:57:21,086 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:21,108 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:21] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:57:21,160 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:21] "GET /static/js/app.js HTTP/1.1" 200 -
+2025-08-05 12:57:21,169 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:21] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-08-05 12:57:22,915 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:22] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 12:57:22,924 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:22] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:22,924 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:22] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:24,994 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:24] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 12:57:25,007 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:25,015 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:25] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:57:25,035 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:25] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:25,037 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:25] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:26,237 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:26,266 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:26] "GET /student/progress HTTP/1.1" 200 -
+2025-08-05 12:57:26,273 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:26] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:26,273 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:26] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:32,555 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:32] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 12:57:32,563 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:32,570 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:32] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:57:32,586 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:32] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:32,587 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:32] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:33,607 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:33,609 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:33] "GET /student/progress HTTP/1.1" 200 -
+2025-08-05 12:57:33,621 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:33] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:33,622 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:33] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:36,925 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:36] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 12:57:36,932 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:36,936 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:36] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:57:36,948 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:36,949 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:36] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:37,858 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:37,863 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:37] "GET /student/requests HTTP/1.1" 200 -
+2025-08-05 12:57:37,874 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:37,874 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:37] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:39,042 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:39] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 12:57:39,050 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:39,053 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:39] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:57:39,063 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:39] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:39,064 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:39] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:40,053 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:40,058 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:40] "GET /student/profile HTTP/1.1" 200 -
+2025-08-05 12:57:40,069 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:40] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 12:57:40,069 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:40] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:41,186 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:41] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 12:57:41,192 - db - INFO - Database connection obtained from pool
+2025-08-05 12:57:41,197 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:41] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 12:57:41,210 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:41] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 12:57:41,210 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 12:57:41] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:01:58,299 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://10.10.12.31:5000
+2025-08-05 13:01:58,299 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 13:01:58,300 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:01:59,391 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:01:59,392 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:02:02,011 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:02] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:02:02,121 - db_pool - INFO - Initialized database connection pool with 10 connections
+2025-08-05 13:02:02,122 - db - INFO - Database connection obtained from pool
+2025-08-05 13:02:02,148 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:02] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 13:02:02,218 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:02] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-08-05 13:02:02,229 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:02] "GET /static/js/app.js HTTP/1.1" 200 -
+2025-08-05 13:02:10,792 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:10] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 13:02:10,805 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:10] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:02:10,805 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:10] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:02:12,459 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:12] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:02:12,465 - db - INFO - Database connection obtained from pool
+2025-08-05 13:02:12,468 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:12] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 13:02:12,485 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:12] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:02:12,485 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:12] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:02:13,376 - db - INFO - Database connection obtained from pool
+2025-08-05 13:02:13,378 - routes - INFO - Student 2 has 1 teacher assignments
+2025-08-05 13:02:13,379 - routes - INFO - Found 2 assignments for student 2
+2025-08-05 13:02:13,387 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:13] "GET /student/assignments HTTP/1.1" 200 -
+2025-08-05 13:02:13,396 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:13] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:02:13,396 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:13] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:02:17,172 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:17] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:02:17,179 - db - INFO - Database connection obtained from pool
+2025-08-05 13:02:17,183 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:17] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 13:02:17,192 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:17] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:02:17,192 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:17] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:02:19,629 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:19] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 13:02:19,643 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:19] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:02:19,643 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:19] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:02:38,123 - routes - INFO - Essay uploaded successfully by user 2, length: 2456 characters
+2025-08-05 13:02:38,124 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:38] "[32mPOST /student/upload HTTP/1.1[0m" 302 -
+2025-08-05 13:02:38,165 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:38] "GET /student/analyze-view HTTP/1.1" 200 -
+2025-08-05 13:02:38,174 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:02:38,175 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:02:38] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:05:55,002 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:05:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:06:17,636 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:06:17] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 13:06:17,652 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:06:17] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:06:17,654 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:06:17] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:06:54,828 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:06:54] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 13:06:54,850 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:06:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:06:54,851 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:06:54] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:09:00,949 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:09:00] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 13:09:00,963 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:09:00] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:09:00,964 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:09:00] "GET /static/js/app.js HTTP/1.1" 200 -
+2025-08-05 13:09:11,645 - routes - INFO - Essay uploaded successfully by user 2, length: 2456 characters
+2025-08-05 13:09:11,647 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:09:11] "[32mPOST /student/upload HTTP/1.1[0m" 302 -
+2025-08-05 13:09:11,658 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:09:11] "GET /student/analyze-view HTTP/1.1" 200 -
+2025-08-05 13:09:11,675 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:09:11] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:09:11,675 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:09:11] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:09:11,761 - routes - INFO - Processing essay: 2456 chars, type: auto, level: medium, aggressiveness: medium
+2025-08-05 13:09:11,763 - ai - INFO - Performing new AI analysis for essay type: auto, coaching: medium, aggressiveness: medium
+2025-08-05 13:09:14,497 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-05 13:09:15,135 - ai - INFO - Essay type detected: argumentative
+2025-08-05 13:09:15,135 - ai - INFO - Starting AI analysis for essay of length 2456 characters with aggressiveness medium
+2025-08-05 13:10:15,146 - openai._base_client - INFO - Retrying request to /chat/completions in 0.382958 seconds
+2025-08-05 13:10:41,275 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:10:41] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:11:12,392 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-05 13:11:12,396 - ai - INFO - AI analysis completed in 117.26 seconds
+2025-08-05 13:11:12,398 - db - INFO - Database connection obtained from pool
+2025-08-05 13:11:12,412 - db - INFO - Analysis and examples saved to database successfully
+2025-08-05 13:11:12,414 - ai - INFO - Analysis saved with ID: 18
+2025-08-05 13:11:12,415 - db - INFO - Database connection obtained from pool
+2025-08-05 13:11:12,420 - ai - INFO - Step-wise checklist generated and saved
+2025-08-05 13:11:12,421 - cache - INFO - Cached analysis result: ced00f45921f54d3... (cache size: 1)
+2025-08-05 13:11:12,421 - ai - INFO - Analysis result cached for future use
+2025-08-05 13:11:12,423 - db - INFO - Database connection obtained from pool
+2025-08-05 13:11:12,428 - db - INFO - Submission saved successfully for student 2
+2025-08-05 13:11:12,429 - routes - INFO - Submission saved successfully
+2025-08-05 13:11:12,430 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:11:12] "POST /analyze HTTP/1.1" 200 -
+2025-08-05 13:12:56,148 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:12:56] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 13:12:58,815 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:12:58] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 13:13:02,351 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:13:02] "[33mPOST /api/suggestions/accept HTTP/1.1[0m" 404 -
+2025-08-05 13:29:45,625 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:29:45] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:29:45,638 - db - INFO - Database connection obtained from pool
+2025-08-05 13:29:45,709 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:29:45] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 13:29:45,736 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:29:45] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-08-05 13:29:45,752 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:29:45] "GET /static/js/app.js HTTP/1.1" 200 -
+2025-08-05 13:30:00,859 - db - INFO - Database connection obtained from pool
+2025-08-05 13:30:00,860 - routes - INFO - Student 2 has 1 teacher assignments
+2025-08-05 13:30:00,862 - routes - INFO - Found 2 assignments for student 2
+2025-08-05 13:30:00,863 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:00] "GET /student/assignments HTTP/1.1" 200 -
+2025-08-05 13:30:00,875 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:00] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:30:00,877 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:00] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:30:03,723 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:03] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:30:03,729 - db - INFO - Database connection obtained from pool
+2025-08-05 13:30:03,733 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:03] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 13:30:03,749 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:03] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:30:03,749 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:03] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:30:05,210 - db - INFO - Database connection obtained from pool
+2025-08-05 13:30:05,223 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:05] "GET /student/progress HTTP/1.1" 200 -
+2025-08-05 13:30:05,234 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:30:05,236 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:05] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:30:06,638 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:06] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:30:06,645 - db - INFO - Database connection obtained from pool
+2025-08-05 13:30:06,652 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:06] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 13:30:06,666 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:06] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:30:06,666 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:06] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:30:10,633 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:10] "GET /student/upload HTTP/1.1" 200 -
+2025-08-05 13:30:10,648 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:10] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:30:10,648 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:10] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:30:29,210 - routes - INFO - Essay uploaded successfully by user 2, length: 2456 characters
+2025-08-05 13:30:29,211 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:29] "[32mPOST /student/upload HTTP/1.1[0m" 302 -
+2025-08-05 13:30:29,223 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:29] "GET /student/analyze-view HTTP/1.1" 200 -
+2025-08-05 13:30:29,242 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:29] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:30:29,243 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:30:29] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:30:29,288 - routes - INFO - Processing essay: 2456 chars, type: auto, level: intensive, aggressiveness: high
+2025-08-05 13:30:29,289 - ai - INFO - Performing new AI analysis for essay type: auto, coaching: intensive, aggressiveness: high
+2025-08-05 13:30:30,415 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-05 13:30:30,759 - ai - INFO - Essay type detected: argumentative
+2025-08-05 13:30:30,760 - ai - INFO - Starting AI analysis for essay of length 2456 characters with aggressiveness high
+2025-08-05 13:31:27,398 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-05 13:31:27,404 - ai - INFO - AI analysis completed in 56.64 seconds
+2025-08-05 13:31:27,405 - db - INFO - Database connection obtained from pool
+2025-08-05 13:31:27,410 - db - INFO - Analysis and examples saved to database successfully
+2025-08-05 13:31:27,411 - ai - INFO - Analysis saved with ID: 19
+2025-08-05 13:31:27,411 - db - INFO - Database connection obtained from pool
+2025-08-05 13:31:27,417 - ai - INFO - Step-wise checklist generated and saved
+2025-08-05 13:31:27,417 - cache - INFO - Cached analysis result: bcf19d9b68e6dc6e... (cache size: 2)
+2025-08-05 13:31:27,417 - ai - INFO - Analysis result cached for future use
+2025-08-05 13:31:27,418 - db - INFO - Database connection obtained from pool
+2025-08-05 13:31:27,423 - db - INFO - Submission saved successfully for student 2
+2025-08-05 13:31:27,423 - routes - INFO - Submission saved successfully
+2025-08-05 13:31:27,423 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:31:27] "POST /analyze HTTP/1.1" 200 -
+2025-08-05 13:31:52,311 - db - INFO - Database connection obtained from pool
+2025-08-05 13:31:52,326 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:31:52] "GET /student/dashboard HTTP/1.1" 200 -
+2025-08-05 13:31:52,351 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:31:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:31:52,373 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:31:52] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:32:01,368 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:32:01] "[32mGET /logout HTTP/1.1[0m" 302 -
+2025-08-05 13:32:01,412 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:32:01] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-08-05 13:32:01,421 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:32:01] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-08-05 13:32:01,422 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:32:01] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-08-05 13:32:01,461 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:32:01] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-08-05 13:32:01,476 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:32:01] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:35:17,786 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:17] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-08-05 13:35:17,795 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:17] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-08-05 13:35:17,795 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:17] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:35:17,844 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:17] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:35:17,856 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:17] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:35:55,693 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://10.10.12.31:5000
+2025-08-05 13:35:55,693 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-05 13:35:55,694 - werkzeug - INFO -  * Restarting with stat
+2025-08-05 13:35:56,715 - werkzeug - WARNING -  * Debugger is active!
+2025-08-05 13:35:56,717 - werkzeug - INFO -  * Debugger PIN: 125-609-958
+2025-08-05 13:35:58,353 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:58] "GET / HTTP/1.1" 200 -
+2025-08-05 13:35:58,394 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:58] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:35:58,395 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:35:58] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:36:08,043 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:08] "[35m[1mGET /signup HTTP/1.1[0m" 500 -
+2025-08-05 13:36:08,056 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:08] "GET /signup?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-08-05 13:36:08,057 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:08] "GET /signup?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-08-05 13:36:08,078 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:08] "GET /signup?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-08-05 13:36:08,113 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:08] "[36mGET /signup?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:36:16,656 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:16] "GET /login HTTP/1.1" 200 -
+2025-08-05 13:36:16,670 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:16] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:36:16,671 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:16] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:36:22,042 - db - INFO - Database connection obtained from pool
+2025-08-05 13:36:22,142 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:22] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-08-05 13:36:22,149 - db - INFO - Database connection obtained from pool
+2025-08-05 13:36:22,198 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:22] "[35m[1mGET /teacher/dashboard HTTP/1.1[0m" 500 -
+2025-08-05 13:36:22,209 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:22] "GET /teacher/dashboard?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-08-05 13:36:22,209 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:22] "GET /teacher/dashboard?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-08-05 13:36:22,229 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:22] "GET /teacher/dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-08-05 13:36:22,243 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:36:22] "[36mGET /teacher/dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:37:17,792 - db - INFO - Database connection obtained from pool
+2025-08-05 13:37:17,802 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:37:17] "[35m[1mGET /teacher/dashboard HTTP/1.1[0m" 500 -
+2025-08-05 13:37:17,820 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:37:17] "[36mGET /teacher/dashboard?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:37:17,821 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:37:17] "[36mGET /teacher/dashboard?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-08-05 13:37:17,845 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:37:17] "[36mGET /teacher/dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:37:17,862 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:37:17] "[36mGET /teacher/dashboard?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:38:38,329 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:38,373 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:38] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:38:38,385 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:38] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:38,385 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:38] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:43,000 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:43,003 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:43] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:38:43,020 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:43] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:43,020 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:43] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:44,165 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:44,175 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:44] "GET /teacher/submissions HTTP/1.1" 200 -
+2025-08-05 13:38:44,187 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:44] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:44,187 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:44] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:46,706 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:46] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:38:46,715 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:46,719 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:46] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:38:46,728 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:46] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:46,728 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:46] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:47,686 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:47] "GET /teacher/create_assignment HTTP/1.1" 200 -
+2025-08-05 13:38:47,701 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:47] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:47,702 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:47] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:51,804 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:51] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:38:51,814 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:51,821 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:51] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:38:51,836 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:51] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:51,837 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:51] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:52,880 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:52,884 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:52] "GET /teacher/submissions HTTP/1.1" 200 -
+2025-08-05 13:38:52,899 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:52,899 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:52] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:55,115 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:55] "[32mGET / HTTP/1.1[0m" 302 -
+2025-08-05 13:38:55,125 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:55,128 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:55] "GET /teacher/dashboard HTTP/1.1" 200 -
+2025-08-05 13:38:55,139 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-05 13:38:55,140 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:55] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-08-05 13:38:56,181 - db - INFO - Database connection obtained from pool
+2025-08-05 13:38:56,203 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:56] "[35m[1mGET /teacher/analytics HTTP/1.1[0m" 500 -
+2025-08-05 13:38:56,216 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:56] "GET /teacher/analytics?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-08-05 13:38:56,216 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:56] "GET /teacher/analytics?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-08-05 13:38:56,237 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:56] "GET /teacher/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-08-05 13:38:56,259 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:38:56] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-08-05 13:39:04,725 - werkzeug - INFO - 10.10.12.31 - - [05/Aug/2025 13:39:04] "[36mGET /teacher/analytics?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
