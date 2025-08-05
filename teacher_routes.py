@@ -94,6 +94,49 @@ def submissions():
     # Teacher submissions view
     return render_template('teacher/submissions.html')
 
+@teacher_bp.route('/students')
+@login_required
+@role_required('teacher')
+def students():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get assigned students
+    cursor.execute("""
+        SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.created_at
+        FROM users u
+        JOIN student_teacher_assignments sta ON u.id = sta.student_id
+        WHERE sta.teacher_id = %s AND u.role = 'student'
+        ORDER BY u.username
+    """, (session['user_id'],))
+    assigned_students = cursor.fetchall()
+    
+    # Get pending assignment requests (if any)
+    cursor.execute("""
+        SELECT u.id, u.username, u.email, u.first_name, u.last_name
+        FROM users u
+        LEFT JOIN student_teacher_assignments sta ON u.id = sta.student_id AND sta.teacher_id = %s
+        WHERE u.role = 'student' AND sta.student_id IS NULL
+        ORDER BY u.username
+    """, (session['user_id'],))
+    unassigned_students = cursor.fetchall()
+    
+    # Get all students for reference
+    cursor.execute("""
+        SELECT u.id, u.username, u.email, u.first_name, u.last_name
+        FROM users u
+        WHERE u.role = 'student'
+        ORDER BY u.username
+    """, ())
+    all_students = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('teacher/students.html', 
+                         assigned_students=assigned_students,
+                         pending_requests=unassigned_students,
+                         all_students=all_students)
+
 @teacher_bp.route('/assignment/<int:assignment_id>')
 @login_required
 @role_required('teacher')

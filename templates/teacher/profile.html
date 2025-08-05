@@ -13,19 +13,19 @@
                 <a href="{{ url_for('teacher.teacher_dashboard') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <a href="{{ url_for('view_submissions') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('teacher.submissions') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-file-alt me-2"></i>View Submissions
                 </a>
-                <a href="{{ url_for('create_assignment') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('teacher.create_assignment') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-plus me-2"></i>Create Assignment
                 </a>
-                <a href="{{ url_for('student_management') }}" class="list-group-item list-group-item-action">
+                <!-- <a href="{{ url_for('student_management') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-users me-2"></i>Student Management
-                </a>
-                <a href="{{ url_for('teacher_analytics') }}" class="list-group-item list-group-item-action">
+                </a> -->
+                <!-- <a href="{{ url_for('teacher_analytics') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-chart-line me-2"></i>Analytics
-                </a>
-                <a href="{{ url_for('teacher_profile') }}" class="list-group-item list-group-item-action active">
+                </a> -->
+                <a href="{{ url_for('teacher.teacher_profile') }}" class="list-group-item list-group-item-action active">
                     <i class="fas fa-cog me-2"></i>Profile
                 </a>
             </div>

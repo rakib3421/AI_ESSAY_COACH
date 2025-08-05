@@ -20,16 +20,16 @@
                     <a href="{{ url_for('student.upload_essay') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-cloud-upload-alt me-3" style="width: 20px;"></i>Upload Essay
                     </a>
-                    <a href="{{ url_for('student_essays_list') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.student_essays_list') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-file-alt me-3" style="width: 20px;"></i>My Essays
                     </a>
-                    <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.view_assignments') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-tasks me-3" style="width: 20px;"></i>Assignments
                     </a>
-                    <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.student_progress') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Progress Analytics
                     </a>
-                    <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action border-0 fw-medium position-relative">
+                    <a href="{{ url_for('student.student_requests') }}" class="list-group-item list-group-item-action border-0 fw-medium position-relative">
                         <i class="fas fa-bell me-3" style="width: 20px;"></i>Teacher Requests
                         {% if pending_requests_count > 0 %}
                             <span class="position-absolute top-50 end-0 translate-middle-y me-3">
@@ -37,7 +37,7 @@
                             </span>
                         {% endif %}
                     </a>
-                    <a href="{{ url_for('student_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.student_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Profile
                     </a>
                 </div>
@@ -65,7 +65,7 @@
                     <div class="flex-grow-1">
                         <h6 class="alert-heading mb-1">🎉 New Teacher Feedback Available!</h6>
                         <p class="mb-2">You have {{ essays_with_feedback|length }} essay(s) with new teacher feedback.</p>
-                        <a href="{{ url_for('student_essays_list') }}" class="btn btn-success btn-sm">
+                        <a href="{{ url_for('student.student_essays_list') }}" class="btn btn-success btn-sm">
                             <i class="fas fa-eye me-1"></i>View All Feedback
                         </a>
                     </div>
@@ -148,7 +148,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('view_assignments') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
+                                <a href="{{ url_for('student.view_assignments') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
                                     <i class="fas fa-tasks me-3"></i>
                                     <div>
                                         <div class="fw-bold">View Assignments</div>
@@ -156,7 +156,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('student_essays_list') }}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
+                                <a href="{{ url_for('student.student_essays_list') }}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
                                     <i class="fas fa-file-alt me-3"></i>
                                     <div>
                                         <div class="fw-bold">My Essays</div>
@@ -164,7 +164,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('student_progress') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">
+                                <a href="{{ url_for('student.student_progress') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">
                                     <i class="fas fa-chart-bar me-3"></i>
                                     <div>
                                         <div class="fw-bold">Progress Report</div>
@@ -284,24 +284,24 @@
                                 <div class="d-flex justify-content-between align-items-center border-bottom py-2">
                                     <div>
                                         <h6 class="mb-1">
-                                            <a href="{{ url_for('view_essay', essay_id=submission[0]) }}" class="text-decoration-none">
-                                                {{ submission[1] }}
+                                            <a href="{{ url_for('student.view_essay', essay_id=submission.id) }}" class="text-decoration-none">
+                                                {{ submission.title }}
                                             </a>
                                         </h6>
                                         <small class="text-muted">
-                                            {{ submission[2].title() }} • {{ submission[4].strftime('%m/%d/%Y') }}
+                                            {{ submission.essay_type.title() }} • {{ submission.created_at.strftime('%m/%d/%Y') }}
                                         </small>
                                     </div>
                                     <div class="text-end">
-                                        <span class="badge bg-{{ 'success' if submission[3] == 'analyzed' else 'warning' }}">
-                                            {{ submission[3].title() }}
+                                        <span class="badge bg-{{ 'success' if submission.status == 'analyzed' else 'warning' }}">
+                                            {{ submission.status.title() }}
                                         </span>
-                                        {% if submission[5] %}
-                                            <div class="small">Score: {{ submission[5] }}/100</div>
+                                        {% if submission.score %}
+                                            <div class="small">Score: {{ submission.score }}/100</div>
                                         {% endif %}
-                                        {% if submission[6] %}
+                                        {% if submission.teacher_feedback %}
                                             <div class="mt-1">
-                                                <a href="{{ url_for('view_feedback', essay_id=submission[0]) }}" class="btn btn-sm btn-outline-info">
+                                                <a href="{{ url_for('student.student_feedback', essay_id=submission.id) }}" class="btn btn-sm btn-outline-info">
                                                     <i class="fas fa-comment me-1"></i>View Feedback
                                                 </a>
                                             </div>
@@ -327,19 +327,19 @@
                             {% for assignment in assignments %}
                                 <div class="d-flex justify-content-between align-items-center border-bottom py-2">
                                     <div>
-                                        <h6 class="mb-1">{{ assignment[1] }}</h6>
+                                        <h6 class="mb-1">{{ assignment.title }}</h6>
                                         <small class="text-muted">
-                                            {{ assignment[3].title() }} • Due: {{ assignment[4].strftime('%m/%d/%Y') }}
+                                            {{ assignment.essay_type.title() }} • Due: {{ assignment.due_date.strftime('%m/%d/%Y') }}
                                         </small>
                                     </div>
                                     <div class="text-end">
-                                        <span class="badge bg-{{ 'success' if assignment[5] == 'Submitted' else 'warning' }}">
-                                            {{ assignment[5] }}
+                                        <span class="badge bg-{{ 'success' if assignment.status == 'Submitted' else 'warning' }}">
+                                            {{ assignment.status }}
                                         </span>
-                                        {% if assignment[5] == 'Submitted' and assignment[6] %}
+                                        {% if assignment.status == 'Submitted' %}
                                             <div class="mt-1">
-                                                <a href="{{ url_for('view_feedback', essay_id=assignment[6]) }}" class="btn btn-sm btn-outline-info">
-                                                    <i class="fas fa-comment me-1"></i>View Feedback
+                                                <a href="{{ url_for('student.view_assignments') }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye me-1"></i>View Details
                                                 </a>
                                             </div>
                                         {% endif %}

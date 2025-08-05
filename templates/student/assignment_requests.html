@@ -48,14 +48,14 @@
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <form method="POST" action="{{ url_for('reject_assignment_request', request_id=request[0]) }}" 
+                            <form method="POST" action="{{ url_for('student.reject_assignment_request', request_id=request[0]) }}" 
                                   style="display: inline;">
                                 <button type="submit" class="btn btn-outline-danger" 
                                         onclick="return confirm('Are you sure you want to reject this request?')">
                                     <i class="fas fa-times me-2"></i>Reject
                                 </button>
                             </form>
-                            <form method="POST" action="{{ url_for('accept_assignment_request', request_id=request[0]) }}" 
+                            <form method="POST" action="{{ url_for('student.accept_assignment_request', request_id=request[0]) }}" 
                                   style="display: inline;">
                                 <button type="submit" class="btn btn-success" 
                                         onclick="return confirm('Accept assignment request from {{ request[1] }}?')">

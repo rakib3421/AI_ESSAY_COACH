@@ -5,23 +5,8 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <!-- Modern Sidebar Navigation                                 <a href="{{ url_for('view_submissions') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
-                                    <i class="fas fa-file-alt me-3"></i>
-                                    <div>
-                                        <div class="fw-bold">Review Submissions</div>
-                                        <small class="text-muted">Grade and provide feedback</small>
-                                    </div>
-                                </a>
-                                
-                                <a href="{{ url_for('teacher_all_essays') }}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
-                                    <i class="fas fa-list-alt me-3"></i>
-                                    <div>
-                                        <div class="fw-bold">All Essays</div>
-                                        <small class="text-muted">View student essays</small>
-                                    </div>
-                                </a>
-                                
-                                <a href="{{ url_for('student_management') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">    <div class="col-lg-3 col-md-4 mb-4">
+        <!-- Modern Sidebar Navigation -->
+        <div class="col-lg-3 col-md-4 mb-4">
             <div class="card shadow-lg border-0 sticky-top" style="top: 110px;">
                 <div class="card-header bg-gradient-primary text-white py-3">
                     <h5 class="mb-0 fw-bold d-flex align-items-center">
@@ -32,22 +17,22 @@
                     <a href="{{ url_for('teacher.teacher_dashboard') }}" class="list-group-item list-group-item-action active border-0 fw-medium">
                         <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
                     </a>
-                    <a href="{{ url_for('view_submissions') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('teacher.submissions') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-file-alt me-3" style="width: 20px;"></i>Submissions
                     </a>
-                    <a href="{{ url_for('teacher_all_essays') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('teacher.teacher_all_essays') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-list-alt me-3" style="width: 20px;"></i>All Essays
                     </a>
-                    <a href="{{ url_for('student_management') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('teacher.students') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-users me-3" style="width: 20px;"></i>Students
                     </a>
-                    <a href="{{ url_for('create_assignment') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('teacher.create_assignment') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-plus-circle me-3" style="width: 20px;"></i>Create Assignment
                     </a>
-                    <a href="{{ url_for('teacher_analytics') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    {# <a href="{{ url_for('teacher_analytics') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Analytics
-                    </a>
-                    <a href="{{ url_for('teacher_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    </a> #}
+                    <a href="{{ url_for('teacher.teacher_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Settings
                     </a>
                 </div>
@@ -62,7 +47,7 @@
                     <h2 class="fw-bold mb-2">Teacher Dashboard 📚</h2>
                     <p class="text-secondary mb-0">Manage assignments and track student progress</p>
                 </div>
-                <a href="{{ url_for('create_assignment') }}" class="btn btn-primary btn-lg shadow-lg">
+                <a href="{{ url_for('teacher.create_assignment') }}" class="btn btn-primary btn-lg shadow-lg">
                     <i class="fas fa-plus me-2"></i>New Assignment
                 </a>
             </div>
@@ -217,7 +202,7 @@
                         </div>
                         <div class="card-body p-4">
                             <div class="d-grid gap-3">
-                                <a href="{{ url_for('create_assignment') }}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
+                                <a href="{{ url_for('teacher.create_assignment') }}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
                                     <i class="fas fa-plus-circle me-3"></i>
                                     <div>
                                         <div class="fw-bold">New Assignment</div>
@@ -225,7 +210,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('view_submissions') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
+                                <a href="{{ url_for('teacher.submissions') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
                                     <i class="fas fa-file-alt me-3"></i>
                                     <div>
                                         <div class="fw-bold">Review Submissions</div>
@@ -233,15 +218,15 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('teacher_analytics') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">
+                                {# <a href="{{ url_for('teacher_analytics') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">
                                     <i class="fas fa-chart-bar me-3"></i>
                                     <div>
                                         <div class="fw-bold">View Analytics</div>
                                         <small class="text-muted">Track class performance</small>
                                     </div>
-                                </a>
+                                </a> #}
                                 
-                                <a href="{{ url_for('view_submissions') }}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
+                                <a href="{{ url_for('teacher.submissions') }}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
                                     <i class="fas fa-users me-3"></i>
                                     <div>
                                         <div class="fw-bold">Manage Students</div>
@@ -328,10 +313,10 @@
                                                 <td>{{ submission[4].strftime('%m/%d/%Y') }}</td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <a href="{{ url_for('view_essay', essay_id=submission[0]) }}" class="btn btn-outline-primary btn-sm">
+                                                        {# <a href="{{ url_for('student.view_essay', essay_id=submission[0]) }}" class="btn btn-outline-primary btn-sm">
                                                             <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="{{ url_for('provide_feedback', essay_id=submission[0]) }}" class="btn btn-outline-success btn-sm">
+                                                        </a> #}
+                                                        <a href="{{ url_for('teacher.teacher_feedback', essay_id=submission[0]) }}" class="btn btn-outline-success btn-sm">
                                                             <i class="fas fa-comment"></i>
                                                         </a>
                                                     </div>
@@ -363,13 +348,13 @@
                                         {{ assignment[2].replace('_', ' ').title() }} • Due: {{ assignment[3].strftime('%m/%d/%Y') }}
                                     </small>
                                     <div class="mt-1">
-                                        <a href="{{ url_for('view_assignment', assignment_id=assignment[0]) }}" class="btn btn-outline-primary btn-sm me-1">
+                                        <a href="{{ url_for('teacher.assignment_view', assignment_id=assignment[0]) }}" class="btn btn-outline-primary btn-sm me-1">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ url_for('view_assignment_submissions', assignment_id=assignment[0]) }}" class="btn btn-outline-success btn-sm me-1">
+                                        <a href="{{ url_for('teacher.assignment_submissions', assignment_id=assignment[0]) }}" class="btn btn-outline-success btn-sm me-1">
                                             <i class="fas fa-comments"></i> Feedback
                                         </a>
-                                        <a href="{{ url_for('edit_assignment', assignment_id=assignment[0]) }}" class="btn btn-outline-secondary btn-sm">
+                                        <a href="{{ url_for('teacher.edit_assignment', assignment_id=assignment[0]) }}" class="btn btn-outline-secondary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </div>
@@ -378,7 +363,7 @@
                         {% else %}
                             <p class="text-muted text-center">
                                 No assignments created yet. 
-                                <a href="{{ url_for('create_assignment') }}">Create your first assignment!</a>
+                                <a href="{{ url_for('teacher.create_assignment') }}">Create your first assignment!</a>
                             </p>
                         {% endif %}
                     </div>

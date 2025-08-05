@@ -30,7 +30,7 @@
     
     <nav class="navbar navbar-expand-lg fixed-top" role="navigation" aria-label="Main navigation">
         <div class="container-fluid px-4">
-            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}" aria-label="AI Essay Revision - Home">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('auth.index') }}" aria-label="AI Essay Revision - Home">
                 <div class="d-flex align-items-center justify-content-center rounded-circle me-3" 
                      style="width: 40px; height: 40px; background: var(--primary-gradient);">
                     <i class="fas fa-graduation-cap text-white" aria-hidden="true"></i>
@@ -67,7 +67,7 @@
                                 </a>
                             </li>
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('create_assignment') }}" role="menuitem" aria-label="Create New Assignment">
+                                <a class="nav-link px-3" href="{{ url_for('teacher.create_assignment') }}" role="menuitem" aria-label="Create New Assignment">
                                     <i class="fas fa-plus-circle me-2" aria-hidden="true"></i>Assignment
                                 </a>
                             </li>
@@ -86,7 +86,7 @@
                                 <li role="none"><a class="dropdown-item" href="#" role="menuitem" aria-label="User Settings"><i class="fas fa-cog me-3" aria-hidden="true"></i>Settings</a></li>
                                 <li role="none"><a class="dropdown-item" href="#" role="menuitem" aria-label="Help & Support"><i class="fas fa-question-circle me-3" aria-hidden="true"></i>Help</a></li>
                                 <li role="none"><hr class="dropdown-divider my-2"></li>
-                                <li role="none"><a class="dropdown-item text-danger" href="{{ url_for('logout') }}" role="menuitem" aria-label="Logout"><i class="fas fa-sign-out-alt me-3" aria-hidden="true"></i>Logout</a></li>
+                                <li role="none"><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" role="menuitem" aria-label="Logout"><i class="fas fa-sign-out-alt me-3" aria-hidden="true"></i>Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
@@ -96,7 +96,7 @@
                             </a>
                         </li>
                         <li class="nav-item" role="none">
-                            <a class="btn btn-primary ms-2" href="{{ url_for('signup') }}" role="menuitem" aria-label="Create new account">
+                            <a class="btn btn-primary ms-2" href="{{ url_for('auth.signup') }}" role="menuitem" aria-label="Create new account">
                                 <i class="fas fa-user-plus me-2" aria-hidden="true"></i>Sign Up
                             </a>
                         </li>

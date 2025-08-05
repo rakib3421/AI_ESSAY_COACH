@@ -20,7 +20,7 @@
                     
                     {% if not session.user_id %}
                         <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
-                            <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg px-4 animate-scale-in">
+                            <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg px-4 animate-scale-in">
                                 <i class="fas fa-rocket me-2"></i>Start Writing Better
                             </a>
                             <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4 animate-scale-in">
@@ -321,7 +321,7 @@
             <h3 class="text-white fw-bold mb-3">Ready to Transform Your Writing?</h3>
             <p class="text-white opacity-75 mb-4 lead">Join thousands of students and educators using AI Essay Coach to improve their writing skills.</p>
             <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-5">
+                <a href="{{ url_for('auth.signup') }}" class="btn btn-light btn-lg px-5">
                     <i class="fas fa-rocket me-2"></i>Get Started Free
                 </a>
                 <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">

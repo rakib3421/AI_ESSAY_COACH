@@ -20,19 +20,19 @@
                     <a href="{{ url_for('student.upload_essay') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-cloud-upload-alt me-3" style="width: 20px;"></i>Upload Essay
                     </a>
-                    <a href="{{ url_for('student_essays_list') }}" class="list-group-item list-group-item-action active border-0 fw-medium">
+                    <a href="{{ url_for('student.student_essays_list') }}" class="list-group-item list-group-item-action active border-0 fw-medium">
                         <i class="fas fa-file-alt me-3" style="width: 20px;"></i>My Essays
                     </a>
-                    <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.view_assignments') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-tasks me-3" style="width: 20px;"></i>Assignments
                     </a>
-                    <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.student_progress') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Progress Analytics
                     </a>
-                    <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.student_requests') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-bell me-3" style="width: 20px;"></i>Teacher Requests
                     </a>
-                    <a href="{{ url_for('student_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{{ url_for('student.student_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Profile
                     </a>
                 </div>
@@ -140,12 +140,12 @@
                                             </td>
                                             <td>
                                                 <div class="btn-group-vertical btn-group-sm">
-                                                    <a href="{{ url_for('view_essay', essay_id=essay[0]) }}" 
+                                                    <a href="{{ url_for('student.view_essay', essay_id=essay[0]) }}" 
                                                        class="btn btn-outline-primary mb-1">
                                                         <i class="fas fa-eye me-1"></i>View Essay
                                                     </a>
                                                     {% if essay[6] %}
-                                                        <a href="{{ url_for('view_feedback', essay_id=essay[0]) }}" 
+                                                        <a href="{{ url_for('student.student_feedback', essay_id=essay[0]) }}" 
                                                            class="btn btn-success">
                                                             <i class="fas fa-comment me-1"></i>View Teacher Feedback
                                                         </a>

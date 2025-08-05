@@ -206,7 +206,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            return redirect(url_for('login'))
+            return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -217,7 +217,7 @@ def role_required(role):
         def decorated_function(*args, **kwargs):
             if 'role' not in session or session['role'] != role:
                 flash('Access denied. Insufficient permissions.', 'error')
-                return redirect(url_for('login'))
+                return redirect(url_for('auth.login'))
             return f(*args, **kwargs)
         return decorated_function
     return decorator

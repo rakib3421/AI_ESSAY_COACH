@@ -1,5 +1,13 @@
-{% extends "base.html" %}
-
+{% extends "base.h                <a href="{{ url_for('student.view_assignments') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tasks me-2"></i>Assignments
+                </a>
+                <a href="{{ url_for('student.student_progress') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-bar me-2"></i>Progress Analytics
+                </a>
+                <a href="{{ url_for('student.student_requests') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-bell me-2"></i>Teacher Requests
+                </a>
+                <a href="{{ url_for('student.student_settings') }}" class="list-group-item list-group-item-action active">
 {% block title %}Settings - AI Essay Revision{% endblock %}
 
 {% block content %}
@@ -16,16 +24,16 @@
                 <a href="{{ url_for('student.upload_essay') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-upload me-2"></i>Upload Essay
                 </a>
-                <a href="{{ url_for('view_assignments') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('student.view_assignments') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-tasks me-2"></i>View Assignments
                 </a>
-                <a href="{{ url_for('student_progress') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('student.student_progress') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-chart-line me-2"></i>Progress Analytics
                 </a>
-                <a href="{{ url_for('view_assignment_requests') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('student.student_requests') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-bell me-2"></i>Assignment Requests
                 </a>
-                <a href="{{ url_for('student_settings') }}" class="list-group-item list-group-item-action active">
+                <a href="{{ url_for('student.student_settings') }}" class="list-group-item list-group-item-action active">
                     <i class="fas fa-cog me-2"></i>Settings
                 </a>
             </div>
