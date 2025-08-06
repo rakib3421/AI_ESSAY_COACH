@@ -137,7 +137,7 @@ except ImportError:
     client = None
     logger.warning("Using legacy OpenAI API format")
 
-def make_openai_request(messages, model="gpt-4o-mini", temperature=0, max_retries=3, retry_delay=2):
+def make_openai_request(messages, model="gpt-4o-mini", temperature=0, max_retries=3, retry_delay=2, essay_length=None):
     """
     Make OpenAI API request with retry logic and comprehensive error handling
     
@@ -147,18 +147,39 @@ def make_openai_request(messages, model="gpt-4o-mini", temperature=0, max_retrie
         temperature (float): Temperature for randomness
         max_retries (int): Maximum number of retry attempts
         retry_delay (int): Delay between retries in seconds
+        essay_length (int): Length of essay for dynamic timeout adjustment
     
     Returns:
         str or None: Response content or None if failed
     """
+    # Calculate dynamic timeout based on essay length
+    base_timeout = 60
+    if essay_length:
+        if essay_length > 3000:
+            timeout = 180  # 3 minutes for very long essays
+        elif essay_length > 2000:
+            timeout = 120  # 2 minutes for long essays
+        elif essay_length > 1000:
+            timeout = 90   # 1.5 minutes for medium essays
+        else:
+            timeout = base_timeout
+        logger.info(f"Using timeout of {timeout}s for essay of {essay_length} characters")
+    else:
+        timeout = base_timeout
+    
     for attempt in range(max_retries):
+        # Progressive timeout increase for retries
+        current_timeout = timeout + (attempt * 30)  # Add 30s per retry
+        
         try:
+            logger.info(f"OpenAI API request attempt {attempt + 1}/{max_retries} (timeout: {current_timeout}s)")
+            
             if client:
                 response = client.chat.completions.create(
                     model=model,
                     messages=messages,
                     temperature=temperature,
-                    timeout=60  # 60 second timeout
+                    timeout=current_timeout
                 )
             else:
                 # Fallback for legacy API
@@ -166,33 +187,38 @@ def make_openai_request(messages, model="gpt-4o-mini", temperature=0, max_retrie
                     model=model,
                     messages=messages,
                     temperature=temperature,
-                    request_timeout=60
+                    request_timeout=current_timeout
                 )
             
+            logger.info(f"OpenAI API request successful on attempt {attempt + 1}")
             return response.choices[0].message.content
         
         except openai.RateLimitError as e:
             logger.warning(f"OpenAI rate limit exceeded (attempt {attempt + 1}/{max_retries}): {e}")
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
-                logger.info(f"Waiting {wait_time} seconds before retry...")
+                logger.info(f"Rate limited - waiting {wait_time} seconds before retry...")
                 time.sleep(wait_time)
             else:
                 logger.error("Rate limit exceeded after all retries")
                 return None
         
         except openai.APITimeoutError as e:
-            logger.warning(f"OpenAI API timeout (attempt {attempt + 1}/{max_retries}): {e}")
+            logger.warning(f"OpenAI API timeout after {current_timeout}s (attempt {attempt + 1}/{max_retries}): {e}")
             if attempt < max_retries - 1:
-                time.sleep(retry_delay)
+                wait_time = retry_delay * 2  # Longer wait for timeouts
+                logger.info(f"Timeout - waiting {wait_time} seconds before retry with extended timeout...")
+                time.sleep(wait_time)
             else:
-                logger.error("API timeout after all retries")
+                logger.error(f"API timeout after all retries (final timeout: {current_timeout}s)")
                 return None
         
         except openai.APIConnectionError as e:
             logger.warning(f"OpenAI API connection error (attempt {attempt + 1}/{max_retries}): {e}")
             if attempt < max_retries - 1:
-                time.sleep(retry_delay)
+                wait_time = retry_delay * 2
+                logger.info(f"Connection error - waiting {wait_time} seconds before retry...")
+                time.sleep(wait_time)
             else:
                 logger.error("API connection error after all retries")
                 return None
@@ -217,70 +243,110 @@ def make_openai_request(messages, model="gpt-4o-mini", temperature=0, max_retrie
 
 def generate_fallback_analysis(essay_text, essay_type):
     """
-    Generate a basic fallback analysis when AI API fails
+    Generate a more comprehensive fallback analysis when AI API fails
     
     Args:
         essay_text (str): The essay text
         essay_type (str): Type of essay
     
     Returns:
-        dict: Basic analysis structure
+        dict: Enhanced analysis structure with basic checks
     """
-    logger.info("Generating fallback analysis due to AI API failure")
+    logger.info("Generating enhanced fallback analysis due to AI API failure")
     
-    # Basic word count and sentence analysis
+    # Basic text analysis
     word_count = len(essay_text.split())
     sentence_count = len([s for s in essay_text.split('.') if s.strip()])
     paragraph_count = len([p for p in essay_text.split('\n\n') if p.strip()])
     
-    # Generate basic scores based on essay structure
-    base_score = 70  # Default base score
+    # Calculate average sentence length
+    avg_sentence_length = word_count / max(sentence_count, 1)
     
-    # Adjust scores based on essay length and structure
+    # Basic readability checks
+    common_issues = []
+    suggestions = []
+    
+    # Check for basic structure issues
+    if paragraph_count < 3:
+        common_issues.append("Essay may need more paragraphs for better organization")
+        suggestions.append({
+            'type': 'structure',
+            'text': 'Consider adding more paragraphs',
+            'reason': 'Essays typically benefit from introduction, body paragraphs, and conclusion'
+        })
+    
+    if word_count < 300:
+        common_issues.append("Essay may be too short - consider expanding ideas")
+        suggestions.append({
+            'type': 'length',
+            'text': 'Consider expanding your essay',
+            'reason': 'Essays under 300 words may not fully develop ideas'
+        })
+    
+    if avg_sentence_length > 25:
+        common_issues.append("Some sentences may be too long")
+        suggestions.append({
+            'type': 'sentence_length',
+            'text': 'Consider breaking long sentences',
+            'reason': 'Sentences over 25 words can be hard to follow'
+        })
+    
+    # Generate scores based on structure and length
+    base_score = 70
+    
+    # Adjust scores based on essay characteristics
+    length_modifier = 0
     if word_count < 200:
-        length_modifier = -15
-    elif word_count < 400:
-        length_modifier = -5
-    elif word_count > 800:
+        length_modifier = -20
+    elif word_count < 300:
+        length_modifier = -10
+    elif word_count > 500:
         length_modifier = 5
-    else:
-        length_modifier = 0
+    
+    structure_modifier = min(paragraph_count * 3, 10)  # Up to 10 points for good structure
     
     scores = {
-        'ideas': max(50, min(100, base_score + length_modifier)),
-        'organization': max(50, min(100, base_score + (paragraph_count * 2))),
-        'style': max(50, min(100, base_score)),
-        'grammar': max(50, min(100, base_score + 5))
+        'ideas': max(50, min(95, base_score + length_modifier)),
+        'organization': max(50, min(95, base_score + structure_modifier)),
+        'style': max(50, min(95, base_score - 5)),  # Conservative on style without AI
+        'grammar': max(50, min(95, base_score))
     }
+    
+    # Enhanced score reasons
+    score_reasons = {
+        'ideas': f'Basic analysis shows {word_count} words. AI analysis unavailable - full feedback requires service connection.',
+        'organization': f'Essay has {paragraph_count} paragraphs. Structure appears {"adequate" if paragraph_count >= 3 else "minimal"}. Full analysis requires AI service.',
+        'style': f'Average sentence length: {avg_sentence_length:.1f} words. Style analysis unavailable without AI service.',
+        'grammar': 'Basic grammar analysis unavailable - AI service required for detailed feedback.'
+    }
+    
+    # If we found issues, adjust scores accordingly
+    if len(common_issues) > 2:
+        for key in scores:
+            scores[key] = max(scores[key] - 10, 50)
     
     fallback_analysis = {
         'essay_type': essay_type,
         'scores': scores,
-        'score_reasons': {
-            'ideas': 'Basic analysis - AI service temporarily unavailable',
-            'organization': f'Essay has {paragraph_count} paragraphs',
-            'style': 'Unable to analyze style - AI service unavailable',
-            'grammar': 'Basic grammar check - full analysis unavailable'
-        },
-        'suggestions': [
-            {
-                'type': 'general',
-                'text': 'AI analysis temporarily unavailable',
-                'reason': 'Please try again later for detailed feedback'
-            }
-        ],
+        'score_reasons': score_reasons,
+        'suggestions': suggestions + [{
+            'type': 'service_notice',
+            'text': 'AI analysis service temporarily unavailable',
+            'reason': 'Please try again in a few minutes for detailed AI-powered feedback and suggestions'
+        }],
         'examples': {
-            'ideas': ['AI analysis unavailable'],
-            'organization': ['Basic structure detected'],
-            'style': ['Style analysis unavailable'],
-            'grammar': ['Grammar analysis unavailable']
+            'ideas': [f'Essay contains {word_count} words'] + (['May need more development' if word_count < 300 else 'Adequate length for idea development']),
+            'organization': [f'{paragraph_count} paragraphs detected'] + (['Consider adding more paragraphs' if paragraph_count < 3 else 'Basic structure present']),
+            'style': [f'Average sentence length: {avg_sentence_length:.1f} words'] + (['May need sentence variety' if avg_sentence_length > 25 else 'Sentence length appears reasonable']),
+            'grammar': ['Grammar analysis requires AI service', 'Please try again when service is available']
         },
         'tagged_essay': essay_text,
         'word_suggestions': [],
-        'fallback_used': True
+        'fallback_used': True,
+        'analysis_notes': f'Basic analysis completed. Word count: {word_count}, Paragraphs: {paragraph_count}, Issues found: {len(common_issues)}'
     }
     
-    logger.warning("Fallback analysis generated due to AI API failure")
+    logger.info(f"Enhanced fallback analysis generated: {word_count} words, {paragraph_count} paragraphs, {len(common_issues)} issues identified")
     return fallback_analysis
 
 def detect_essay_type(essay_text):
@@ -393,10 +459,20 @@ def get_essay_specific_prompt(essay_type, coaching_level):
     
     return essay_info, intensity
 
-def analyze_essay_with_ai(essay_text, essay_type='auto', coaching_level='medium', suggestion_aggressiveness='medium'):
+def analyze_essay_with_ai(essay_text, essay_type='auto', coaching_level='medium', suggestion_aggressiveness='medium', model='gpt-4o-mini'):
     """
     Analyze essay using AI and return comprehensive feedback
     Uses caching to avoid redundant API calls for identical essays
+    
+    Args:
+        essay_text (str): The essay text to analyze
+        essay_type (str): Type of essay (auto, argumentative, narrative, etc.)
+        coaching_level (str): Intensity of coaching (light, medium, intensive)
+        suggestion_aggressiveness (str): Level of suggestions (low, medium, high)
+        model (str): ChatGPT model to use (gpt-4o, gpt-4o-mini, gpt-4)
+    
+    Returns:
+        dict: Analysis results with scores, suggestions, and feedback
     """
     # Import performance monitoring
     try:
@@ -426,6 +502,12 @@ def analyze_essay_with_ai(essay_text, essay_type='auto', coaching_level='medium'
     
     # Perform AI analysis
     logger.info(f"Performing new AI analysis for essay type: {essay_type}, coaching: {coaching_level}, aggressiveness: {suggestion_aggressiveness}")
+    
+    # Handle very long essays by chunking or truncating
+    original_length = len(essay_text)
+    if original_length > 8000:
+        logger.warning(f"Essay is very long ({original_length} chars). Truncating to first 8000 characters for analysis.")
+        essay_text = essay_text[:8000] + "...\n\n[Note: Essay was truncated for analysis due to length]"
     
     if essay_type == 'auto':
         essay_type = detect_essay_type(essay_text)
@@ -552,9 +634,10 @@ Essay to analyze:
         messages = [{"role": "user", "content": content}]
         response_text = make_openai_request(
             messages=messages,
-            model="gpt-4",
+            model=model,  # Use the specified model parameter
             temperature=0.6,
-            max_retries=3
+            max_retries=3,
+            essay_length=len(essay_text)
         )
         
         if not response_text:
@@ -636,19 +719,31 @@ Essay to analyze:
         if 'suggestions' not in analysis_data:
             analysis_data['suggestions'] = []
         else:
-            # Ensure each suggestion has a reason
-            for suggestion in analysis_data['suggestions']:
+            # Ensure each suggestion has a detailed reason
+            for i, suggestion in enumerate(analysis_data['suggestions']):
                 if 'reason' not in suggestion or not suggestion['reason'].strip():
-                    # Auto-generate default reason based on suggestion type
+                    # Auto-generate detailed reason based on suggestion type
                     stype = suggestion.get('type', '').lower()
+                    text = suggestion.get('text', '')
+                    
                     if stype == 'delete':
-                        suggestion['reason'] = 'This word is unnecessary or incorrect.'
+                        suggestion['reason'] = f'Remove "{text}" - this word/phrase is unnecessary or grammatically incorrect and removing it improves clarity.'
                     elif stype == 'add':
-                        suggestion['reason'] = 'This word improves clarity or correctness.'
+                        suggestion['reason'] = f'Add "{text}" - this addition improves sentence structure, clarity, or grammatical correctness.'
                     elif stype == 'replace':
-                        suggestion['reason'] = 'This word is a better choice for style or grammar.'
+                        if '|' in text:
+                            old, new = text.split('|', 1)
+                            suggestion['reason'] = f'Replace "{old}" with "{new}" - this improves word choice, grammar, or style for better readability.'
+                        else:
+                            suggestion['reason'] = f'Replace this text - better word choice improves style and clarity.'
                     else:
-                        suggestion['reason'] = 'No explanation provided by AI.'
+                        suggestion['reason'] = f'Suggested change to improve writing quality and effectiveness.'
+                
+                # Ensure the reason is substantial (at least 20 characters)
+                if len(suggestion['reason']) < 20:
+                    suggestion['reason'] += ' This change enhances the overall quality of your writing.'
+                
+                logger.debug(f"Suggestion {i}: {suggestion.get('type')} - {suggestion.get('text')} - {suggestion['reason']}")
 
         # Ensure examples field exists and has proper structure
         if 'examples' not in analysis_data:

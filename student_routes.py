@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from utils import login_required, role_required, get_current_user, allowed_file, is_file_size_valid, extract_text_from_file, extract_text_from_filestorage, safe_get_string, create_word_document_with_suggestions, sanitize_text, validate_file_upload, store_analysis_temporarily, retrieve_analysis_temporarily, cleanup_expired_temp_data
 from db import get_db_connection, save_analysis_to_db, save_submission_to_db, get_checklist_progress, update_checklist_progress, create_modular_rubric_engine
 from ai import analyze_essay_with_ai, generate_step_wise_checklist
-import os, datetime, pymysql, logging
+import os, datetime, pymysql, logging, re
+from io import BytesIO
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -150,10 +151,43 @@ def upload_essay():
                     essay_type = assignment['essay_type']
                 conn.close()
             
-            # Analyze essay with AI
+            # Analyze essay with AI (using optimal model based on complexity)
             logger.info(f"Starting AI analysis for essay: {title}")
-            analysis = analyze_essay_with_ai(essay_text, essay_type, coaching_level, suggestion_aggressiveness)
+            
+            # Choose model based on essay length and coaching level
+            model_choice = "gpt-4o-mini"  # Default for speed and cost efficiency
+            if len(essay_text) > 2000 or coaching_level == 'intensive':
+                model_choice = "gpt-4o"  # Use more powerful model for complex analysis
+                logger.info(f"Using {model_choice} for complex essay analysis")
+            else:
+                logger.info(f"Using {model_choice} for standard essay analysis")
+            
+            analysis = analyze_essay_with_ai(essay_text, essay_type, coaching_level, suggestion_aggressiveness, model_choice)
             logger.info("AI analysis completed successfully")
+            
+            # Validate and enhance rubric scores in analysis
+            if 'scores' in analysis:
+                scores = analysis['scores']
+                rubric_categories = ['ideas', 'organization', 'style', 'grammar']
+                total_score = 0
+                valid_scores = 0
+                
+                for category in rubric_categories:
+                    if category in scores and isinstance(scores[category], (int, float)):
+                        score = max(0, min(100, scores[category]))  # Clamp between 0-100
+                        scores[category] = round(score, 1)  # Round to 1 decimal place
+                        total_score += score
+                        valid_scores += 1
+                    else:
+                        scores[category] = 75.0  # Default score if missing
+                        total_score += 75.0
+                        valid_scores += 1
+                
+                # Calculate overall score as average of all categories
+                overall_score = round(total_score / len(rubric_categories), 1) if valid_scores > 0 else 75.0
+                analysis['overall_score'] = overall_score
+                
+                logger.info(f"Rubric scores calculated - Ideas: {scores['ideas']}, Organization: {scores['organization']}, Style: {scores['style']}, Grammar: {scores['grammar']}, Overall: {overall_score}")
             
             # Save analysis to database
             logger.info("Saving analysis to database...")
@@ -232,13 +266,72 @@ def analyze_essay():
         if suggestion_aggressiveness not in valid_aggressiveness:
             return jsonify({'error': f'Invalid suggestion aggressiveness. Must be one of: {", ".join(valid_aggressiveness)}'}), 400
         
-        # Analyze essay with AI
+        # Log analysis start with essay length for timeout estimation
+        logger.info(f"Starting essay analysis: {len(essay_text)} chars, type: {essay_type}, level: {coaching_level}")
+        
+        # Estimate processing time for user feedback
+        estimated_time = 30  # Base time
+        if len(essay_text) > 3000:
+            estimated_time = 120  # 2 minutes for very long essays
+        elif len(essay_text) > 2000:
+            estimated_time = 90   # 1.5 minutes for long essays
+        elif len(essay_text) > 1000:
+            estimated_time = 60   # 1 minute for medium essays
+        
+        # Analyze essay with AI (using optimal model based on essay complexity)
+        # Choose model based on essay length and coaching level
+        model_choice = "gpt-4o-mini"  # Default for speed and cost efficiency
+        if len(essay_text) > 2000 or coaching_level == 'intensive':
+            model_choice = "gpt-4o"  # Use more powerful model for complex analysis
+        
         analysis_result = analyze_essay_with_ai(
             essay_text, 
             essay_type, 
             coaching_level, 
-            suggestion_aggressiveness
+            suggestion_aggressiveness,
+            model_choice  # Pass model choice to AI function
         )
+        
+        # Add processing info to result with improved model tracking
+        analysis_result['processing_info'] = {
+            'essay_length': len(essay_text),
+            'estimated_time': estimated_time,
+            'actual_model_used': model_choice if not analysis_result.get('fallback_used') else 'fallback',
+            'coaching_level': coaching_level,
+            'suggestion_aggressiveness': suggestion_aggressiveness
+        }
+        
+        # Calculate and validate rubric scores
+        if 'scores' in analysis_result:
+            scores = analysis_result['scores']
+            
+            # Ensure all rubric scores are present and valid
+            rubric_categories = ['ideas', 'organization', 'style', 'grammar']
+            total_score = 0
+            valid_scores = 0
+            
+            for category in rubric_categories:
+                if category in scores and isinstance(scores[category], (int, float)):
+                    score = max(0, min(100, scores[category]))  # Clamp between 0-100
+                    scores[category] = round(score, 1)  # Round to 1 decimal place
+                    total_score += score
+                    valid_scores += 1
+                else:
+                    scores[category] = 75.0  # Default score if missing
+                    total_score += 75.0
+                    valid_scores += 1
+            
+            # Calculate overall score as average of all categories
+            overall_score = round(total_score / len(rubric_categories), 1) if valid_scores > 0 else 75.0
+            analysis_result['overall_score'] = overall_score
+            
+            # Add rubric calculation details
+            analysis_result['rubric_calculation'] = {
+                'total_possible': len(rubric_categories) * 100,
+                'total_earned': total_score,
+                'average_score': overall_score,
+                'categories_scored': valid_scores
+            }
         
         # Save submission if requested
         if data.get('save_to_db', False):
@@ -248,7 +341,13 @@ def analyze_essay():
         
     except Exception as e:
         logger.error(f"Essay analysis error: {e}")
-        return jsonify({'error': 'Failed to analyze essay. Please try again.'}), 500
+        # Return more detailed error for timeout issues
+        error_msg = 'Failed to analyze essay. Please try again.'
+        if 'timeout' in str(e).lower():
+            error_msg = 'Analysis timed out. Your essay may be too complex. Try again or use a shorter essay.'
+        elif 'rate limit' in str(e).lower():
+            error_msg = 'Service temporarily busy. Please wait a moment and try again.'
+        return jsonify({'error': error_msg}), 500
 
 @student_bp.route('/analyze-view')
 @login_required
@@ -489,6 +588,87 @@ def reject_assignment_request(request_id):
 def submit_assignment(assignment_id):
     # Assignment submission logic
     return redirect(url_for('student.view_assignments'))
+
+@student_bp.route('/export-essay', methods=['POST'])
+@login_required
+@role_required('student')
+def export_essay():
+    """Export analyzed essay as .docx file with custom formatting and timing info"""
+    import time
+    start_time = time.time()
+    
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        essay_text = data.get('essay', '').strip()
+        analysis_data = data.get('analysis', {})
+        accepted_suggestions = data.get('acceptedSuggestions', [])
+        title = data.get('title', 'Essay Analysis')
+        
+        if not essay_text or not analysis_data:
+            return jsonify({'error': 'Essay text and analysis data are required'}), 400
+        
+        # Log export start with details
+        logger.info(f"Starting essay export: {len(essay_text)} chars, {len(accepted_suggestions)} suggestions accepted")
+        
+        # Validate and enhance analysis data with corrected rubric scores
+        if 'scores' in analysis_data:
+            scores = analysis_data['scores']
+            rubric_categories = ['ideas', 'organization', 'style', 'grammar']
+            
+            # Ensure all scores are valid and calculate total
+            total_score = 0
+            for category in rubric_categories:
+                if category in scores:
+                    score = max(0, min(100, float(scores[category])))
+                    scores[category] = round(score, 1)
+                    total_score += score
+                else:
+                    scores[category] = 75.0  # Default if missing
+                    total_score += 75.0
+            
+            # Add overall score calculation
+            analysis_data['overall_score'] = round(total_score / len(rubric_categories), 1)
+            analysis_data['total_possible'] = len(rubric_categories) * 100
+            analysis_data['export_timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Create Word document with suggestions
+        doc_start_time = time.time()
+        doc = create_word_document_with_suggestions(essay_text, analysis_data, accepted_suggestions)
+        doc_creation_time = time.time() - doc_start_time
+        
+        # Save document to memory
+        doc_buffer = BytesIO()
+        doc.save(doc_buffer)
+        doc_buffer.seek(0)
+        
+        # Create filename with current date
+        current_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_title = re.sub(r'[^\w\s-]', '', title).strip()[:50]  # Sanitize title
+        filename = f"{safe_title}_AI_ANALYSIS.docx"
+        
+        # Calculate total processing time
+        total_time = time.time() - start_time
+        
+        # Create response
+        response = make_response(doc_buffer.getvalue())
+        response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response.headers['Content-Length'] = str(len(doc_buffer.getvalue()))
+        
+        # Log successful export with timing details
+        logger.info(f"Successfully exported essay analysis as {filename}")
+        logger.info(f"Export timing - Total: {total_time:.2f}s, Document creation: {doc_creation_time:.2f}s, File size: {len(doc_buffer.getvalue())} bytes")
+        
+        return response
+        
+    except Exception as e:
+        total_time = time.time() - start_time
+        logger.error(f"Essay export error after {total_time:.2f}s: {e}")
+        return jsonify({'error': 'Failed to export essay. Please try again.'}), 500
 
 @student_bp.route('/cleanup-temp', methods=['POST'])
 @login_required

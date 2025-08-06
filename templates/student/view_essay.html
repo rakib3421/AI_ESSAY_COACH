@@ -756,7 +756,11 @@ function exportEssayWithSuggestions() {
     exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exporting...';
     exportBtn.disabled = true;
     
-    fetch('/export', {
+    // Get the essay title
+    const titleElement = document.getElementById('essay-title');
+    const essayTitle = titleElement ? titleElement.textContent.replace('📝', '').trim() : 'Essay Analysis';
+    
+    fetch('/student/export-essay', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -764,7 +768,8 @@ function exportEssayWithSuggestions() {
         body: JSON.stringify({
             essay: essayText,
             analysis: wordSuggestionAnalysis,
-            acceptedSuggestions: Array.from(acceptedWordSuggestions)
+            acceptedSuggestions: Array.from(acceptedWordSuggestions),
+            title: essayTitle
         })
     })
     .then(response => {
@@ -777,13 +782,18 @@ function exportEssayWithSuggestions() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'essay_analysis.docx';
+        
+        // Generate filename
+        const currentDate = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+        const safeTitle = essayTitle.replace(/[^\w\s-]/g, '').trim().slice(0, 50);
+        a.download = `${safeTitle}_${currentDate}_analysis.docx`;
+        
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         
-        showSuccess('Essay exported successfully');
+        showSuccess('Essay exported successfully as .docx file!');
     })
     .catch(error => {
         console.error('Export error:', error);

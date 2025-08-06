@@ -275,6 +275,23 @@
         font-size: 14px;
         font-weight: 500;
     }
+    
+    /* Score color classes for progress bars */
+    .score-excellent {
+        background: linear-gradient(135deg, #51cf66, #40c057) !important;
+    }
+    
+    .score-good {
+        background: linear-gradient(135deg, #339af0, #228be6) !important;
+    }
+    
+    .score-average {
+        background: linear-gradient(135deg, #ffd43b, #fab005) !important;
+    }
+    
+    .score-poor {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
+    }
 </style>
 {% endblock %}
 
@@ -871,17 +888,24 @@ function displayScores(scores, reasons) {
         { key: 'grammar', label: 'Grammar', max: 25 }
     ];
     
+    let totalWeightedScore = 0;
+    
     dimensions.forEach(dim => {
         const score = scores[dim.key] || 0;
-        const percentage = (score / 100) * 100;
+        
+        // Convert percentage score to weighted points
+        const weightedPoints = Math.round((score / 100) * dim.max);
+        const percentage = score; // Original percentage for color calculation
         const colorClass = getScoreColorClass(percentage);
         const reason = reasons && reasons[dim.key] ? reasons[dim.key] : 'No feedback available.';
+        
+        totalWeightedScore += weightedPoints;
         
         html += `
             <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="fw-semibold">${dim.label}</span>
-                    <span class="badge bg-light text-dark">${score}/100</span>
+                    <span class="badge bg-light text-dark">${weightedPoints}/${dim.max}</span>
                 </div>
                 <div class="progress mb-2" style="height: 8px;">
                     <div class="progress-bar ${colorClass}" style="width: ${percentage}%"></div>
@@ -891,18 +915,17 @@ function displayScores(scores, reasons) {
         `;
     });
     
-    // Add overall score
-    const overallScore = Math.round((scores.ideas + scores.organization + scores.style + scores.grammar) / 4);
-    const overallColorClass = getScoreColorClass(overallScore);
+    // Add overall weighted score
+    const overallColorClass = getScoreColorClass(totalWeightedScore);
     
     html += `
         <div class="mt-4 pt-3 border-top">
             <div class="text-center">
                 <div class="score-circle ${overallColorClass} mx-auto">
-                    ${overallScore}
+                    ${totalWeightedScore}
                 </div>
                 <h6 class="mb-0">Overall Score</h6>
-                <small class="text-muted">Out of 100</small>
+                <small class="text-muted">Out of 100 (Weighted)</small>
             </div>
         </div>
     `;
@@ -1011,6 +1034,29 @@ function reanalyzeEssay() {
     btn.disabled = true;
     spinner.classList.remove('d-none');
     
+    // Show progress message based on essay length
+    const essayLength = essayText.length;
+    let timeoutMessage = 'Analyzing essay...';
+    let estimatedTime = 30;
+    
+    if (essayLength > 3000) {
+        timeoutMessage = 'Analyzing long essay... This may take up to 2 minutes.';
+        estimatedTime = 120;
+    } else if (essayLength > 2000) {
+        timeoutMessage = 'Analyzing essay... This may take up to 90 seconds.';
+        estimatedTime = 90;
+    } else if (essayLength > 1000) {
+        timeoutMessage = 'Analyzing essay... This may take up to 60 seconds.';
+        estimatedTime = 60;
+    }
+    
+    showToast(timeoutMessage, 'info');
+    
+    // Set a progress timer
+    const progressTimer = setTimeout(() => {
+        showToast('Analysis is taking longer than expected. Please wait...', 'warning');
+    }, estimatedTime * 1000);
+    
     const analysisData = {
         essay: essayText,
         essay_type: document.getElementById('essayType').value,
@@ -1018,24 +1064,51 @@ function reanalyzeEssay() {
         suggestion_aggressiveness: document.getElementById('suggestionLevel').value
     };
     
+    // Set a longer timeout for the fetch request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), (estimatedTime + 60) * 1000); // Add 60s buffer
+    
     fetch('/student/analyze', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(analysisData)
+        body: JSON.stringify(analysisData),
+        signal: controller.signal
     })
     .then(response => response.json())
     .then(data => {
+        clearTimeout(progressTimer);
+        clearTimeout(timeoutId);
+        
         if (data.error) {
             showToast(data.error, 'error');
         } else {
             displayAnalysis(data);
-            showToast('Essay re-analyzed successfully!', 'success');
+            
+            // Show appropriate success message
+            let successMsg = 'Essay analyzed successfully!';
+            if (data.fallback_used) {
+                successMsg = 'Basic analysis completed. AI service was unavailable, but we provided structural feedback.';
+            } else if (data.processing_info && data.processing_info.essay_length > 3000) {
+                successMsg = 'Complex essay analyzed successfully!';
+            }
+            
+            showToast(successMsg, 'success');
         }
     })
     .catch(error => {
-        showToast('Failed to re-analyze essay. Please try again.', 'error');
+        clearTimeout(progressTimer);
+        clearTimeout(timeoutId);
+        
+        let errorMsg = 'Failed to analyze essay. Please try again.';
+        if (error.name === 'AbortError') {
+            errorMsg = 'Analysis timed out. Your essay may be too complex. Try shortening it or try again later.';
+        } else if (error.message && error.message.includes('timeout')) {
+            errorMsg = 'Request timed out. Please try again with a shorter essay or check your connection.';
+        }
+        
+        showToast(errorMsg, 'error');
     })
     .finally(() => {
         btn.disabled = false;
@@ -1044,8 +1117,68 @@ function reanalyzeEssay() {
 }
 
 function exportEssay() {
-    // Implement export functionality
-    showToast('Export functionality coming soon!', 'info');
+    if (!currentPageAnalysis || !essayText) {
+        showToast('No analysis data available for export', 'error');
+        return;
+    }
+    
+    const exportBtn = document.getElementById('exportBtn');
+    const originalText = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exporting...';
+    exportBtn.disabled = true;
+    
+    // Get the essay title
+    const titleElement = document.getElementById('essay-title');
+    const essayTitle = titleElement ? titleElement.textContent.replace('📝', '').trim() : 'Essay Analysis';
+    
+    // Prepare export data
+    const exportData = {
+        essay: essayText,
+        analysis: currentPageAnalysis,
+        acceptedSuggestions: Array.from(acceptedSuggestionIndices || []),
+        title: essayTitle
+    };
+    
+    fetch('/student/export-essay', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(exportData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Export failed');
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        // Generate filename
+        const currentDate = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+        const safeTitle = essayTitle.replace(/[^\w\s-]/g, '').trim().slice(0, 50);
+        a.download = `${safeTitle}_${currentDate}_analysis.docx`;
+        
+        // Trigger download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Essay exported successfully as .docx file!', 'success');
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        showToast('Failed to export essay. Please try again.', 'error');
+    })
+    .finally(() => {
+        exportBtn.innerHTML = originalText;
+        exportBtn.disabled = false;
+    });
 }
 
 function shareAnalysis() {

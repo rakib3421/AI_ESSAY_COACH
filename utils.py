@@ -703,16 +703,15 @@ def create_word_document_with_suggestions(essay_text, analysis_data, accepted_su
     header_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.DOUBLE
     
     # Add score table first
-    doc.add_heading(sanitize_text('Rubric Scores & Analysis'), level=1)
-    score_table = doc.add_table(rows=1, cols=4)
+    doc.add_heading(sanitize_text('Rubric Scores'), level=1)
+    score_table = doc.add_table(rows=1, cols=3)  # Reduced to 3 columns (removed explanation)
     score_table.style = 'Table Grid'
     score_header_cells = score_table.rows[0].cells
     score_header_cells[0].text = sanitize_text('Category')
     score_header_cells[1].text = sanitize_text('Score')
     score_header_cells[2].text = sanitize_text('Weight')
-    score_header_cells[3].text = sanitize_text('Explanation')
 
-    # Define rubric weights
+    # Define rubric weights with proper point allocation
     rubric_weights = {
         'ideas': {'weight': 30, 'label': 'Ideas & Content'},
         'organization': {'weight': 25, 'label': 'Organization & Structure'},
@@ -720,23 +719,30 @@ def create_word_document_with_suggestions(essay_text, analysis_data, accepted_su
         'grammar': {'weight': 25, 'label': 'Grammar & Conventions'}
     }
 
-    total_score = 0
+    total_weighted_score = 0
+    total_possible_weighted = 0
+    
     for category, score in analysis_data['scores'].items():
         row_cells = score_table.add_row().cells
         weight_info = rubric_weights.get(category, {'weight': 25, 'label': category.title()})
+        
+        # Calculate actual points based on weight (score is percentage 0-100)
+        actual_points = round((float(score) / 100) * weight_info['weight'], 1)
+        total_weighted_score += actual_points
+        total_possible_weighted += weight_info['weight']
+        
         row_cells[0].text = sanitize_text(weight_info['label'])
-        row_cells[1].text = sanitize_text(f"{score}/{weight_info['weight']}")
+        row_cells[1].text = sanitize_text(f"{actual_points}/{weight_info['weight']}")  # Show weighted score
         row_cells[2].text = sanitize_text(f"{weight_info['weight']}%")
-        reason = analysis_data.get('score_reasons', {}).get(category, 'No reason provided.')
-        row_cells[3].text = sanitize_text(str(reason))
-        total_score += score
 
+    # Calculate final weighted score
+    final_score = round(total_weighted_score, 1)
+    
     # Add total score row
     total_row = score_table.add_row().cells
     total_row[0].text = sanitize_text('TOTAL SCORE')
-    total_row[1].text = sanitize_text(f"{total_score}/100")
+    total_row[1].text = sanitize_text(f"{final_score}/100")
     total_row[2].text = sanitize_text('100%')
-    total_row[3].text = sanitize_text('Overall performance based on rubric criteria')
     
     # Make total row bold
     for cell in total_row:
@@ -744,18 +750,13 @@ def create_word_document_with_suggestions(essay_text, analysis_data, accepted_su
             for run in paragraph.runs:
                 run.bold = True
 
-    # Add examples section with proper formatting
-    doc.add_heading(sanitize_text('Supporting Evidence for Rubric Scores'), level=1)
-    for dimension in ['ideas', 'organization', 'style', 'grammar']:
-        examples = analysis_data.get('examples', {}).get(dimension, [])
-        if examples:
-            doc.add_heading(sanitize_text(rubric_weights.get(dimension, {'label': dimension.title()})['label']), level=2)
-            for i, example_text in enumerate(examples[:2], 1):  # Limit to 2 examples
-                sanitized_text = sanitize_text(str(example_text))
-                p = doc.add_paragraph()
-                p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.DOUBLE
-                p.add_run(f'{i}. ').bold = True
-                p.add_run(sanitized_text)
+    # Add export timing information if available
+    if 'export_timestamp' in analysis_data:
+        timing_para = doc.add_paragraph()
+        timing_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.DOUBLE
+        timing_run = timing_para.add_run(f"Document generated on: {analysis_data['export_timestamp']}")
+        timing_run.italic = True
+        timing_run.font.size = Pt(9)
 
     # Add essay with inline suggestions and comments
     doc.add_heading(sanitize_text('Essay with AI Coaching Suggestions'), level=1)
@@ -828,52 +829,90 @@ def create_word_document_with_suggestions(essay_text, analysis_data, accepted_su
             if text:
                 # Deletions: blue color with strikethrough
                 run = add_colored_run(paragraph, text, (0, 0, 255), strike=True)
-                # Find reason for this suggestion
+                # Find reason for this suggestion with improved matching
                 reason = ''
                 for s in suggestions:
-                    if s.get('type', '').lower() == 'delete' and sanitize_text(str(s.get('text', ''))) == text:
-                        reason = sanitize_text(str(s.get('reason', '')))
+                    suggestion_type = s.get('type', '').lower()
+                    suggestion_text = s.get('text', '')
+                    
+                    # Match deletion suggestions
+                    if suggestion_type == 'delete' and text in suggestion_text:
+                        reason = sanitize_text(str(s.get('reason', 'Deletion suggested for improvement')))
                         break
+                    # Also check if the text appears in any suggestion
+                    elif text in suggestion_text:
+                        reason = sanitize_text(str(s.get('reason', 'Text modification suggested')))
+                        break
+                
+                # Always add a reason, even if not found in suggestions
+                if not reason:
+                    reason = 'Remove unnecessary or incorrect text'
+                
                 # Add reason as inline comment (in parentheses) - smaller font, italic
-                if reason:
-                    reason_run = paragraph.add_run(f' ({reason})')
-                    reason_run.italic = True
-                    reason_run.font.size = Pt(9)
-                    reason_run.font.color.rgb = RGBColor(100, 100, 100)  # Gray color
+                reason_run = paragraph.add_run(f' ({reason})')
+                reason_run.italic = True
+                reason_run.font.size = Pt(9)
+                reason_run.font.color.rgb = RGBColor(100, 100, 100)  # Gray color
             pos = next_tag.end()
         elif next_tag == next_add:
             text = sanitize_text(str(next_tag.group(1) or ''))
             if text:
                 # Additions: red color with underline
                 run = add_colored_run(paragraph, text, (255, 0, 0), underline=True)
+                # Find reason for this suggestion with improved matching
                 reason = ''
                 for s in suggestions:
-                    if s.get('type', '').lower() == 'add' and sanitize_text(str(s.get('text', ''))) == text:
-                        reason = sanitize_text(str(s.get('reason', '')))
+                    suggestion_type = s.get('type', '').lower()
+                    suggestion_text = s.get('text', '')
+                    
+                    # Match addition suggestions
+                    if suggestion_type == 'add' and text in suggestion_text:
+                        reason = sanitize_text(str(s.get('reason', 'Addition suggested for improvement')))
                         break
-                if reason:
-                    reason_run = paragraph.add_run(f' ({reason})')
-                    reason_run.italic = True
-                    reason_run.font.size = Pt(9)
-                    reason_run.font.color.rgb = RGBColor(100, 100, 100)  # Gray color
+                    elif text in suggestion_text:
+                        reason = sanitize_text(str(s.get('reason', 'Text addition suggested')))
+                        break
+                
+                # Always add a reason, even if not found in suggestions
+                if not reason:
+                    reason = 'Add for clarity or correctness'
+                
+                reason_run = paragraph.add_run(f' ({reason})')
+                reason_run.italic = True
+                reason_run.font.size = Pt(9)
+                reason_run.font.color.rgb = RGBColor(100, 100, 100)  # Gray color
             pos = next_tag.end()
         elif next_tag == next_replace:
             old_word = sanitize_text(str(next_tag.group(1) or ''))
             new_word = sanitize_text(str(next_tag.group(2) or ''))
             if old_word:
                 run_old = add_colored_run(paragraph, old_word, (0, 0, 255), strike=True)
+                # Find reason for replacement with improved matching
                 reason = ''
                 for s in suggestions:
-                    if (s.get('type', '').lower() == 'replace' and 
-                        sanitize_text(str(s.get('text', ''))) == f"{old_word} -> {new_word}"):
-                        reason = sanitize_text(str(s.get('reason', '')))
+                    suggestion_type = s.get('type', '').lower()
+                    suggestion_text = s.get('text', '')
+                    
+                    # Match replacement suggestions
+                    if suggestion_type == 'replace':
+                        if (old_word in suggestion_text and new_word in suggestion_text) or \
+                           f"{old_word}|{new_word}" in suggestion_text or \
+                           f"{old_word} -> {new_word}" in suggestion_text:
+                            reason = sanitize_text(str(s.get('reason', 'Replacement suggested for improvement')))
+                            break
+                    elif old_word in suggestion_text or new_word in suggestion_text:
+                        reason = sanitize_text(str(s.get('reason', 'Word change suggested')))
                         break
-                if reason:
-                    reason_run = paragraph.add_run(f' ({reason})')
-                    reason_run.italic = True
-                    reason_run.font.size = Pt(9)
-                    reason_run.font.color.rgb = RGBColor(100, 100, 100)  # Gray color
-            paragraph.add_run(' → ')  # Better arrow symbol
+                
+                # Always add a reason, even if not found in suggestions
+                if not reason:
+                    reason = f'Replace "{old_word}" with "{new_word}" for better style or accuracy'
+                
+                reason_run = paragraph.add_run(f' ({reason})')
+                reason_run.italic = True
+                reason_run.font.size = Pt(9)
+                reason_run.font.color.rgb = RGBColor(100, 100, 100)  # Gray color
+            paragraph.add_run(' ')  # Space between old and new word
             if new_word:
                 run_new = add_colored_run(paragraph, new_word, (255, 0, 0), underline=True)
             pos = next_tag.end()
