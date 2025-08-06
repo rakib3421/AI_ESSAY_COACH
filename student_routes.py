@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, send_file, make_response
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, send_file, make_response, jsonify
 from utils import login_required, role_required, get_current_user, allowed_file, is_file_size_valid, extract_text_from_file, safe_get_string, create_word_document_with_suggestions, sanitize_text, validate_file_upload
 from db import get_db_connection, save_analysis_to_db, save_submission_to_db, get_checklist_progress, update_checklist_progress, create_modular_rubric_engine
 from ai import analyze_essay_with_ai, generate_step_wise_checklist
-import os, datetime, pymysql
+import os, datetime, pymysql, logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 student_bp = Blueprint('student', __name__, url_prefix='/student')
 
@@ -93,16 +96,25 @@ def student_dashboard():
 def upload_essay():
     assignment_id = request.args.get('assignment_id', type=int)
     if request.method == 'POST':
+        logger.info(f"POST request received. User ID: {session.get('user_id')}")
+        logger.info(f"Form data: {dict(request.form)}")
+        logger.info(f"Files in request: {list(request.files.keys())}")
+        
         if 'file' not in request.files:
+            logger.warning("No 'file' in request.files")
             flash('No file selected', 'error')
             return redirect(request.url)
         file = request.files['file']
         
+        logger.info(f"File received: {file.filename}, size: {file.content_length}")
+        
         if file.filename == '':
+            logger.warning("Empty filename")
             flash('No file selected', 'error')
             return redirect(request.url)
         
         if not allowed_file(file.filename):
+            logger.warning(f"Invalid file type: {file.filename}")
             flash('Invalid file type. Please upload a .txt, .docx, or .pdf file', 'error')
             return redirect(request.url)
         
@@ -117,8 +129,18 @@ def upload_essay():
                 flash('The uploaded file appears to be empty or unreadable', 'error')
                 return redirect(request.url)
             
-            # Get essay type from form or assignment
-            essay_type = request.form.get('essay_type', 'general')
+            # Get parameters from form
+            essay_type = request.form.get('essay_type', 'auto')
+            coaching_level = request.form.get('coaching_level', 'medium')
+            suggestion_aggressiveness = request.form.get('suggestion_aggressiveness', 'medium')
+            title = request.form.get('title', 'Untitled Essay')
+            
+            # Get assignment ID from form or URL parameters
+            assignment_id_form = request.form.get('assignment_id')
+            if assignment_id_form:
+                assignment_id = int(assignment_id_form)
+            
+            # Get assignment details if provided
             if assignment_id:
                 conn = get_db_connection()
                 cursor = conn.cursor()
@@ -129,23 +151,145 @@ def upload_essay():
                 conn.close()
             
             # Analyze essay with AI
-            analysis = analyze_essay_with_ai(essay_text, essay_type)
+            logger.info(f"Starting AI analysis for essay: {title}")
+            analysis = analyze_essay_with_ai(essay_text, essay_type, coaching_level, suggestion_aggressiveness)
+            logger.info("AI analysis completed successfully")
             
             # Save analysis to database
-            analysis_id = save_analysis_to_db(essay_text, essay_type, analysis)
+            logger.info("Saving analysis to database...")
+            analysis_id = save_analysis_to_db(essay_text, analysis)
+            logger.info(f"Analysis saved with ID: {analysis_id}")
             
             # Save submission
-            save_submission_to_db(session['user_id'], analysis_id, assignment_id)
+            logger.info("Saving submission to database...")
+            final_assignment_id = assignment_id if assignment_id else None
+            save_submission_to_db(session['user_id'], analysis_id, final_assignment_id)
+            logger.info("Submission saved successfully")
+            
+            # Store analysis data in session for the analysis view
+            session['temp_analysis'] = {
+                'essay_text': essay_text,
+                'title': title,
+                'analysis': analysis
+            }
             
             flash('Essay uploaded and analyzed successfully!', 'success')
-            return redirect(url_for('student.student_dashboard'))
+            return redirect(url_for('student.analyze_view'))
             
         except Exception as e:
+            logger.error(f'Error processing file: {str(e)}')
             flash(f'Error processing file: {str(e)}', 'error')
             return redirect(request.url)
     
     return render_template('student/upload.html')
 
+@student_bp.route('/analyze', methods=['POST'])
+@login_required
+@role_required('student')
+def analyze_essay():
+    """
+    Analyze essay text using AI with advanced options
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Support both 'essay_text' and 'essay' field names for backward compatibility
+        essay_text = data.get('essay_text', data.get('essay', '')).strip()
+        essay_type = data.get('essay_type', 'auto').lower()
+        coaching_level = data.get('coaching_level', 'medium').lower()
+        suggestion_aggressiveness = data.get('suggestion_aggressiveness', 'medium').lower()
+        assignment_id = data.get('assignment_id')  # Optional assignment ID
+        
+        if not essay_text:
+            return jsonify({'error': 'Essay text is required'}), 400
+        
+        # Validate essay length
+        if len(essay_text) < 50:
+            return jsonify({'error': 'Essay too short (minimum 50 characters)'}), 400
+        if len(essay_text) > 10000:
+            return jsonify({'error': 'Essay too long (maximum 10,000 characters)'}), 400
+        
+        # Validate parameters
+        valid_types = ['auto', 'argumentative', 'narrative', 'literary_analysis', 'hybrid', 'expository', 'descriptive', 'compare']
+        valid_coaching = ['light', 'medium', 'intensive']
+        valid_aggressiveness = ['low', 'medium', 'high']
+        
+        if essay_type not in valid_types:
+            return jsonify({'error': f'Invalid essay type. Must be one of: {", ".join(valid_types)}'}), 400
+        if coaching_level not in valid_coaching:
+            return jsonify({'error': f'Invalid coaching level. Must be one of: {", ".join(valid_coaching)}'}), 400
+        if suggestion_aggressiveness not in valid_aggressiveness:
+            return jsonify({'error': f'Invalid suggestion aggressiveness. Must be one of: {", ".join(valid_aggressiveness)}'}), 400
+        
+        # Analyze essay with AI
+        analysis_result = analyze_essay_with_ai(
+            essay_text, 
+            essay_type, 
+            coaching_level, 
+            suggestion_aggressiveness
+        )
+        
+        # Save submission if requested
+        if data.get('save_to_db', False):
+            save_submission_to_db(session['user_id'], analysis_result.get('analysis_id'), assignment_id)
+        
+        return jsonify(analysis_result)
+        
+    except Exception as e:
+        logger.error(f"Essay analysis error: {e}")
+        return jsonify({'error': 'Failed to analyze essay. Please try again.'}), 500
+
+@student_bp.route('/analyze-view')
+@login_required
+@role_required('student')
+def analyze_view():
+    """
+    Display the essay analysis view with AI suggestions
+    """
+    # Check if we have temp analysis data from upload
+    temp_analysis = session.get('temp_analysis')
+    if not temp_analysis:
+        flash('No analysis data found. Please upload an essay first.', 'error')
+        return redirect(url_for('student.upload'))
+    
+    # Clear the temp data after retrieving it
+    session.pop('temp_analysis', None)
+    
+    return render_template('student/analyze_view.html', 
+                         essay_text=temp_analysis['essay_text'],
+                         title=temp_analysis['title'],
+                         analysis=temp_analysis['analysis'])
+
+@student_bp.route('/assignments/api')
+@login_required
+@role_required('student')
+def assignments_api():
+    """
+    API endpoint to get assignments for the current student
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        
+        cursor.execute("""
+            SELECT a.id, a.title, a.essay_type, a.due_date
+            FROM assignments a
+            JOIN student_teacher_assignments sta ON a.teacher_id = sta.teacher_id
+            WHERE sta.student_id = %s AND a.due_date >= CURRENT_DATE
+            ORDER BY a.due_date ASC
+        """, (session['user_id'],))
+        
+        assignments = cursor.fetchall()
+        conn.close()
+        
+        return jsonify(assignments)
+        
+    except Exception as e:
+        logger.error(f"Error loading assignments: {e}")
+        return jsonify([])
 
 @student_bp.route('/essays')
 @login_required
