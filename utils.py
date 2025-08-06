@@ -5,6 +5,9 @@ Contains utility functions for file handling, validation, and document processin
 import os
 import re
 import logging
+import json
+import uuid
+import time
 from flask import session, redirect, url_for, flash
 from functools import wraps
 from docx import Document
@@ -15,6 +18,375 @@ from io import BytesIO
 from config import Config
 
 logger = logging.getLogger(__name__)
+
+class TemporaryDataStorage:
+    """
+    Temporary file-based storage for large data that shouldn't be stored in session
+    """
+    
+    def __init__(self, storage_dir: str = None, ttl: int = None):
+        """
+        Initialize temporary storage
+        
+        Args:
+            storage_dir (str): Directory for temporary files (default from config)
+            ttl (int): Time to live in seconds (default from config)
+        """
+        self.storage_dir = storage_dir or Config.TEMP_STORAGE.get('directory', 'temp_data')
+        self.ttl = ttl or Config.TEMP_STORAGE.get('ttl', 3600)
+        
+        # Make path absolute
+        if not os.path.isabs(self.storage_dir):
+            self.storage_dir = os.path.join(os.getcwd(), self.storage_dir)
+        
+        # Ensure storage directory exists
+        os.makedirs(self.storage_dir, exist_ok=True)
+    
+    def store(self, data: dict) -> str:
+        """
+        Store data temporarily and return a unique identifier
+        
+        Args:
+            data (dict): Data to store
+            
+        Returns:
+            str: Unique identifier for the stored data
+        """
+        try:
+            # Generate unique identifier
+            data_id = str(uuid.uuid4())
+            
+            # Add timestamp for TTL
+            storage_data = {
+                'data': data,
+                'timestamp': time.time(),
+                'ttl': self.ttl
+            }
+            
+            # Store in file
+            file_path = os.path.join(self.storage_dir, f"{data_id}.json")
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(storage_data, f, default=str, ensure_ascii=False, indent=2)
+            
+            logger.info(f"Temporary data stored with ID: {data_id}")
+            return data_id
+            
+        except Exception as e:
+            logger.error(f"Error storing temporary data: {e}")
+            return None
+    
+    def retrieve(self, data_id: str, delete_after_read: bool = True) -> dict:
+        """
+        Retrieve temporarily stored data
+        
+        Args:
+            data_id (str): Unique identifier
+            delete_after_read (bool): Whether to delete the file after reading
+            
+        Returns:
+            dict: Stored data or None if not found/expired
+        """
+        try:
+            file_path = os.path.join(self.storage_dir, f"{data_id}.json")
+            
+            if not os.path.exists(file_path):
+                logger.warning(f"Temporary data file not found: {data_id}")
+                return None
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                storage_data = json.load(f)
+            
+            # Check if data has expired
+            if time.time() - storage_data['timestamp'] > storage_data['ttl']:
+                logger.warning(f"Temporary data expired: {data_id}")
+                self._delete_file(file_path)
+                return None
+            
+            # Delete file if requested
+            if delete_after_read:
+                self._delete_file(file_path)
+                logger.info(f"Temporary data retrieved and deleted: {data_id}")
+            else:
+                logger.info(f"Temporary data retrieved: {data_id}")
+            
+            return storage_data['data']
+            
+        except Exception as e:
+            logger.error(f"Error retrieving temporary data {data_id}: {e}")
+            return None
+    
+    def cleanup_expired(self):
+        """Remove expired temporary files"""
+        try:
+            current_time = time.time()
+            cleaned_count = 0
+            
+            for filename in os.listdir(self.storage_dir):
+                if filename.endswith('.json'):
+                    file_path = os.path.join(self.storage_dir, filename)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            storage_data = json.load(f)
+                        
+                        # Check if expired
+                        if current_time - storage_data['timestamp'] > storage_data['ttl']:
+                            self._delete_file(file_path)
+                            cleaned_count += 1
+                            
+                    except Exception as e:
+                        logger.warning(f"Error checking expiry for {filename}: {e}")
+                        # Delete corrupted files
+                        self._delete_file(file_path)
+                        cleaned_count += 1
+            
+            if cleaned_count > 0:
+                logger.info(f"Cleaned up {cleaned_count} expired temporary files")
+                
+        except Exception as e:
+            logger.error(f"Error during cleanup: {e}")
+    
+    def _delete_file(self, file_path: str):
+        """Safely delete a file"""
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            logger.warning(f"Could not delete temporary file {file_path}: {e}")
+
+# Global temporary storage instance
+temp_storage = TemporaryDataStorage()
+
+def store_analysis_temporarily(analysis_data: dict) -> str:
+    """
+    Store analysis data temporarily and return an identifier
+    
+    Args:
+        analysis_data (dict): Analysis data containing essay_text, title, and analysis
+        
+    Returns:
+        str: Temporary storage identifier
+    """
+    return temp_storage.store(analysis_data)
+
+def retrieve_analysis_temporarily(data_id: str) -> dict:
+    """
+    Retrieve temporarily stored analysis data
+    
+    Args:
+        data_id (str): Temporary storage identifier
+        
+    Returns:
+        dict: Analysis data or None if not found
+    """
+    return temp_storage.retrieve(data_id, delete_after_read=True)
+
+def cleanup_expired_temp_data():
+    """Clean up expired temporary data files"""
+    temp_storage.cleanup_expired()
+
+def schedule_cleanup():
+    """Schedule periodic cleanup of temporary files"""
+    import threading
+    import time
+    
+    def cleanup_worker():
+        while True:
+            try:
+                time.sleep(3600)  # Run every hour
+                cleanup_expired_temp_data()
+            except Exception as e:
+                logger.error(f"Error in cleanup worker: {e}")
+    
+    # Run cleanup in background thread
+    cleanup_thread = threading.Thread(target=cleanup_worker, daemon=True)
+    cleanup_thread.start()
+    logger.info("Temporary file cleanup scheduler started")
+
+# Start cleanup scheduler when module is imported
+schedule_cleanup()
+
+class FileStreamer:
+    """
+    File streaming utility for handling large file uploads efficiently
+    """
+    
+    def __init__(self, chunk_size: int = None, memory_threshold: int = None):
+        """
+        Initialize FileStreamer
+        
+        Args:
+            chunk_size (int): Size of chunks for streaming (default from config)
+            memory_threshold (int): Threshold for switching to streaming (default from config)
+        """
+        self.chunk_size = chunk_size or Config.PERFORMANCE.get('file_chunk_size', 8192)
+        self.memory_threshold = memory_threshold or Config.PERFORMANCE.get('file_memory_threshold', 1024 * 1024)
+    
+    def should_stream(self, file_size: int) -> bool:
+        """
+        Determine if a file should be streamed based on size
+        
+        Args:
+            file_size (int): Size of the file in bytes
+            
+        Returns:
+            bool: True if file should be streamed
+        """
+        return (Config.PERFORMANCE.get('file_streaming_enabled', True) and 
+                file_size > self.memory_threshold)
+    
+    def save_uploaded_file_streaming(self, file_storage, save_path: str) -> bool:
+        """
+        Save uploaded file using streaming for large files
+        
+        Args:
+            file_storage: FileStorage object from form upload
+            save_path (str): Path where to save the file
+            
+        Returns:
+            bool: True if saved successfully
+        """
+        try:
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            
+            # Get file size if possible
+            file_size = 0
+            try:
+                file_storage.seek(0, 2)  # Seek to end
+                file_size = file_storage.tell()
+                file_storage.seek(0)  # Reset to beginning
+            except Exception:
+                logger.warning("Could not determine file size for streaming decision")
+            
+            if self.should_stream(file_size):
+                logger.info(f"Streaming upload of large file ({file_size} bytes) to {save_path}")
+                with open(save_path, 'wb') as f:
+                    for chunk in self.stream_file_chunks(file_storage):
+                        f.write(chunk)
+            else:
+                logger.info(f"Saving small file ({file_size} bytes) to {save_path}")
+                file_storage.save(save_path)
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving uploaded file to {save_path}: {e}")
+            return False
+    
+    def stream_file_chunks(self, file_obj):
+        """
+        Stream file content in chunks
+        
+        Args:
+            file_obj: File object to stream
+            
+        Yields:
+            bytes: File chunks
+        """
+        try:
+            while True:
+                chunk = file_obj.read(self.chunk_size)
+                if not chunk:
+                    break
+                
+                # Ensure we're yielding bytes
+                if isinstance(chunk, str):
+                    chunk = chunk.encode('utf-8')
+                
+                yield chunk
+        except Exception as e:
+            logger.error(f"Error streaming file: {e}")
+            raise
+    
+    def extract_text_from_file_streaming(self, file_path: str, file_type: str = None) -> str:
+        """
+        Extract text from file using streaming for large files
+        
+        Args:
+            file_path (str): Path to the file
+            file_type (str): Optional file type hint
+            
+        Returns:
+            str: Extracted text content
+        """
+        try:
+            if not file_type:
+                file_type = file_path.rsplit('.', 1)[1].lower() if '.' in file_path else ''
+            
+            if file_type == 'txt':
+                return self._extract_text_streaming(file_path)
+            elif file_type == 'docx':
+                return self._extract_docx_streaming(file_path)
+            else:
+                logger.warning(f"Unsupported file type for streaming: {file_type}")
+                return ""
+                
+        except Exception as e:
+            logger.error(f"Error extracting text from {file_path}: {e}")
+            return ""
+    
+    def _extract_text_streaming(self, file_path: str) -> str:
+        """Extract text from TXT file with streaming support"""
+        try:
+            file_size = os.path.getsize(file_path)
+            max_length = Config.ERROR_HANDLING.get('file_max_text_length', 50000)
+            
+            if self.should_stream(file_size):
+                logger.info(f"Streaming text extraction from large file {file_path}")
+                content = ""
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    for chunk in iter(lambda: f.read(self.chunk_size), ''):
+                        content += chunk
+                        if len(content) > max_length:
+                            logger.warning(f"Text file too large, truncating at {max_length} characters")
+                            break
+                return content[:max_length]
+            else:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                return content[:max_length]
+                
+        except Exception as e:
+            logger.error(f"Error extracting text from TXT file {file_path}: {e}")
+            return ""
+    
+    def _extract_docx_streaming(self, file_path: str) -> str:
+        """Extract text from DOCX file with memory management"""
+        try:
+            file_size = os.path.getsize(file_path)
+            
+            # For very large DOCX files, we might want to implement additional checks
+            if file_size > self.memory_threshold * 10:  # 10x the normal threshold
+                logger.warning(f"DOCX file {file_path} is very large ({file_size} bytes), this may consume significant memory")
+            
+            doc = Document(file_path)
+            
+            paragraphs = []
+            total_length = 0
+            max_length = Config.ERROR_HANDLING.get('file_max_text_length', 50000)
+            
+            for paragraph in doc.paragraphs:
+                text = paragraph.text.strip()
+                if text:
+                    paragraphs.append(text)
+                    total_length += len(text)
+                    
+                    # Prevent processing extremely large documents
+                    if total_length > max_length:
+                        logger.warning(f"DOCX file {file_path} too large, truncating at {max_length} characters")
+                        break
+            
+            content = '\n'.join(paragraphs)
+            return content[:max_length]
+            
+        except ImportError:
+            logger.error("python-docx library not available for DOCX file processing")
+            return ""
+        except Exception as e:
+            logger.error(f"Error extracting text from DOCX file {file_path}: {e}")
+            return ""
+
+# Global file streamer instance
+file_streamer = FileStreamer()
 
 def allowed_file(filename):
     """
@@ -538,3 +910,74 @@ def calculate_scores_with_rubric(text_analysis, rubric_config=None):
     
     weighted_scores['total'] = total_score
     return weighted_scores
+
+def extract_text_from_filestorage(file_storage):
+    """
+    Extract text from Flask FileStorage object
+    
+    Args:
+        file_storage: Flask FileStorage object from request.files
+    
+    Returns:
+        str: Extracted text content
+    """
+    if not file_storage or not file_storage.filename:
+        raise ValueError("No file provided or empty filename")
+    
+    filename = file_storage.filename.lower()
+    
+    try:
+        # Read the file content into memory
+        file_content = file_storage.read()
+        
+        # Reset the file pointer for potential future reads
+        file_storage.seek(0)
+        
+        if not file_content:
+            raise ValueError("File is empty")
+        
+        # Determine file type and extract text
+        if filename.endswith('.txt'):
+            try:
+                return file_content.decode('utf-8')
+            except UnicodeDecodeError:
+                return file_content.decode('latin-1')
+                
+        elif filename.endswith('.docx'):
+            try:
+                from docx import Document
+                doc = Document(BytesIO(file_content))
+                text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+                if not text.strip():
+                    raise ValueError("DOCX file contains no readable text")
+                return text
+            except Exception as e:
+                raise ValueError(f"Failed to read DOCX file: {e}")
+                
+        elif filename.endswith('.pdf'):
+            try:
+                import PyPDF2
+                
+                pdf_reader = PyPDF2.PdfReader(BytesIO(file_content))
+                text = ''
+                for page_num, page in enumerate(pdf_reader.pages):
+                    try:
+                        page_text = page.extract_text()
+                        if page_text:
+                            text += page_text + '\n'
+                    except Exception as e:
+                        logger.warning(f"Failed to extract text from page {page_num + 1}: {e}")
+                        continue
+                
+                if not text.strip():
+                    raise ValueError("PDF file contains no readable text")
+                return text
+            except Exception as e:
+                raise ValueError(f"Failed to read PDF file: {e}")
+                
+        else:
+            raise ValueError(f"Unsupported file type: {filename}")
+            
+    except Exception as e:
+        logger.error(f"Error extracting text from FileStorage: {e}")
+        raise

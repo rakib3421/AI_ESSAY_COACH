@@ -63,6 +63,14 @@ class Config:
         'file_memory_threshold': 1024 * 1024,  # 1MB - stream files larger than this
     }
     
+    # Temporary storage configuration
+    TEMP_STORAGE = {
+        'directory': 'temp_data',  # Directory for temporary files
+        'ttl': 3600,  # Time to live in seconds (1 hour)
+        'cleanup_interval': 3600,  # Cleanup interval in seconds (1 hour)
+        'max_file_size': 10 * 1024 * 1024,  # 10MB max per temp file
+    }
+    
     # Essay analysis configuration
     ESSAY_TYPES = [
         'argumentative',

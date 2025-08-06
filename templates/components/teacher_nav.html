@@ -1,0 +1,29 @@
+<!-- Teacher Navigation Component -->
+<div class="card">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{{ url_for('teacher.teacher_dashboard') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'teacher.teacher_dashboard' }}">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="{{ url_for('teacher.submissions') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'teacher.submissions' }}">
+            <i class="fas fa-file-alt me-2"></i>View Submissions
+        </a>
+        <a href="{{ url_for('teacher.create_assignment') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'teacher.create_assignment' }}">
+            <i class="fas fa-plus me-2"></i>Create Assignment
+        </a>
+        <a href="{{ url_for('teacher.students') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'teacher.students' }}">
+            <i class="fas fa-users me-2"></i>Manage Students
+        </a>
+        <a href="{{ url_for('teacher.analytics') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'teacher.analytics' }}">
+            <i class="fas fa-chart-line me-2"></i>Analytics
+        </a>
+        <a href="{{ url_for('teacher.teacher_profile') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'teacher.teacher_profile' }}">
+            <i class="fas fa-user me-2"></i>Profile
+        </a>
+        <a href="{{ url_for('teacher.teacher_settings') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'teacher.teacher_settings' }}">
+            <i class="fas fa-cog me-2"></i>Settings
+        </a>
+    </div>
+</div>

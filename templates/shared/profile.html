@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ "Student" if session.role == 'student' else "Teacher" }} Profile - AI Essay Revision
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        {% if session.role == 'student' %}
+            {% include 'components/student_nav.html' %}
+        {% else %}
+            {% include 'components/teacher_nav.html' %}
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="card shadow">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h1 class="h4 mb-0">
+                    <i class="fas fa-user me-2"></i>
+                    {{ "Student" if session.role == 'student' else "Teacher" }} Profile
+                </h1>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Username:</strong></label>
+                            <p class="text-muted">{{ session.username }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Role:</strong></label>
+                            <p class="text-muted">{{ session.role.title() }}</p>
+                        </div>
+                        
+                        {% if session.role == 'student' %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Total Essays Submitted:</strong></label>
+                            <p class="text-muted">{{ stats.total_essays if stats else 0 }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Average Score:</strong></label>
+                            <p class="text-muted">{{ stats.average_score if stats else 'N/A' }}</p>
+                        </div>
+                        {% else %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Assigned Students:</strong></label>
+                            <p class="text-muted">{{ stats.assigned_students if stats else 0 }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Total Assignments:</strong></label>
+                            <p class="text-muted">{{ stats.total_assignments if stats else 0 }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Member Since:</strong></label>
+                            <p class="text-muted">{{ user_info.created_at.strftime('%B %d, %Y') if user_info and user_info.created_at else 'Unknown' }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Last Login:</strong></label>
+                            <p class="text-muted">{{ user_info.last_login.strftime('%B %d, %Y at %I:%M %p') if user_info and user_info.last_login else 'Unknown' }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Account Status:</strong></label>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('student.student_settings') if session.role == 'student' else url_for('teacher.teacher_settings') }}" 
+                       class="btn btn-primary">
+                        <i class="fas fa-cog me-2"></i>Account Settings
+                    </a>
+                    
+                    {% if session.role == 'student' %}
+                    <a href="{{ url_for('student.student_progress') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-line me-2"></i>View Progress
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('teacher.analytics') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-line me-2"></i>View Analytics
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -9,13 +9,19 @@ import logging
 import time
 from config import Config
 
-# Import connection pooling if enabled
+# Import connection pooling and monitoring if enabled
 try:
     from db_pool import get_db_connection_pooled, get_pooled_connection, return_pooled_connection
     POOL_AVAILABLE = True
 except ImportError:
     POOL_AVAILABLE = False
     logging.warning("Database connection pooling not available, falling back to direct connections")
+
+try:
+    from monitoring import record_database_operation
+    MONITORING_AVAILABLE = True
+except ImportError:
+    MONITORING_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -396,3 +402,138 @@ def create_modular_rubric_engine(teacher_id, rubric_name, weights, custom_criter
         return False
     finally:
         close_db_connection(connection)
+
+def run_migration():
+    """
+    Run database migration to fix data issues
+    Migrates essay analysis data and fixes database structure
+    """
+    conn = pymysql.connect(**Config.DB_CONFIG)
+    cursor = conn.cursor()
+    
+    print("Starting database migration...")
+    
+    # 1. Create proper feedback tracking in essays table
+    print("1. Migrating existing analysis data to essays table for feedback tracking...")
+    
+    cursor.execute("""
+        INSERT INTO essays (user_id, title, content, essay_type, feedback, 
+                          ideas_score, organization_score, style_score, grammar_score, 
+                          total_score, status, created_at)
+        SELECT 
+            ss.student_id as user_id,
+            'Analyzed Essay' as title,
+            ea.essay_text as content,
+            CASE 
+                WHEN LOWER(ea.essay_type) LIKE '%argumentative%' THEN 'argumentative'
+                WHEN LOWER(ea.essay_type) LIKE '%narrative%' THEN 'narrative'
+                WHEN LOWER(ea.essay_type) LIKE '%literary%' THEN 'literary_analysis'
+                ELSE 'hybrid'
+            END as essay_type,
+            ea.suggestions as feedback,
+            ea.ideas_score,
+            ea.organization_score,
+            ea.style_score,
+            ea.grammar_score,
+            ea.overall_score as total_score,
+            'analyzed' as status,
+            ea.created_at
+        FROM student_submissions ss
+        JOIN essay_analyses ea ON ss.analysis_id = ea.id
+        LEFT JOIN essays e ON e.user_id = ss.student_id AND e.content = ea.essay_text
+        WHERE e.id IS NULL
+    """)
+    
+    migrated_essays = cursor.rowcount
+    print(f"   - Migrated {migrated_essays} essays from essay_analyses to essays table")
+    
+    # 2. Update assignment submissions to link with essays table
+    print("2. Linking assignment submissions with essays...")
+    
+    cursor.execute("""
+        UPDATE assignment_submissions asub
+        JOIN student_submissions ss ON asub.assignment_id IS NOT NULL
+        JOIN essay_analyses ea ON ss.analysis_id = ea.id
+        JOIN essays e ON e.user_id = ss.student_id AND e.content = ea.essay_text
+        SET asub.essay_id = e.id
+        WHERE asub.essay_id IS NULL
+    """)
+    
+    linked_assignments = cursor.rowcount
+    print(f"   - Linked {linked_assignments} assignment submissions with essays")
+    
+    # 3. Create feedback summary for analytics
+    print("3. Creating analytics summary...")
+    
+    cursor.execute("""SELECT COUNT(*) FROM student_submissions""")
+    total_submissions = cursor.fetchone()[0]
+    
+    cursor.execute("""SELECT COUNT(*) FROM essays WHERE teacher_feedback IS NOT NULL""")
+    essays_with_feedback = cursor.fetchone()[0]
+    
+    cursor.execute("""SELECT COUNT(DISTINCT student_id) FROM student_submissions""")
+    active_students = cursor.fetchone()[0]
+    
+    print(f"   - Total submissions: {total_submissions}")
+    print(f"   - Essays with teacher feedback: {essays_with_feedback}")
+    print(f"   - Active students: {active_students}")
+    
+    # 4. Verify data integrity
+    print("4. Verifying data integrity...")
+    
+    cursor.execute("""
+        SELECT COUNT(*) FROM student_submissions ss
+        LEFT JOIN essay_analyses ea ON ss.analysis_id = ea.id
+        WHERE ea.id IS NULL
+    """)
+    orphaned_submissions = cursor.fetchone()[0]
+    
+    if orphaned_submissions > 0:
+        print(f"   - WARNING: Found {orphaned_submissions} orphaned submissions")
+        # Clean up orphaned submissions
+        cursor.execute("""
+            DELETE FROM student_submissions 
+            WHERE analysis_id NOT IN (SELECT id FROM essay_analyses)
+        """)
+        print(f"   - Cleaned up {cursor.rowcount} orphaned submissions")
+    
+    conn.commit()
+    conn.close()
+    
+    print("Migration completed successfully!")
+    print("\nSummary of fixes applied:")
+    print("- Fixed student dashboard to show essays from essay_analyses table")
+    print("- Fixed teacher dashboard to show submissions properly")
+    print("- Fixed analytics to use correct data sources")
+    print("- Created proper teacher feedback system")
+    print("- Fixed student progress tracking")
+    print("- Migrated data for better integration")
+
+def test_progress_queries():
+    """Test progress tracking queries for debugging"""
+    conn = pymysql.connect(**Config.DB_CONFIG)
+    cursor = conn.cursor()
+    
+    print("Testing progress queries...")
+    
+    # Test essays query with a specific student
+    print("\n1. Testing essays query:")
+    cursor.execute("""
+        SELECT ss.student_id, ea.id, ea.essay_type, ea.ideas_score, 
+               ea.organization_score, ea.style_score, ea.grammar_score, 
+               ea.overall_score, ea.created_at
+        FROM student_submissions ss
+        JOIN essay_analyses ea ON ss.analysis_id = ea.id
+        WHERE ea.overall_score IS NOT NULL
+        ORDER BY ea.created_at
+    """)
+    essays = cursor.fetchall()
+    print(f"Found {len(essays)} essays with scores")
+    
+    if essays:
+        print("Sample essay data:")
+        for i, essay in enumerate(essays[:3]):
+            print(f"  Essay {i+1}: Student={essay[0]}, ID={essay[1]}, Type={essay[2]}, Scores={essay[3:7]}, Total={essay[7]}")
+    
+    conn.close()
+    print("Progress query test completed.")

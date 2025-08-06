@@ -302,7 +302,7 @@
                         <div>
                             <h1 class="h3 mb-1" id="essay-title">
                                 <i class="fas fa-file-alt me-2"></i>
-                                {{ temp_data.title if temp_data else 'Essay Analysis' }}
+                                {{ title if title else 'Essay Analysis' }}
                             </h1>
                             <p class="mb-0 opacity-75">
                                 <span id="essay-type-badge" class="badge bg-light text-dark">
@@ -486,125 +486,257 @@
 
 {% block extra_js %}
 <script>
-// Global variables
+// Page-specific variables (avoiding conflicts with global app.js variables)
 let essayText = '';
-let currentAnalysis = null;
-let acceptedSuggestions = new Set();
-let rejectedSuggestions = new Set();
-let suggestionModal = null;
+let currentPageAnalysis = null; // Use page-specific variable instead of global currentAnalysis
+let acceptedSuggestionIndices = new Set();
+let rejectedSuggestionIndices = new Set(); // Renamed to avoid conflicts
+let localSuggestionModal = null;
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Analyze view DOM loaded, initializing...');
+    
+    // Initialize our local modal first
+    const modalElement = document.getElementById('suggestionModal');
+    if (modalElement) {
+        localSuggestionModal = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: true
+        });
+        console.log('Local suggestion modal initialized');
+    } else {
+        console.error('Suggestion modal element not found');
+    }
+    
+    // Then initialize the analysis view
     initializeAnalysisView();
-    suggestionModal = new bootstrap.Modal(document.getElementById('suggestionModal'));
 });
 
 function initializeAnalysisView() {
-    // Get essay data from template or session storage
-    {% if temp_data %}
-        const tempData = {{ temp_data | tojson }};
-        if (tempData && tempData.essay_text) {
-            essayText = tempData.essay_text;
-            displayAnalysis(tempData.analysis);
+    console.log('Starting initializeAnalysisView...');
+    
+    // Debug: Check what template variables we have
+    console.log('Template variables check:');
+    {% if essay_text %}
+        console.log('essay_text is available');
+    {% else %}
+        console.log('essay_text is NOT available');
+    {% endif %}
+    
+    {% if analysis %}
+        console.log('analysis is available');
+    {% else %}
+        console.log('analysis is NOT available');
+    {% endif %}
+    
+    {% if title %}
+        console.log('title is available');
+    {% else %}
+        console.log('title is NOT available');
+    {% endif %}
+    
+    // Get essay data from template variables
+    {% if essay_text and analysis %}
+        // Data passed from backend
+        essayText = {{ essay_text | tojson }};
+        const analysisData = {{ analysis | tojson }};
+        const essayTitle = {{ title | tojson }};
+        
+        console.log('Essay text length:', essayText ? essayText.length : 'null');
+        console.log('Analysis data:', analysisData);
+        console.log('Essay title:', essayTitle);
+        
+        if (essayText && analysisData) {
+            console.log('Loading analysis data from template variables');
+            currentPageAnalysis = analysisData;
+            displayAnalysis(analysisData);
             updateWordCount();
+            
+            // Update title if provided
+            if (essayTitle) {
+                const titleElement = document.getElementById('essay-title');
+                if (titleElement) {
+                    titleElement.innerHTML = `<i class="fas fa-file-alt me-2"></i>${essayTitle}`;
+                }
+            }
+        } else {
+            console.error('Missing essay text or analysis data');
+            showToast('Analysis data is incomplete. Please try uploading again.', 'error');
+            setTimeout(() => {
+                window.location.href = '/student/upload';
+            }, 3000);
         }
     {% else %}
-        // Check session storage for analysis data
+        // Check session storage for analysis data as fallback
+        console.log('No template variables, checking session storage...');
         const analysisData = sessionStorage.getItem('analysisData');
         if (analysisData) {
+            console.log('Loading analysis data from session storage');
             const data = JSON.parse(analysisData);
             essayText = data.essay || '';
-            currentAnalysis = data;
+            currentPageAnalysis = data;
             displayAnalysis(data);
             updateWordCount();
             sessionStorage.removeItem('analysisData');
         } else {
-            // No data available, redirect to upload
-            window.location.href = '/student/upload';
+            // No data available, show error and redirect
+            console.warn('No analysis data found in template variables or session storage');
+            showToast('No analysis data found. Please upload an essay first.', 'error');
+            setTimeout(() => {
+                window.location.href = '/student/upload';
+            }, 2000);
         }
     {% endif %}
     
     // Hide loading overlay after a short delay
     setTimeout(() => {
-        document.getElementById('loadingOverlay').style.display = 'none';
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
     }, 1000);
 }
 
 function displayAnalysis(analysis) {
-    if (!analysis) return;
+    if (!analysis) {
+        console.error('No analysis data provided to displayAnalysis');
+        showToast('Analysis data is missing. Please try uploading again.', 'error');
+        return;
+    }
     
-    currentAnalysis = analysis;
+    console.log('Displaying analysis:', analysis);
+    currentPageAnalysis = analysis;
     
     // Update essay type badge
     const essayTypeBadge = document.getElementById('essay-type-badge');
     if (essayTypeBadge) {
-        essayTypeBadge.textContent = (analysis.essay_type || 'Unknown').replace('_', ' ').toUpperCase();
+        const essayType = analysis.essay_type || 'Unknown';
+        essayTypeBadge.textContent = essayType.replace('_', ' ').toUpperCase();
     }
     
     // Display tagged essay
     displayEssayWithSuggestions(analysis);
     
     // Display scores
-    displayScores(analysis.scores, analysis.score_reasons);
+    if (analysis.scores) {
+        displayScores(analysis.scores, analysis.score_reasons);
+    } else {
+        console.warn('No scores found in analysis data');
+    }
     
     // Display suggestion summary
-    displaySuggestionSummary(analysis.suggestions);
+    if (analysis.suggestions) {
+        displaySuggestionSummary(analysis.suggestions);
+    } else {
+        console.warn('No suggestions found in analysis data');
+    }
     
     // Display checklist
     if (analysis.checklist_steps) {
         displayChecklist(analysis.checklist_steps);
+    } else {
+        console.warn('No checklist steps found in analysis data');
     }
 }
 
 function displayEssayWithSuggestions(analysis) {
     const container = document.getElementById('essay-content');
-    const taggedEssay = analysis.tagged_essay || essayText;
+    if (!container) {
+        console.error('Essay content container not found');
+        return;
+    }
     
-    // Process the tagged essay
-    let processedHTML = processTaggedText(taggedEssay);
+    let contentToDisplay = '';
     
-    container.innerHTML = processedHTML;
+    // Check if we have tagged essay
+    if (analysis.tagged_essay) {
+        contentToDisplay = processTaggedText(analysis.tagged_essay);
+    } else if (essayText) {
+        // Fallback to original essay text if no tagged version
+        console.warn('No tagged essay found, using original text');
+        contentToDisplay = `<p>${essayText.replace(/\n/g, '</p><p>')}</p>`;
+    } else {
+        console.error('No essay text available');
+        contentToDisplay = '<p class="text-muted text-center py-5">No essay content available.</p>';
+    }
     
-    // Add click handlers to suggestions
+    container.innerHTML = contentToDisplay;
+    
+    // Add click handlers to suggestions if they exist
     addSuggestionClickHandlers();
+    
+    // Mark the container as having local handlers to prevent global interference
+    container.setAttribute('data-local-handlers', 'true');
 }
 
 function processTaggedText(taggedText) {
     let processed = taggedText;
     
-    // Process delete tags
+    // Process delete tags with unique class
     processed = processed.replace(/<delete>(.*?)<\/delete>/g, 
-        '<span class="suggestion-word suggestion-delete" data-type="delete" data-original="$1" title="Click to see suggestion">$1</span>');
+        '<span class="suggestion-word suggestion-delete analyze-view-suggestion" data-type="delete" data-original="$1" title="Click to see suggestion">$1</span>');
     
-    // Process add tags
+    // Process add tags with unique class
     processed = processed.replace(/<add>(.*?)<\/add>/g, 
-        '<span class="suggestion-word suggestion-add" data-type="add" data-suggestion="$1" title="Click to see suggestion">$1</span>');
+        '<span class="suggestion-word suggestion-add analyze-view-suggestion" data-type="add" data-suggestion="$1" title="Click to see suggestion">$1</span>');
     
-    // Process replace tags
+    // Process replace tags with unique class
     processed = processed.replace(/<replace>(.*?)\|(.*?)<\/replace>/g, 
-        '<span class="suggestion-word suggestion-replace" data-type="replace" data-original="$1" data-suggestion="$2" title="Click to see suggestion">$1</span>');
+        '<span class="suggestion-word suggestion-replace analyze-view-suggestion" data-type="replace" data-original="$1" data-suggestion="$2" title="Click to see suggestion">$1</span>');
     
     return processed;
 }
 
 function addSuggestionClickHandlers() {
-    const suggestions = document.querySelectorAll('.suggestion-word');
+    // Target only our specific suggestion elements
+    const suggestions = document.querySelectorAll('.analyze-view-suggestion');
+    console.log(`Adding click handlers to ${suggestions.length} analyze-view suggestions`);
+    
     suggestions.forEach((element, index) => {
-        element.addEventListener('click', function() {
+        // Remove any existing event listeners first
+        element.removeEventListener('click', handleSuggestionClick);
+        
+        // Clear any existing onclick handlers
+        element.onclick = null;
+        
+        // Add our specific click handler
+        element.addEventListener('click', function(event) {
+            // Prevent event bubbling to avoid conflicts with global handlers
+            event.stopPropagation();
+            event.preventDefault();
+            
+            console.log('Analyze view suggestion clicked:', { element, index, type: this.dataset.type });
             showSuggestionModal(this, index);
-        });
+        }, { capture: true }); // Use capture to handle before other handlers
+        
+        // Mark as handled by analyze view
+        element.setAttribute('data-analyze-view-handled', 'true');
     });
 }
 
 function showSuggestionModal(element, index) {
+    // Validate element and its data attributes
+    if (!element || !element.dataset) {
+        console.error('Invalid element passed to showSuggestionModal:', element);
+        return;
+    }
+    
     const type = element.dataset.type;
+    if (!type) {
+        console.error('Element missing data-type attribute:', element);
+        return;
+    }
+    
     const original = element.dataset.original || element.textContent;
     const suggestion = element.dataset.suggestion || '';
     
+    console.log('Showing suggestion modal for:', { type, original, suggestion, index });
+    
     // Find corresponding suggestion explanation
     let explanation = 'No explanation provided.';
-    if (currentAnalysis && currentAnalysis.suggestions) {
-        const suggestionData = currentAnalysis.suggestions.find(s => 
+    if (currentPageAnalysis && currentPageAnalysis.suggestions) {
+        const suggestionData = currentPageAnalysis.suggestions.find(s => 
             s.text && (s.text.includes(original) || s.text.includes(suggestion))
         );
         if (suggestionData) {
@@ -654,24 +786,41 @@ function showSuggestionModal(element, index) {
         </div>
     `;
     
-    document.getElementById('suggestion-content').innerHTML = modalContent;
+    const contentElement = document.getElementById('suggestion-content');
+    if (!contentElement) {
+        console.error('Suggestion content element not found');
+        return;
+    }
+    
+    contentElement.innerHTML = modalContent;
     
     // Set up accept/reject buttons
-    document.getElementById('acceptBtn').onclick = () => {
-        acceptSuggestion(element, index);
-        suggestionModal.hide();
-    };
+    const acceptBtn = document.getElementById('acceptBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
     
-    document.getElementById('rejectBtn').onclick = () => {
-        rejectSuggestion(element, index);
-        suggestionModal.hide();
-    };
+    if (acceptBtn) {
+        acceptBtn.onclick = () => {
+            acceptSuggestion(element, index);
+            localSuggestionModal.hide();
+        };
+    }
     
-    suggestionModal.show();
+    if (rejectBtn) {
+        rejectBtn.onclick = () => {
+            rejectSuggestion(element, index);
+            localSuggestionModal.hide();
+        };
+    }
+    
+    if (localSuggestionModal) {
+        localSuggestionModal.show();
+    } else {
+        console.error('Local suggestion modal not initialized');
+    }
 }
 
 function acceptSuggestion(element, index) {
-    acceptedSuggestions.add(index);
+    acceptedSuggestionIndices.add(index);
     element.style.opacity = '0.6';
     element.style.textDecoration = 'none';
     element.classList.add('accepted');
@@ -690,10 +839,10 @@ function acceptSuggestion(element, index) {
 }
 
 function rejectSuggestion(element, index) {
-    rejectedSuggestions.add(index);
+    rejectedSuggestionIndices.add(index);
     element.style.opacity = '0.4';
     element.classList.add('rejected');
-    element.classList.remove('suggestion-word');
+    element.classList.remove('suggestion-word', 'analyze-view-suggestion');
     element.onclick = null;
     
     updateSuggestionCounts();
@@ -701,9 +850,18 @@ function rejectSuggestion(element, index) {
 }
 
 function displayScores(scores, reasons) {
-    if (!scores) return;
-    
     const container = document.getElementById('scores-container');
+    if (!container) {
+        console.error('Scores container not found');
+        return;
+    }
+    
+    if (!scores) {
+        console.warn('No scores provided');
+        container.innerHTML = '<p class="text-muted text-center py-3">No scores available.</p>';
+        return;
+    }
+    
     let html = '';
     
     const dimensions = [
@@ -834,10 +992,12 @@ function updateWordCount() {
 }
 
 function updateSuggestionCounts() {
-    // Update any suggestion counters in the UI
-    const totalSuggestions = document.querySelectorAll('.suggestion-word').length;
-    const acceptedCount = acceptedSuggestions.size;
-    const rejectedCount = rejectedSuggestions.size;
+    // Update any suggestion counters in the UI (use our specific class)
+    const totalSuggestions = document.querySelectorAll('.analyze-view-suggestion').length;
+    const acceptedCount = acceptedSuggestionIndices.size;
+    const rejectedCount = rejectedSuggestionIndices.size;
+    
+    console.log('Suggestion counts:', { total: totalSuggestions, accepted: acceptedCount, rejected: rejectedCount });
     
     // Could add a progress indicator here
 }
@@ -894,16 +1054,16 @@ function shareAnalysis() {
 }
 
 function acceptAllSuggestions() {
-    document.querySelectorAll('.suggestion-word').forEach((element, index) => {
-        if (!acceptedSuggestions.has(index) && !rejectedSuggestions.has(index)) {
+    document.querySelectorAll('.analyze-view-suggestion').forEach((element, index) => {
+        if (!acceptedSuggestionIndices.has(index) && !rejectedSuggestionIndices.has(index)) {
             acceptSuggestion(element, index);
         }
     });
 }
 
 function rejectAllSuggestions() {
-    document.querySelectorAll('.suggestion-word').forEach((element, index) => {
-        if (!acceptedSuggestions.has(index) && !rejectedSuggestions.has(index)) {
+    document.querySelectorAll('.analyze-view-suggestion').forEach((element, index) => {
+        if (!acceptedSuggestionIndices.has(index) && !rejectedSuggestionIndices.has(index)) {
             rejectSuggestion(element, index);
         }
     });

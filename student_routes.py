@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, send_file, make_response, jsonify
-from utils import login_required, role_required, get_current_user, allowed_file, is_file_size_valid, extract_text_from_file, safe_get_string, create_word_document_with_suggestions, sanitize_text, validate_file_upload
+from utils import login_required, role_required, get_current_user, allowed_file, is_file_size_valid, extract_text_from_file, extract_text_from_filestorage, safe_get_string, create_word_document_with_suggestions, sanitize_text, validate_file_upload, store_analysis_temporarily, retrieve_analysis_temporarily, cleanup_expired_temp_data
 from db import get_db_connection, save_analysis_to_db, save_submission_to_db, get_checklist_progress, update_checklist_progress, create_modular_rubric_engine
 from ai import analyze_essay_with_ai, generate_step_wise_checklist
 import os, datetime, pymysql, logging
@@ -124,7 +124,7 @@ def upload_essay():
         
         try:
             # Extract text from file
-            essay_text = extract_text_from_file(file)
+            essay_text = extract_text_from_filestorage(file)
             if not essay_text.strip():
                 flash('The uploaded file appears to be empty or unreadable', 'error')
                 return redirect(request.url)
@@ -166,12 +166,20 @@ def upload_essay():
             save_submission_to_db(session['user_id'], analysis_id, final_assignment_id)
             logger.info("Submission saved successfully")
             
-            # Store analysis data in session for the analysis view
-            session['temp_analysis'] = {
+            # Store analysis data temporarily instead of in session
+            temp_data = {
                 'essay_text': essay_text,
                 'title': title,
                 'analysis': analysis
             }
+            temp_id = store_analysis_temporarily(temp_data)
+            
+            if temp_id:
+                session['temp_analysis_id'] = temp_id
+                logger.info(f"Analysis data stored temporarily with ID: {temp_id}")
+            else:
+                logger.error("Failed to store analysis data temporarily")
+                flash('Analysis completed but display may be limited', 'warning')
             
             flash('Essay uploaded and analyzed successfully!', 'success')
             return redirect(url_for('student.analyze_view'))
@@ -249,14 +257,20 @@ def analyze_view():
     """
     Display the essay analysis view with AI suggestions
     """
-    # Check if we have temp analysis data from upload
-    temp_analysis = session.get('temp_analysis')
-    if not temp_analysis:
+    # Check if we have temp analysis ID from upload
+    temp_analysis_id = session.get('temp_analysis_id')
+    if not temp_analysis_id:
         flash('No analysis data found. Please upload an essay first.', 'error')
-        return redirect(url_for('student.upload'))
+        return redirect(url_for('student.upload_essay'))
     
-    # Clear the temp data after retrieving it
-    session.pop('temp_analysis', None)
+    # Retrieve analysis data from temporary storage
+    temp_analysis = retrieve_analysis_temporarily(temp_analysis_id)
+    if not temp_analysis:
+        flash('Analysis data has expired. Please upload your essay again.', 'error')
+        return redirect(url_for('student.upload_essay'))
+    
+    # Clear the temp analysis ID from session
+    session.pop('temp_analysis_id', None)
     
     return render_template('student/analyze_view.html', 
                          essay_text=temp_analysis['essay_text'],
@@ -475,3 +489,17 @@ def reject_assignment_request(request_id):
 def submit_assignment(assignment_id):
     # Assignment submission logic
     return redirect(url_for('student.view_assignments'))
+
+@student_bp.route('/cleanup-temp', methods=['POST'])
+@login_required
+@role_required('student')  # Could be changed to admin role if needed
+def cleanup_temp():
+    """Manual cleanup of expired temporary files"""
+    try:
+        cleanup_expired_temp_data()
+        flash('Temporary files cleaned up successfully', 'success')
+    except Exception as e:
+        logger.error(f"Error during manual cleanup: {e}")
+        flash('Error during cleanup', 'error')
+    
+    return redirect(request.referrer or url_for('student.student_dashboard'))

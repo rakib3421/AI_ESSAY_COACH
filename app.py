@@ -26,6 +26,10 @@ app.config['MAX_CONTENT_LENGTH'] = Config.MAX_CONTENT_LENGTH
 if not os.path.exists(Config.UPLOAD_FOLDER):
     os.makedirs(Config.UPLOAD_FOLDER)
 
+# Initialize temporary storage (this will create the temp_data directory)
+from utils import temp_storage
+logger.info(f"Temporary storage initialized at: {temp_storage.storage_dir}")
+
 # Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(student_bp)

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ "Student" if session.role == 'student' else "Teacher" }} Settings - AI Essay Revision
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        {% if session.role == 'student' %}
+            {% include 'components/student_nav.html' %}
+        {% else %}
+            {% include 'components/teacher_nav.html' %}
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="card shadow">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h1 class="h4 mb-0">
+                    <i class="fas fa-cog me-2"></i>
+                    {{ "Student" if session.role == 'student' else "Teacher" }} Settings
+                </h1>
+            </div>
+            <div class="card-body">
+                <!-- Account Settings -->
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2 mb-3">Account Settings</h5>
+                    <form method="POST" action="{{ url_for('student.student_settings') if session.role == 'student' else url_for('teacher.teacher_settings') }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       value="{{ session.username }}" readonly>
+                                <small class="text-muted">Username cannot be changed</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user_info.email if user_info else '' }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="current_password" class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="current_password" name="current_password">
+                                <small class="text-muted">Leave blank to keep current password</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Notification Preferences -->
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2 mb-3">Notification Preferences</h5>
+                    <form method="POST" action="{{ url_for('student.student_settings') if session.role == 'student' else url_for('teacher.teacher_settings') }}">
+                        <input type="hidden" name="settings_type" value="notifications">
+                        
+                        {% if session.role == 'student' %}
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="email_feedback" name="email_feedback" checked>
+                            <label class="form-check-label" for="email_feedback">
+                                Email notifications for essay feedback
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="email_assignments" name="email_assignments" checked>
+                            <label class="form-check-label" for="email_assignments">
+                                Email notifications for new assignments
+                            </label>
+                        </div>
+                        {% else %}
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="email_submissions" name="email_submissions" checked>
+                            <label class="form-check-label" for="email_submissions">
+                                Email notifications for new submissions
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="email_deadlines" name="email_deadlines" checked>
+                            <label class="form-check-label" for="email_deadlines">
+                                Email reminders for assignment deadlines
+                            </label>
+                        </div>
+                        {% endif %}
+                        
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-bell me-2"></i>Update Notifications
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Privacy Settings -->
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2 mb-3">Privacy Settings</h5>
+                    <form method="POST" action="{{ url_for('student.student_settings') if session.role == 'student' else url_for('teacher.teacher_settings') }}">
+                        <input type="hidden" name="settings_type" value="privacy">
+                        
+                        {% if session.role == 'student' %}
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="share_progress" name="share_progress">
+                            <label class="form-check-label" for="share_progress">
+                                Allow teachers to view my progress analytics
+                            </label>
+                        </div>
+                        {% else %}
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="public_assignments" name="public_assignments">
+                            <label class="form-check-label" for="public_assignments">
+                                Make my assignments visible to other teachers
+                            </label>
+                        </div>
+                        {% endif %}
+                        
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="fas fa-shield-alt me-2"></i>Update Privacy
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Danger Zone -->
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2 mb-3 text-danger">Danger Zone</h5>
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> These actions cannot be undone.
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-warning" onclick="clearAllData()">
+                            <i class="fas fa-trash me-2"></i>Clear All {{ "Essays" if session.role == 'student' else "Assignments" }}
+                        </button>
+                        
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteAccount()">
+                            <i class="fas fa-user-times me-2"></i>Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function clearAllData() {
+    if (confirm('Are you sure you want to clear all your {{ "essays" if session.role == "student" else "assignments" }}? This action cannot be undone.')) {
+        // Implementation for clearing data
+        alert('This feature will be implemented soon.');
+    }
+}
+
+function deleteAccount() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.')) {
+        // Implementation for account deletion
+        alert('This feature will be implemented soon.');
+    }
+}
+</script>
+{% endblock %}

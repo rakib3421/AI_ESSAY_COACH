@@ -11,9 +11,112 @@ import datetime
 from config import Config
 from db import save_analysis_to_db, save_step_wise_checklist
 
-# Import caching if available
+# Add essay type normalization function
+def normalize_essay_type(essay_type):
+    """
+    Normalize essay type to standard values to fix data truncation issues
+    
+    Args:
+        essay_type (str): Raw essay type input
+    
+    Returns:
+        str: Normalized essay type
+    """
+    if not essay_type:
+        return 'hybrid'
+    
+    essay_type_lower = essay_type.lower().strip()
+    
+    # Map variations to standard types
+    if any(word in essay_type_lower for word in ['argument', 'persuasive', 'opinion', 'convince']):
+        return 'argumentative'
+    elif any(word in essay_type_lower for word in ['narrative', 'story', 'personal', 'experience']):
+        return 'narrative'
+    elif any(word in essay_type_lower for word in ['literary', 'literature', 'analysis', 'critique']):
+        return 'literary_analysis'
+    elif any(word in essay_type_lower for word in ['compare', 'contrast', 'comparison']):
+        return 'comparative'
+    elif any(word in essay_type_lower for word in ['expository', 'explain', 'informative', 'inform']):
+        return 'expository'
+    else:
+        return 'hybrid'
+
+def fix_essay_types_in_database():
+    """
+    Fix essay_type values in all relevant tables by normalizing them
+    This function addresses data truncation issues
+    """
+    import pymysql
+    from config import Config
+    
+    conn = pymysql.connect(**Config.DB_CONFIG)
+    cursor = conn.cursor()
+    
+    print("Starting essay_type normalization...")
+    
+    # Fix essay_analyses table
+    print("1. Fixing essay_analyses table...")
+    cursor.execute("SELECT id, essay_type FROM essay_analyses WHERE essay_type IS NOT NULL")
+    analyses = cursor.fetchall()
+    
+    fixed_analyses = 0
+    for analysis_id, essay_type in analyses:
+        normalized_type = normalize_essay_type(essay_type)
+        if normalized_type != essay_type:
+            cursor.execute(
+                "UPDATE essay_analyses SET essay_type = %s WHERE id = %s",
+                (normalized_type, analysis_id)
+            )
+            fixed_analyses += 1
+    
+    print(f"Fixed {fixed_analyses} essay types in essay_analyses table")
+    
+    # Fix assignments table
+    print("2. Fixing assignments table...")
+    cursor.execute("SELECT id, essay_type FROM assignments WHERE essay_type IS NOT NULL")
+    assignments = cursor.fetchall()
+    
+    fixed_assignments = 0
+    for assignment_id, essay_type in assignments:
+        normalized_type = normalize_essay_type(essay_type)
+        if normalized_type != essay_type:
+            cursor.execute(
+                "UPDATE assignments SET essay_type = %s WHERE id = %s",
+                (normalized_type, assignment_id)
+            )
+            fixed_assignments += 1
+    
+    print(f"Fixed {fixed_assignments} essay types in assignments table")
+    
+    # Fix essays table if it exists
+    print("3. Fixing essays table...")
+    try:
+        cursor.execute("SELECT id, essay_type FROM essays WHERE essay_type IS NOT NULL")
+        essays = cursor.fetchall()
+        
+        fixed_essays = 0
+        for essay_id, essay_type in essays:
+            normalized_type = normalize_essay_type(essay_type)
+            if normalized_type != essay_type:
+                cursor.execute(
+                    "UPDATE essays SET essay_type = %s WHERE id = %s",
+                    (normalized_type, essay_id)
+                )
+                fixed_essays += 1
+        
+        print(f"Fixed {fixed_essays} essay types in essays table")
+    except Exception as e:
+        print(f"Essays table not found or error: {e}")
+    
+    conn.commit()
+    conn.close()
+    
+    print("Essay type normalization completed!")
+    print(f"Total fixes: {fixed_analyses + fixed_assignments} records updated")
+
+# Import caching and monitoring if available
 try:
-    from cache import get_cached_analysis, cache_analysis, get_cache_stats
+    from monitoring import get_cached_analysis, cache_analysis, get_cache_stats, record_ai_analysis, generate_cache_key
     CACHE_AVAILABLE = True
 except ImportError:
     CACHE_AVAILABLE = False
@@ -304,7 +407,9 @@ def analyze_essay_with_ai(essay_text, essay_type='auto', coaching_level='medium'
     
     # Check cache first if available
     if CACHE_AVAILABLE:
-        cached_result = get_cached_analysis(essay_text, essay_type, coaching_level, suggestion_aggressiveness)
+        # Generate cache key from parameters
+        cache_key = generate_cache_key(essay_text, essay_type, f"{coaching_level}_{suggestion_aggressiveness}")
+        cached_result = get_cached_analysis(cache_key)
         if cached_result:
             logger.info("Returning cached analysis result")
             # Record cache hit
@@ -576,7 +681,8 @@ Essay to analyze:
         
         # Cache the result if caching is available
         if CACHE_AVAILABLE:
-            cache_analysis(essay_text, analysis_data, essay_type, coaching_level, suggestion_aggressiveness)
+            cache_key = generate_cache_key(essay_text, essay_type, f"{coaching_level}_{suggestion_aggressiveness}")
+            cache_analysis(cache_key, analysis_data)
             logger.info("Analysis result cached for future use")
         
         return analysis_data
