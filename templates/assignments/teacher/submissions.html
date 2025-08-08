@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Student Submissions - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        {% include 'components/teacher_nav.html' %}
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 style="color: #1e2839;">
+                    {% if student_name %}
+                        {{ student_name }}'s Essays
+                    {% else %}
+                        Student Submissions
+                    {% endif %}
+                </h2>
+                <p class="text-muted mb-0">View and provide feedback on student essays</p>
+            </div>
+            <div>
+                {% if student_id %}
+                <a href="{{ url_for('teacher.view_student_assignments', student_id=student_id) }}" class="btn btn-outline-success me-2">
+                    <i class="fas fa-tasks me-2"></i>View Assignments
+                </a>
+                {% endif %}
+                <a href="{{ url_for('teacher.teacher_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        {% if not student_id %}
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Submissions</h5>
+                        <h3 class="display-6 mb-0" style="color: #1e2839;">{{ submissions|length if submissions else essays|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Avg. Score</h5>
+                        <h3 class="display-6 mb-0" style="color: #1e2839;">
+                            {% if submissions %}
+                                {% set total_score = submissions|selectattr(3)|map(attribute=3)|sum %}
+                                {% set score_count = submissions|selectattr(3)|list|length %}
+                                {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                            {% elif essays %}
+                                {% set total_score = essays|selectattr('total_score')|map(attribute='total_score')|sum %}
+                                {% set score_count = essays|selectattr('total_score')|list|length %}
+                                {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                            {% else %}
+                                0.0
+                            {% endif %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">This Week</h5>
+                        <h3 class="display-6 mb-0" style="color: #1e2839;">
+                            {% if submissions %}
+                                {{ submissions|selectattr(4)|select('>', (moment().subtract(7, 'days').format('YYYY-MM-DD')))|list|length }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Needs Review</h5>
+                        <h3 class="display-6 mb-0" style="color: #dc3545;">
+                            {% if submissions %}
+                                {{ submissions|rejectattr(7)|list|length }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Filter and Search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search essays..." onkeyup="filterEssays()">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="typeFilter" onchange="filterEssays()">
+                            <option value="">All Types</option>
+                            <option value="argumentative">Argumentative</option>
+                            <option value="narrative">Narrative</option>
+                            <option value="literary_analysis">Literary Analysis</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="scoreFilter" onchange="filterEssays()">
+                            <option value="">All Scores</option>
+                            <option value="90-100">90-100</option>
+                            <option value="80-89">80-89</option>
+                            <option value="70-79">70-79</option>
+                            <option value="60-69">60-69</option>
+                            <option value="0-59">Below 60</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Essays List -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Essay Submissions ({{ (submissions|length if submissions else essays|length) }})
+                </h6>
+            </div>
+            <div class="card-body">
+                {% set items = submissions if submissions else essays %}
+                {% if items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="essaysTable">
+                            <thead>
+                                <tr>
+                                    {% if not student_id %}
+                                    <th>Student</th>
+                                    {% endif %}
+                                    <th>Essay Type</th>
+                                    <th>Score</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr class="essay-row" 
+                                    data-type="{{ item[2] if submissions else item.essay_type }}"
+                                    data-score="{{ item[3] if submissions else item.total_score }}"
+                                    data-student="{{ item[5] if submissions else item.student_name }}">
+                                    {% if not student_id %}
+                                    <td>
+                                        <strong>{{ item[5] if submissions else item.student_name }}</strong>
+                                    </td>
+                                    {% endif %}
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ (item[2] if submissions else item.essay_type).replace('_', ' ').title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% set score = item[3] if submissions else item.total_score %}
+                                        {% if score %}
+                                            <span class="badge {% if score >= 90 %}bg-success{% elif score >= 80 %}bg-info{% elif score >= 70 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ score }}/100
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">Not scored</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ (item[4] if submissions else item.created_at).strftime('%m/%d/%Y at %I:%M %p') }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if submissions %}
+                                            {% if item[7] %}
+                                                <span class="badge bg-success">Reviewed</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-info">Analyzed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('teacher.view_submission', submission_id=item[0]) if submissions else url_for('teacher.view_essay', essay_id=item.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('teacher.provide_feedback', submission_id=item[0]) if submissions else url_for('teacher.provide_feedback', essay_id=item.id) }}" 
+                                               class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-comment"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No submissions found</h5>
+                        <p class="text-muted">
+                            {% if student_id %}
+                                This student hasn't submitted any essays yet.
+                            {% else %}
+                                No student submissions available yet.
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterEssays() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const typeFilter = document.getElementById('typeFilter').value;
+    const scoreFilter = document.getElementById('scoreFilter').value;
+    const rows = document.querySelectorAll('.essay-row');
+    
+    rows.forEach(row => {
+        const student = row.querySelector('td strong')?.textContent.toLowerCase() || '';
+        const type = row.dataset.type;
+        const score = parseInt(row.dataset.score) || 0;
+        
+        let showRow = true;
+        
+        // Search filter
+        if (searchInput && !student.includes(searchInput)) {
+            showRow = false;
+        }
+        
+        // Type filter
+        if (typeFilter && type !== typeFilter) {
+            showRow = false;
+        }
+        
+        // Score filter
+        if (scoreFilter) {
+            const [min, max] = scoreFilter.split('-').map(Number);
+            if (score < min || (max && score > max)) {
+                showRow = false;
+            }
+        }
+        
+        row.style.display = showRow ? '' : 'none';
+    });
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('scoreFilter').value = '';
+    filterEssays();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Give Feedback - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 style="color: #1e2839;">Give Feedback</h2>
+                <a href="{% url 'accounts:student_submissions' analysis.student.id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Submissions
+                </a>
+            </div>
+
+            <!-- Student Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-user me-2"></i>{{ analysis.student.get_full_name|default:analysis.student.username }}
+                    </h5>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-envelope me-2"></i>{{ analysis.student.email }}
+                    </p>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-calendar me-2"></i>Submitted: {{ analysis.created_at|date:"F d, Y \a\t H:i" }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Essay Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Essay Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Essay Type:</strong>
+                            <span class="badge bg-secondary ms-2">{{ analysis.get_essay_type_display }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>AI Overall Score:</strong>
+                            <span class="badge bg-primary ms-2">{{ analysis.overall_score|floatformat:1 }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <small class="text-muted">Grammar:</small>
+                            <div class="fw-bold">{{ analysis.grammar_score|floatformat:1 }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Clarity:</small>
+                            <div class="fw-bold">{{ analysis.clarity_score|floatformat:1 }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Structure:</small>
+                            <div class="fw-bold">{{ analysis.structure_score|floatformat:1 }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Content:</small>
+                            <div class="fw-bold">{{ analysis.content_score|floatformat:1 }}</div>
+                        </div>
+                    </div>
+
+                    <div class="essay-text border rounded p-3" style="max-height: 300px; overflow-y: auto; background-color: #f8f9fa;">
+                        <h6>Essay Text:</h6>
+                        <p>{{ analysis.essay_text|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comment me-2"></i>Your Feedback
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="feedback_text" class="form-label">
+                                <strong>Feedback Text</strong>
+                            </label>
+                            <textarea class="form-control" 
+                                      id="feedback_text" 
+                                      name="feedback_text" 
+                                      rows="6"
+                                      placeholder="Provide detailed feedback on the student's essay..."
+                                      required>{% if existing_feedback %}{{ existing_feedback.feedback_text }}{% endif %}</textarea>
+                            <small class="form-text text-muted">
+                                Provide constructive feedback to help the student improve their writing.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="additional_score" class="form-label">
+                                <strong>Teacher Score (Optional)</strong>
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="additional_score" 
+                                   name="additional_score" 
+                                   min="0" 
+                                   max="100" 
+                                   step="0.1"
+                                   value="{% if existing_feedback.additional_score %}{{ existing_feedback.additional_score }}{% endif %}"
+                                   placeholder="Enter score (0-100)">
+                            <small class="form-text text-muted">
+                                Optionally provide your own score. If provided, this will supplement the AI analysis.
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'accounts:student_submissions' analysis.student.id %}" 
+                               class="btn btn-outline-secondary me-md-2">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if existing_feedback %}Update Feedback{% else %}Submit Feedback{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- AI Analysis Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-robot me-2"></i>AI Analysis Summary
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if analysis.strengths %}
+                    <div class="mb-3">
+                        <strong class="text-success">Strengths:</strong>
+                        <ul class="list-unstyled mt-2">
+                            {% for strength in analysis.strengths %}
+                            <li><i class="fas fa-check text-success me-1"></i>{{ strength }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.areas_improvement %}
+                    <div class="mb-3">
+                        <strong class="text-warning">Areas for Improvement:</strong>
+                        <ul class="list-unstyled mt-2">
+                            {% for area in analysis.areas_improvement %}
+                            <li><i class="fas fa-exclamation text-warning me-1"></i>{{ area }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.suggestions %}
+                    <div>
+                        <strong class="text-info">Suggestions:</strong>
+                        <ul class="list-unstyled mt-2">
+                            {% for suggestion in analysis.suggestions %}
+                            <li><i class="fas fa-lightbulb text-info me-1"></i>{{ suggestion }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Existing Feedback -->
+            {% if existing_feedback %}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Current Feedback
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">{{ existing_feedback.feedback_text|linebreaks }}</p>
+                    {% if existing_feedback.additional_score %}
+                    <p class="mb-0">
+                        <strong>Score:</strong> 
+                        <span class="badge bg-success">{{ existing_feedback.additional_score|floatformat:1 }}</span>
+                    </p>
+                    {% endif %}
+                    <small class="text-muted">Last updated: {{ existing_feedback.updated_at|date:"M d, Y H:i" }}</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

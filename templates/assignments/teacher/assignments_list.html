@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}My Assignments{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Assignments</h2>
+                <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create New Assignment
+                </a>
+            </div>
+            
+            {% if assignments %}
+                <div class="row">
+                    {% for assignment in assignments %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ assignment.title }}</h5>
+                                    <span class="badge {% if assignment.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if assignment.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ assignment.description|truncatewords:20 }}</p>
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <small class="text-muted">Due Date</small>
+                                            <div {% if assignment.is_overdue %}class="text-danger"{% endif %}>
+                                                {{ assignment.due_date|date:"M d, Y" }}
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <small class="text-muted">Submissions</small>
+                                            <div class="fw-bold">{{ assignment.submission_count }}</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <small class="text-muted">Type</small>
+                                            <div>{{ assignment.essay_type|title }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="btn-group w-100" role="group">
+                                        <a href="{% url 'assignments:assignment_detail' assignment.id %}" class="btn btn-outline-primary btn-sm">
+                                            View
+                                        </a>
+                                        <a href="{% url 'assignments:assignment_submissions' assignment.id %}" class="btn btn-outline-success btn-sm">
+                                            Submissions ({{ assignment.submission_count }})
+                                        </a>
+                                        <a href="{% url 'assignments:edit_assignment' assignment.id %}" class="btn btn-outline-secondary btn-sm">
+                                            Edit
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>No Assignments Yet</h5>
+                            <p>You haven't created any assignments yet. Get started by creating your first assignment!</p>
+                            <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary">
+                                Create First Assignment
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

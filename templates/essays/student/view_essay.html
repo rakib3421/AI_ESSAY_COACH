@@ -1,0 +1,1092 @@
+{% extends "base.html" %}
+
+{% block title %}Essay Analysis - AI Essay Revision{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Essay Content -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #1e2839; color: white;">
+                    <h1 class="h4 mb-0" id="essay-title">
+                        <i class="fas fa-file-alt me-2" aria-hidden="true"></i>
+                        {% if analysis %}{{ analysis.id|default:"Essay Analysis" }}{% else %}Essay Analysis{% endif %}
+                    </h1>
+                    <div>
+                        <span class="badge bg-light text-dark me-2" aria-label="Essay type: {{ analysis.essay_type|default:'Unknown Type' }}">
+                            {{ analysis.essay_type|default:'Unknown Type' }}
+                        </span>
+                        <button class="btn btn-sm btn-outline-light" onclick="exportEssayWithSuggestions()" id="exportBtn"
+                                aria-label="Export essay with suggestions to Word document">
+                            <i class="fas fa-download me-1" aria-hidden="true"></i>Export Word
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Essay Content with AI Suggestions -->
+                    <div id="essay-analysis-container" class="essay-analysis-container" role="article" aria-labelledby="essay-title">
+                        <div id="essay-content" class="essay-content" role="main" aria-label="Essay content with AI suggestions">
+                            <!-- This will be populated by JavaScript with interactive suggestions -->
+                            <div class="text-center py-5" role="status" aria-live="polite">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading analysis...</span>
+                                </div>
+                                <p class="mt-2">Analyzing your essay with AI...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Analysis Controls -->
+                    <div class="mt-4 p-3 bg-light rounded" role="region" aria-label="Analysis controls">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h2 class="h6 mb-2">Analysis Options</h2>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label small" for="essayType">Essay Type</label>
+                                        <select id="essayType" class="form-select form-select-sm" 
+                                                aria-label="Select essay type for re-analysis">
+                                            <option value="auto">Auto-detect</option>
+                                            <option value="argumentative">Argumentative</option>
+                                            <option value="narrative">Narrative</option>
+                                            <option value="literary">Literary Analysis</option>
+                                            <option value="expository">Expository</option>
+                                            <option value="descriptive">Descriptive</option>
+                                            <option value="compare">Compare/Contrast</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small" for="coachingLevel">Coaching Level</label>
+                                        <select id="coachingLevel" class="form-select form-select-sm"
+                                                aria-label="Select coaching level for feedback">
+                                            <option value="light">Light</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="intensive">Intensive</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small" for="suggestionLevel">Suggestion Level</label>
+                                        <select id="suggestionLevel" class="form-select form-select-sm"
+                                                aria-label="Select number of suggestions to receive">
+                                            <option value="low">Conservative</option>
+                                            <option value="medium" selected>Balanced</option>
+                                            <option value="high">Comprehensive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <button class="btn btn-primary" onclick="reanalyzeEssay()" id="reanalyzeBtn"
+                                        aria-label="Re-analyze essay with current settings">
+                                    <span class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
+                                    <i class="fas fa-sync-alt me-1" aria-hidden="true"></i>Re-analyze
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggestion Legend -->
+                    <div class="mt-3" role="region" aria-label="Suggestion legend">
+                        <h2 class="h6">Suggestion Legend:</h2>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <span class="suggestion-word suggestion-delete" aria-label="Example of delete suggestion">Delete</span> - Remove this word
+                            </div>
+                            <div class="col-md-4">
+                                <span class="suggestion-word suggestion-add" aria-label="Example of add suggestion">Add</span> - Insert this word
+                            </div>
+                            <div class="col-md-4">
+                                <span class="suggestion-word suggestion-replace" aria-label="Example of replace suggestion">Replace</span> - Change this word
+                            </div>
+                        </div>
+                        <small class="text-muted">Click on any highlighted word to see the reason and accept/reject the suggestion. Use Tab and Enter keys to navigate suggestions with keyboard.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar with Scores and Progress -->
+        <div class="col-lg-4">
+            <!-- Rubric Scores -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header" style="background-color: #1e2839; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Rubric Scores</h5>
+                </div>
+                <div class="card-body" id="scores-container">
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <p class="small mt-2 mb-0">Loading scores...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step-wise Revision Checklist -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header" style="background-color: #1e2839; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Revision Checklist</h5>
+                </div>
+                <div class="card-body" id="checklist-container">
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <p class="small mt-2 mb-0">Loading checklist...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Suggestion Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header" style="background-color: #1e2839; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>AI Suggestions</h5>
+                </div>
+                <div class="card-body" id="suggestion-summary">
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <p class="small mt-2 mb-0">Analyzing...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Feedback -->
+            {% if teacher_feedback %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header" style="background-color: #28a745; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-comment-dots me-2"></i>Teacher Feedback</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong class="text-success">{{ teacher_feedback.teacher.get_full_name|default:teacher_feedback.teacher.username }}</strong>
+                        <small class="text-muted d-block">{{ teacher_feedback.created_at|date:"F d, Y \a\t g:i A" }}</small>
+                    </div>
+                    
+                    {% if teacher_feedback.additional_score %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Teacher Score:</strong></span>
+                            <span class="badge bg-success fs-6">{{ teacher_feedback.additional_score|floatformat:1 }}/100</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="feedback-text">
+                        <strong>Feedback:</strong>
+                        <div class="mt-2 p-3 bg-light rounded">
+                            {{ teacher_feedback.feedback_text|linebreaks }}
+                        </div>
+                    </div>
+                    
+                    {% if teacher_feedback.updated_at != teacher_feedback.created_at %}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-edit me-1"></i>Last updated: {{ teacher_feedback.updated_at|date:"F d, Y \a\t g:i A" }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Progress Tracking -->
+            <div class="card shadow-sm">
+                <div class="card-header" style="background-color: #1e2839; color: white;">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Revision Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Suggestions Reviewed:</span>
+                            <span id="progress-reviewed">0/0</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h6 class="text-success mb-1" id="accepted-count">0</h6>
+                                <small class="text-muted">Accepted</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h6 class="text-danger mb-1" id="rejected-count">0</h6>
+                                <small class="text-muted">Rejected</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Suggestion Detail Modal -->
+<div class="modal fade" id="suggestionModal" tabindex="-1" aria-labelledby="suggestionModalLabel" aria-hidden="true" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title h5" id="suggestionModalLabel">Suggestion Details</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close suggestion details"></button>
+            </div>
+            <div class="modal-body">
+                <div class="suggestion-detail">
+                    <h2 class="h6">Suggestion Type:</h2>
+                    <p id="suggestion-type" aria-live="polite"></p>
+                </div>
+                <div class="suggestion-detail">
+                    <h2 class="h6">Current Text:</h2>
+                    <p id="suggestion-current" aria-live="polite"></p>
+                </div>
+                <div class="suggestion-detail" id="suggestion-new-container" style="display: none;">
+                    <h2 class="h6">Suggested Text:</h2>
+                    <p id="suggestion-new" aria-live="polite"></p>
+                </div>
+                <div class="suggestion-detail">
+                    <h2 class="h6">Explanation:</h2>
+                    <p id="suggestion-reason" aria-live="polite"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close without making changes">Close</button>
+                <button type="button" class="btn btn-danger" onclick="rejectCurrentSuggestion()" aria-label="Reject this suggestion">
+                    <i class="fas fa-times me-1" aria-hidden="true"></i>Reject
+                </button>
+                <button type="button" class="btn btn-success" onclick="acceptCurrentSuggestion()" aria-label="Accept this suggestion">
+                    <i class="fas fa-check me-1" aria-hidden="true"></i>Accept
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert">
+        <div class="toast-header">
+            <i class="fas fa-check-circle text-success me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="successToastBody"></div>
+    </div>
+    
+    <div id="errorToast" class="toast" role="alert">
+        <div class="toast-header">
+            <i class="fas fa-exclamation-circle text-danger me-2"></i>
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="errorToastBody"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variables for word-level suggestions (use global variables from app.js)
+let wordSuggestionAnalysis = null;
+let essayText = `{{ analysis.essay_text|safe|default:'' }}`;
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, essay text length:', essayText.length);
+    
+    // Ensure global variables are available
+    if (typeof currentWordSuggestionId === 'undefined') {
+        window.currentWordSuggestionId = null;
+    }
+    if (typeof acceptedWordSuggestions === 'undefined') {
+        window.acceptedWordSuggestions = new Set();
+    }
+    if (typeof rejectedWordSuggestions === 'undefined') {
+        window.rejectedWordSuggestions = new Set();
+    }
+    initializeEssayAnalysis();
+});
+
+function initializeEssayAnalysis() {
+    // Check if we have pre-loaded analysis data from Django context
+    {% if analysis_data_json %}
+        const analysisData = JSON.parse('{{ analysis_data_json|escapejs }}');
+        if (analysisData) {
+            console.log('Loading pre-analyzed essay data...');
+            
+            wordSuggestionAnalysis = analysisData;
+            renderEssayWithSuggestions(analysisData);
+            renderScores(analysisData.scores, analysisData.score_reasons);
+            renderSuggestionSummary(analysisData.suggestions);
+            updateProgress();
+            
+            // Load or render checklist
+            if (analysisData.checklist_steps) {
+                renderStepWiseChecklist(analysisData.checklist_steps);
+            } else {
+                loadChecklistProgress();
+            }
+            
+            // Hide loading overlay if function exists
+            if (typeof hideLoadingOverlay === 'function') {
+                hideLoadingOverlay();
+            }
+            
+            return; // Exit early since we have the data
+        }
+    {% endif %}
+    
+    // Fallback: Check if we have essay data from the database or session storage
+    if (essayText) {
+        analyzeEssayText(essayText);
+    } else {
+        // Check session storage for direct text analysis
+        const analysisData = sessionStorage.getItem('analysisData');
+        let data = null;
+        
+        if (analysisData) {
+            data = JSON.parse(analysisData);
+            sessionStorage.removeItem('analysisData');
+        } else {
+            // Check if Django context has temp data (from file upload)
+            {% if temp_data %}
+                data = JSON.parse('{{ temp_data|escapejs }}');
+            {% endif %}
+        }
+        
+        if (data) {
+            essayText = data.essay;
+            
+            // Set form values
+            if (document.getElementById('essayType')) {
+                document.getElementById('essayType').value = data.essay_type || 'auto';
+            }
+            if (document.getElementById('coachingLevel')) {
+                document.getElementById('coachingLevel').value = data.coaching_level || 'medium';
+            }
+            if (document.getElementById('suggestionLevel')) {
+                document.getElementById('suggestionLevel').value = data.suggestion_aggressiveness || 'medium';
+            }
+            
+            // Start analysis
+            analyzeEssayText(essayText, {
+                essayType: data.essay_type,
+                coachingLevel: data.coaching_level,
+                suggestionLevel: data.suggestion_aggressiveness
+            });
+        }
+    }
+}
+
+function analyzeEssayText(text, options = {}) {
+    const essayType = options.essayType || document.getElementById('essayType')?.value || 'auto';
+    const coachingLevel = options.coachingLevel || document.getElementById('coachingLevel')?.value || 'medium';
+    const suggestionLevel = options.suggestionLevel || document.getElementById('suggestionLevel')?.value || 'medium';
+    
+    // Show enhanced loading state with progress indicators (check if function exists)
+    if (typeof showLoadingOverlay === 'function') {
+        showLoadingOverlay('Initializing AI analysis...', true);
+    } else {
+        console.log('Initializing AI analysis...');
+    }
+    
+    fetch('{% url "essays:upload" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            essay: text,
+            essay_type: essayType,
+            coaching_level: coachingLevel,
+            suggestion_aggressiveness: suggestionLevel
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (typeof hideLoadingOverlay === 'function') {
+            hideLoadingOverlay();
+        }
+        
+        if (data.error) {
+            showError(data.error);
+            return;
+        }
+        
+        wordSuggestionAnalysis = data;
+        renderEssayWithSuggestions(data);
+        renderScores(data.scores, data.score_reasons);
+        renderSuggestionSummary(data.suggestions);
+        updateProgress();
+        
+        // Load or render checklist
+        if (data.checklist_steps) {
+            renderStepWiseChecklist(data.checklist_steps);
+        } else {
+            loadChecklistProgress();
+        }
+        
+        // Show success message
+        showSuccess('Essay analysis completed successfully!');
+    })
+    .catch(error => {
+        if (typeof hideLoadingOverlay === 'function') {
+            hideLoadingOverlay();
+        }
+        console.error('Error:', error);
+        showError('Failed to analyze essay. Please try again.');
+    });
+}
+
+function renderEssayWithSuggestions(analysis) {
+    const container = document.getElementById('essay-content');
+    let taggedEssay = analysis.tagged_essay || essayText;
+    
+    console.log('Rendering essay with suggestions...');
+    
+    // If the tagged essay doesn't have markup tags, but we have suggestions, 
+    // try to create a simple highlighted version
+    if (taggedEssay && (!taggedEssay.includes('<delete>') && !taggedEssay.includes('<add>') && !taggedEssay.includes('<replace>'))) {
+        console.log('Creating simple highlighting for essay');
+        taggedEssay = createSimpleHighlighting(taggedEssay, analysis.suggestions);
+    }
+    
+    // Process the tagged essay and create interactive elements
+    let processedHTML = processTaggedText(taggedEssay, analysis.suggestions);
+    
+    container.innerHTML = processedHTML;
+    
+    // Add click handlers to suggestion words
+    addSuggestionClickHandlers();
+    
+    console.log('Essay rendered with', document.querySelectorAll('.word-suggestion').length, 'suggestions');
+}
+
+function createSimpleHighlighting(text, suggestions) {
+    console.log('Creating simple highlighting for', suggestions.length, 'suggestions');
+    
+    // For demo purposes, let's add some basic highlighting to common grammar issues
+    let highlightedText = text;
+    
+    // Example: highlight some common issues (this is a simplified approach)
+    highlightedText = highlightedText.replace(/\bhave\b/g, '<delete>have</delete>has');
+    highlightedText = highlightedText.replace(/\balot\b/g, '<delete>alot</delete><add>a lot</add>');
+    highlightedText = highlightedText.replace(/\bpeoples\b/g, '<delete>peoples</delete><add>people</add>');
+    highlightedText = highlightedText.replace(/\bis\b(?=\s+(crowded|busy|many))/g, '<delete>is</delete><add>are</add>');
+    highlightedText = highlightedText.replace(/\bseeing\b/g, '<delete>seeing</delete><add>see</add>');
+    
+    console.log('Simple highlighting created, preview:', highlightedText.substring(0, 200));
+    return highlightedText;
+}
+
+function processTaggedText(taggedText, suggestions) {
+    let html = taggedText;
+    let suggestionId = 0;
+    
+    // Process delete tags
+    html = html.replace(/<delete>(.*?)<\/delete>/g, (match, text) => {
+        const id = `suggestion-${suggestionId++}`;
+        const suggestion = findSuggestionByText(suggestions, text, 'delete');
+        const reason = suggestion ? suggestion.reason : 'Word should be deleted';
+        return `<span class="word-suggestion word-suggestion-delete" data-suggestion-id="${id}" data-type="delete" data-text="${text}" data-reason="${reason}" style="background: white !important; color: #dc3545 !important; text-decoration: line-through !important; border: 1px solid rgba(220, 53, 69, 0.6) !important; border-left: 3px solid #dc3545 !important; padding: 1px 3px !important; border-radius: 4px !important; margin: 0 1px !important; font-weight: 500 !important; cursor: pointer !important;">${text}</span>`;
+    });
+    
+    // Process add tags
+    html = html.replace(/<add>(.*?)<\/add>/g, (match, text) => {
+        const id = `suggestion-${suggestionId++}`;
+        const suggestion = findSuggestionByText(suggestions, text, 'add');
+        const reason = suggestion ? suggestion.reason : 'Word should be added';
+        return `<span class="word-suggestion word-suggestion-add" data-suggestion-id="${id}" data-type="add" data-text="${text}" data-reason="${reason}" style="background: white !important; color: #007bff !important; text-decoration: underline !important; border: 1px solid rgba(0, 123, 255, 0.6) !important; border-left: 3px solid #007bff !important; padding: 1px 3px !important; border-radius: 4px !important; margin: 0 1px !important; font-weight: 500 !important; cursor: pointer !important;">${text}</span>`;
+    });
+    
+    // Process replace tags
+    html = html.replace(/<replace>(.*?)\|(.*?)<\/replace>/g, (match, oldText, newText) => {
+        const id = `suggestion-${suggestionId++}`;
+        const suggestion = findSuggestionByText(suggestions, `${oldText} -> ${newText}`, 'replace');
+        const reason = suggestion ? suggestion.reason : 'Word should be replaced';
+        return `<span class="word-suggestion word-suggestion-replace" data-suggestion-id="${id}" data-type="replace" data-text="${oldText}" data-new-text="${newText}" data-reason="${reason}" style="background: white !important; color: #28a745 !important; border: 1px solid rgba(40, 167, 69, 0.6) !important; border-left: 3px solid #28a745 !important; padding: 1px 3px !important; border-radius: 4px !important; margin: 0 1px !important; font-weight: 500 !important; cursor: pointer !important;">${oldText}</span>`;
+    });
+    
+    console.log('Final processed HTML preview:', html.substring(0, 200));
+    return html;
+}
+
+function findSuggestionByText(suggestions, text, type) {
+    return suggestions.find(s => s.type === type && s.text.includes(text));
+}
+
+function addSuggestionClickHandlers() {
+    // Remove any existing global event listeners that might conflict
+    document.removeEventListener('click', handleSuggestionClick);
+    
+    document.querySelectorAll('.word-suggestion').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            showWordSuggestionModal(this);
+        });
+    });
+}
+
+function showWordSuggestionModal(element) {
+    const suggestionId = element.dataset.suggestionId;
+    const type = element.dataset.type;
+    const text = element.dataset.text;
+    const newText = element.dataset.newText;
+    const reason = element.dataset.reason;
+    
+    window.currentWordSuggestionId = suggestionId;
+    
+    document.getElementById('suggestion-type').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById('suggestion-current').textContent = text;
+    document.getElementById('suggestion-reason').textContent = reason;
+    
+    const newContainer = document.getElementById('suggestion-new-container');
+    if (type === 'replace' && newText) {
+        document.getElementById('suggestion-new').textContent = newText;
+        newContainer.style.display = 'block';
+    } else {
+        newContainer.style.display = 'none';
+    }
+    
+    const modalElement = document.getElementById('suggestionModal');
+    
+    // Remove aria-hidden before showing modal
+    modalElement.removeAttribute('aria-hidden');
+    
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static',
+        keyboard: true,
+        focus: true
+    });
+    
+    // Handle modal events properly
+    modalElement.addEventListener('shown.bs.modal', function() {
+        // Focus on the first button when modal opens
+        const acceptBtn = modalElement.querySelector('.btn-success');
+        if (acceptBtn) {
+            acceptBtn.focus();
+        }
+    }, { once: true });
+    
+    modalElement.addEventListener('hidden.bs.modal', function() {
+        // Clean up current suggestion ID when modal closes
+        window.currentWordSuggestionId = null;
+    }, { once: true });
+    
+    modal.show();
+}
+
+function acceptCurrentSuggestion() {
+    if (!window.currentWordSuggestionId) return;
+    
+    const element = document.querySelector(`[data-suggestion-id="${window.currentWordSuggestionId}"]`);
+    if (element) {
+        element.classList.add('suggestion-accepted');
+        window.acceptedWordSuggestions.add(window.currentWordSuggestionId);
+        window.rejectedWordSuggestions.delete(window.currentWordSuggestionId);
+        
+        // Apply the suggestion immediately and remove highlighting
+        applySuggestionRealTime(element, 'accept');
+        
+        updateProgress();
+        showSuccess('Suggestion accepted');
+        
+        // Send to backend
+        sendSuggestionAction('accept', window.currentWordSuggestionId, element.dataset.type, element.dataset.text);
+    }
+    
+    // Properly hide the modal and reset aria-hidden
+    const modalElement = document.getElementById('suggestionModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+        modalInstance.hide();
+    }
+    window.currentWordSuggestionId = null;
+}
+
+function rejectCurrentSuggestion() {
+    if (!window.currentWordSuggestionId) return;
+    
+    const element = document.querySelector(`[data-suggestion-id="${window.currentWordSuggestionId}"]`);
+    if (element) {
+        element.classList.add('suggestion-rejected');
+        window.rejectedWordSuggestions.add(window.currentWordSuggestionId);
+        window.acceptedWordSuggestions.delete(window.currentWordSuggestionId);
+        
+        // Remove highlighting without applying the suggestion
+        applySuggestionRealTime(element, 'reject');
+        
+        updateProgress();
+        showSuccess('Suggestion rejected');
+        
+        // Send to backend
+        sendSuggestionAction('reject', window.currentWordSuggestionId, element.dataset.type, element.dataset.text);
+    }
+    
+    // Properly hide the modal and reset aria-hidden
+    const modalElement = document.getElementById('suggestionModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+        modalInstance.hide();
+    }
+    window.currentWordSuggestionId = null;
+}
+
+function applySuggestionRealTime(element, action) {
+    const type = element.dataset.type;
+    const text = element.dataset.text;
+    const newText = element.dataset.newText;
+    
+    if (action === 'accept') {
+        // Apply the suggestion and remove highlighting
+        switch (type) {
+            case 'delete':
+                element.style.display = 'none';
+                break;
+            case 'add':
+                element.classList.remove('word-suggestion-add');
+                element.style.backgroundColor = 'transparent';
+                element.style.textDecoration = 'none';
+                element.style.color = 'inherit';
+                break;
+            case 'replace':
+                element.textContent = newText;
+                element.classList.remove('word-suggestion-replace');
+                element.style.backgroundColor = 'transparent';
+                element.style.borderBottom = 'none';
+                element.style.color = 'inherit';
+                break;
+        }
+        
+        // Remove click handler and tooltip
+        element.classList.remove('word-suggestion');
+        const tooltip = element.querySelector('.suggestion-tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+    } else if (action === 'reject') {
+        // Remove highlighting without applying suggestion
+        switch (type) {
+            case 'delete':
+                element.classList.remove('word-suggestion-delete');
+                element.style.backgroundColor = 'transparent';
+                element.style.textDecoration = 'none';
+                element.style.color = 'inherit';
+                break;
+            case 'add':
+                element.remove();
+                return; // Element is removed, no need to continue
+            case 'replace':
+                element.classList.remove('word-suggestion-replace');
+                element.style.backgroundColor = 'transparent';
+                element.style.borderBottom = 'none';
+                element.style.color = 'inherit';
+                break;
+        }
+        
+        // Remove click handler and tooltip
+        element.classList.remove('word-suggestion');
+        const tooltip = element.querySelector('.suggestion-tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+    }
+}
+
+function sendSuggestionAction(action, suggestionId, type, text) {
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                     document.querySelector('meta[name=csrf-token]')?.getAttribute('content') ||
+                     getCookie('csrftoken');
+    
+    const endpoint = action === 'accept' ? 
+        '{% url "essays:accept_suggestion" %}' : 
+        '{% url "essays:reject_suggestion" %}';
+    
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({
+            suggestion_id: suggestionId,
+            type: type,
+            text: text
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log(`Suggestion ${action}ed successfully:`, data.message);
+        } else {
+            console.error('Error:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending suggestion action:', error);
+    });
+}
+
+// Helper function to get CSRF cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function renderScores(scores, reasons) {
+    const container = document.getElementById('scores-container');
+    const scoreEntries = Object.entries(scores);
+    
+    // Define maximum scores for each rubric category
+    const maxScores = {
+        'ideas': 20,
+        'organization': 25,
+        'style': 25,
+        'grammar': 30
+    };
+    
+    let html = '';
+    scoreEntries.forEach(([dimension, score]) => {
+        const reason = reasons[dimension] || 'No explanation provided';
+        const maxScore = maxScores[dimension] || 100;
+        const percentage = Math.round((score / maxScore) * 100);
+        const color = percentage >= 80 ? 'success' : percentage >= 60 ? 'warning' : 'danger';
+        
+        // Split enhanced reason into parts if it contains STRENGTHS/AREAS FOR IMPROVEMENT
+        let strengthsText = '';
+        let improvementsText = '';
+        let nextStepsText = '';
+        
+        if (reason.includes('STRENGTHS:') && reason.includes('AREAS FOR IMPROVEMENT:')) {
+            const parts = reason.split('AREAS FOR IMPROVEMENT:');
+            strengthsText = parts[0].replace('STRENGTHS:', '').trim();
+            
+            if (parts[1].includes('NEXT STEPS:')) {
+                const remaining = parts[1].split('NEXT STEPS:');
+                improvementsText = remaining[0].trim();
+                nextStepsText = remaining[1].trim();
+            } else {
+                improvementsText = parts[1].trim();
+            }
+        }
+        
+        html += `
+            <div class="score-item mb-4">
+                <div class="score-header">
+                    <span class="fw-bold">${dimension.charAt(0).toUpperCase() + dimension.slice(1)}</span>
+                    <span class="badge bg-${color} fs-6">${score}/${maxScore}</span>
+                </div>
+                <div class="score-progress mb-2">
+                    <div class="score-progress-bar bg-${color}" style="width: ${percentage}%"></div>
+                </div>
+                
+                ${strengthsText ? `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small class="fw-semibold text-success">Strengths</small>
+                        </div>
+                        <small class="text-muted ps-3">${strengthsText}</small>
+                    </div>
+                ` : ''}
+                
+                ${improvementsText ? `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            <small class="fw-semibold text-warning">Areas for Improvement</small>
+                        </div>
+                        <small class="text-muted ps-3">${improvementsText}</small>
+                    </div>
+                ` : ''}
+                
+                ${nextStepsText ? `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-arrow-right text-primary me-2"></i>
+                            <small class="fw-semibold text-primary">Next Steps</small>
+                        </div>
+                        <small class="text-muted ps-3">${nextStepsText}</small>
+                    </div>
+                ` : ''}
+                
+                ${!strengthsText && !improvementsText ? `
+                    <small class="text-muted">${reason}</small>
+                ` : ''}
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function renderSuggestionSummary(suggestions) {
+    const container = document.getElementById('suggestion-summary');
+    
+    const counts = {
+        delete: suggestions.filter(s => s.type === 'delete').length,
+        add: suggestions.filter(s => s.type === 'add').length,
+        replace: suggestions.filter(s => s.type === 'replace').length
+    };
+    
+    const total = counts.delete + counts.add + counts.replace;
+    
+    let html = `
+        <div class="mb-3">
+            <h6>Total Suggestions: ${total}</h6>
+        </div>
+        <div class="row text-center">
+            <div class="col-4">
+                <div class="border rounded p-2">
+                    <h6 class="text-danger mb-1">${counts.delete}</h6>
+                    <small class="text-muted">Delete</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="border rounded p-2">
+                    <h6 class="text-primary mb-1">${counts.add}</h6>
+                    <small class="text-muted">Add</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="border rounded p-2">
+                    <h6 class="text-success mb-1">${counts.replace}</h6>
+                    <small class="text-muted">Replace</small>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+function updateProgress() {
+    const totalSuggestions = document.querySelectorAll('.word-suggestion').length;
+    const reviewedSuggestions = (window.acceptedWordSuggestions?.size || 0) + (window.rejectedWordSuggestions?.size || 0);
+    const percentage = totalSuggestions > 0 ? Math.round((reviewedSuggestions / totalSuggestions) * 100) : 0;
+    
+    document.getElementById('progress-reviewed').textContent = `${reviewedSuggestions}/${totalSuggestions}`;
+    document.getElementById('progress-bar').style.width = `${percentage}%`;
+    document.getElementById('accepted-count').textContent = acceptedWordSuggestions.size;
+    document.getElementById('rejected-count').textContent = rejectedWordSuggestions.size;
+}
+
+function reanalyzeEssay() {
+    analyzeEssayText(essayText);
+}
+
+function exportEssayWithSuggestions() {
+    if (!wordSuggestionAnalysis) {
+        showError('No analysis data available for export');
+        return;
+    }
+    
+    // Get the analysis ID from the current page
+    {% if analysis %}
+        const analysisId = {{ analysis.id }};
+    {% else %}
+        showError('Analysis ID not found');
+        return;
+    {% endif %}
+    
+    const exportBtn = document.getElementById('exportBtn');
+    const originalText = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exporting...';
+    exportBtn.disabled = true;
+    
+    // Use the existing download URL
+    const downloadUrl = `{% url "essays:download_suggestions" 0 %}`.replace('0', analysisId);
+    
+    // Create a temporary link to trigger download
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Reset button after a short delay
+    setTimeout(() => {
+        exportBtn.innerHTML = originalText;
+        exportBtn.disabled = false;
+        showSuccess('Essay export started! Your download should begin shortly.');
+    }, 1000);
+}
+
+function showLoadingState() {
+    // Show enhanced skeleton loading for essay content
+    document.getElementById('essay-content').innerHTML = `
+        <div class="p-4">
+            <div class="d-flex justify-content-center mb-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading analysis...</span>
+                </div>
+            </div>
+            <h5 class="text-center mb-4">Analyzing your essay with AI...</h5>
+            <div class="skeleton-loading">
+                <div class="skeleton skeleton-text long"></div>
+                <div class="skeleton skeleton-text medium"></div>
+                <div class="skeleton skeleton-text long"></div>
+                <div class="skeleton skeleton-text short"></div>
+                <div class="skeleton skeleton-text long"></div>
+                <div class="skeleton skeleton-text medium"></div>
+            </div>
+        </div>
+    `;
+    
+    // Show skeleton loading for scores
+    document.getElementById('scores-container').innerHTML = `
+        <div class="p-3">
+            <div class="text-center mb-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <p class="small mt-2 mb-0">Calculating scores...</p>
+            </div>
+            <div class="skeleton skeleton-text long mb-3"></div>
+            <div class="skeleton skeleton-text medium mb-3"></div>
+            <div class="skeleton skeleton-text long mb-3"></div>
+            <div class="skeleton skeleton-text short"></div>
+        </div>
+    `;
+    
+    // Show skeleton loading for suggestions
+    document.getElementById('suggestion-summary').innerHTML = `
+        <div class="p-3">
+            <div class="text-center mb-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <p class="small mt-2 mb-0">Generating suggestions...</p>
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="skeleton skeleton-text short"></div>
+                </div>
+                <div class="col-4">
+                    <div class="skeleton skeleton-text short"></div>
+                </div>
+                <div class="col-4">
+                    <div class="skeleton skeleton-text short"></div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderStepWiseChecklist(steps) {
+    const container = document.getElementById('checklist-container');
+    
+    if (!steps || steps.length === 0) {
+        container.innerHTML = '<p class="text-muted">No checklist available</p>';
+        return;
+    }
+    
+    let html = '';
+    steps.forEach((step, index) => {
+        const isUnlocked = step.unlocked;
+        const isCompleted = step.completed;
+        const stepClass = isCompleted ? 'step-completed' : (isUnlocked ? 'step-unlocked' : 'step-locked');
+        const iconClass = isCompleted ? 'fas fa-check-circle text-success' : 
+                         (isUnlocked ? 'fas fa-circle text-primary' : 'fas fa-lock text-muted');
+        
+        html += `
+            <div class="checklist-step ${stepClass} mb-3" data-step-name="${step.name}">
+                <div class="d-flex align-items-start">
+                    <div class="step-icon me-3 mt-1">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="step-content flex-grow-1">
+                        <h6 class="mb-1">${step.name}</h6>
+                        <p class="small text-muted mb-2">${step.description}</p>
+                        <small class="text-info">${step.criteria}</small>
+                        ${isUnlocked && !isCompleted ? `
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-success complete-step-btn" onclick="completeStep('${step.name}')">
+                                    <i class="fas fa-check me-1"></i>Mark Complete
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function completeStep(stepName) {
+    if (!wordSuggestionAnalysis || !wordSuggestionAnalysis.analysis_id) {
+        showError('Analysis data not available');
+        return;
+    }
+    
+    fetch('{% url "essays:update_progress" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            step_name: stepName,
+            completed: true
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            renderStepWiseChecklist(data.steps);
+            showSuccess('Step completed! Next step unlocked.');
+        } else {
+            showError('Failed to update checklist');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating checklist:', error);
+        showError('Failed to update checklist');
+    });
+}
+
+function loadChecklistProgress() {
+    if (!wordSuggestionAnalysis || !wordSuggestionAnalysis.analysis_id) {
+        return;
+    }
+    
+    // TODO: Replace with Django URL for checklist progress
+    fetch('#')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            renderStepWiseChecklist(data.steps);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading checklist:', error);
+    });
+}
+
+function showSuccess(message) {
+    document.getElementById('successToastBody').textContent = message;
+    const toast = new bootstrap.Toast(document.getElementById('successToast'));
+    toast.show();
+}
+
+function showError(message) {
+    document.getElementById('errorToastBody').textContent = message;
+    const toast = new bootstrap.Toast(document.getElementById('errorToast'));
+    toast.show();
+}
+</script>
+{% endblock %}

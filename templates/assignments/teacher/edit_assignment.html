@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Assignment - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1e2839;">Edit Assignment</h2>
+    <a href="{{ url_for('view_assignment', assignment_id=assignment[0]) }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Assignment
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Assignment Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Assignment Title *</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ assignment[1] }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description *</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="4" required>{{ assignment[2] }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="essay_type" class="form-label">Essay Type</label>
+                                <select class="form-select" id="essay_type" name="essay_type">
+                                    <option value="auto" {{ 'selected' if assignment[3] == 'auto' else '' }}>Auto-detect from student submissions</option>
+                                    <option value="argumentative" {{ 'selected' if assignment[3] == 'argumentative' else '' }}>Argumentative</option>
+                                    <option value="narrative" {{ 'selected' if assignment[3] == 'narrative' else '' }}>Narrative</option>
+                                    <option value="literary" {{ 'selected' if assignment[3] == 'literary' else '' }}>Literary Analysis</option>
+                                    <option value="expository" {{ 'selected' if assignment[3] == 'expository' else '' }}>Expository</option>
+                                    <option value="descriptive" {{ 'selected' if assignment[3] == 'descriptive' else '' }}>Descriptive</option>
+                                    <option value="compare" {{ 'selected' if assignment[3] == 'compare' else '' }}>Compare & Contrast</option>
+                                </select>
+                                <div class="form-text">
+                                    Select a specific type or let AI automatically detect it from student submissions.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="due_date" class="form-label">Due Date *</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date" 
+                                       value="{{ assignment[4].strftime('%Y-%m-%d') }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="guidelines" class="form-label">Guidelines & Instructions</label>
+                        <textarea class="form-control" id="guidelines" name="guidelines" 
+                                  rows="6" placeholder="Provide detailed instructions for students...">{{ assignment[5] or '' }}</textarea>
+                        <div class="form-text">
+                            You can include formatting requirements, citation style, word count, etc.
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('view_assignment', assignment_id=assignment[0]) }}" 
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn" style="background-color: #1e2839; color: white;">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Assignment Info -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Assignment Info</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Original Due Date</small>
+                    <div>{{ assignment[4].strftime('%B %d, %Y') }}</div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Essay Type</small>
+                    <div>
+                        <span class="badge bg-secondary">
+                            {{ assignment[3].replace('_', ' ').title() }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> Changes to the assignment will be reflected immediately. 
+                    Students who have already submitted will not be affected by deadline changes.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('view_assignment_submissions', assignment_id=assignment[0]) }}" 
+                       class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-comments me-2"></i>View Submissions
+                    </a>
+                    <button class="btn btn-outline-warning btn-sm" onclick="extendDeadline()">
+                        <i class="fas fa-clock me-2"></i>Extend Deadline
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteAssignment()">
+                        <i class="fas fa-trash me-2"></i>Delete Assignment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function extendDeadline() {
+    const currentDate = document.getElementById('due_date').value;
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + 7); // Add 7 days
+    document.getElementById('due_date').value = newDate.toISOString().split('T')[0];
+}
+
+function deleteAssignment() {
+    if (confirm('Are you sure you want to delete this assignment? This action cannot be undone.')) {
+        // Implement delete functionality
+        alert('Delete functionality will be implemented');
+    }
+}
+</script>
+{% endblock %}

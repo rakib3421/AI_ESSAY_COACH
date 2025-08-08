@@ -14,25 +14,25 @@
                     </h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ url_for('teacher.teacher_dashboard') }}" class="list-group-item list-group-item-action active border-0 fw-medium">
+                    <a href="{% url 'analytics:teacher_dashboard' %}" class="list-group-item list-group-item-action active border-0 fw-medium">
                         <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
                     </a>
-                    <a href="{{ url_for('teacher.submissions') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-file-alt me-3" style="width: 20px;"></i>Submissions
                     </a>
-                    <a href="{{ url_for('teacher.teacher_all_essays') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-list-alt me-3" style="width: 20px;"></i>All Essays
                     </a>
-                    <a href="{{ url_for('teacher.students') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-users me-3" style="width: 20px;"></i>Students
                     </a>
-                    <a href="{{ url_for('teacher.create_assignment') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'assignments:create_assignment' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-plus-circle me-3" style="width: 20px;"></i>Create Assignment
                     </a>
-                    {# <a href="{{ url_for('teacher_analytics') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    {# <a href="{% url 'analytics:analytics_overview' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Analytics
                     </a> #}
-                    <a href="{{ url_for('teacher.teacher_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Settings
                     </a>
                 </div>
@@ -47,7 +47,7 @@
                     <h2 class="fw-bold mb-2">Teacher Dashboard 📚</h2>
                     <p class="text-secondary mb-0">Manage assignments and track student progress</p>
                 </div>
-                <a href="{{ url_for('teacher.create_assignment') }}" class="btn btn-primary btn-lg shadow-lg">
+                <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary btn-lg shadow-lg">
                     <i class="fas fa-plus me-2"></i>New Assignment
                 </a>
             </div>
@@ -202,7 +202,7 @@
                         </div>
                         <div class="card-body p-4">
                             <div class="d-grid gap-3">
-                                <a href="{{ url_for('teacher.create_assignment') }}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
+                                <a href="{% url 'assignments:create_assignment' %}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
                                     <i class="fas fa-plus-circle me-3"></i>
                                     <div>
                                         <div class="fw-bold">New Assignment</div>
@@ -210,7 +210,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('teacher.submissions') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
+                                <a href="{% url 'analytics:students_list' %}" class="btn btn-outline-info btn-lg d-flex align-items-center">
                                     <i class="fas fa-file-alt me-3"></i>
                                     <div>
                                         <div class="fw-bold">Review Submissions</div>

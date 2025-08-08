@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}Assignment Analytics - {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:analytics_overview' %}">Analytics</a></li>
+                    <li class="breadcrumb-item active">{{ assignment.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>{{ assignment.title }} - Analytics</h2>
+                    <p class="text-muted">{{ assignment.description|truncatechars:100 }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'assignments:assignment_submissions' assignment.id %}" class="btn btn-primary">
+                        View Submissions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Assignment Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ total_submissions }}</h3>
+                    <p class="mb-0">Submissions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ avg_score|floatformat:1 }}</h3>
+                    <p class="mb-0">Average Score</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ highest_score }}</h3>
+                    <p class="mb-0">Highest Score</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ submission_rate|floatformat:1 }}%</h3>
+                    <p class="mb-0">Submission Rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Score Distribution -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Score Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="scoreChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submission Timeline -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Submission Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="timelineChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Student Performance -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Student Performance</h5>
+                </div>
+                <div class="card-body">
+                    {% if submissions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Score</th>
+                                        <th>Grammar</th>
+                                        <th>Status</th>
+                                        <th>Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for submission in submissions %}
+                                        <tr>
+                                            <td>{{ submission.student.get_full_name }}</td>
+                                            <td>
+                                                <span class="badge {% if submission.essay_analysis.overall_score >= 80 %}bg-success{% elif submission.essay_analysis.overall_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ submission.essay_analysis.overall_score }}/100
+                                                </span>
+                                            </td>
+                                            <td>{{ submission.essay_analysis.grammar_score }}/100</td>
+                                            <td>
+                                                {% if submission.grade %}
+                                                    <span class="badge bg-success">Graded</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ submission.submitted_at|date:"M d, Y g:i A" }}</td>
+                                            <td>
+                                                <a href="{% url 'essays:view_essay' submission.essay_analysis.id %}" class="btn btn-sm btn-outline-primary">
+                                                    View
+                                                </a>
+                                                {% if not submission.grade %}
+                                                    <a href="{% url 'assignments:grade_submission' submission.id %}" class="btn btn-sm btn-outline-success">
+                                                        Grade
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <h6>No Submissions Yet</h6>
+                            <p class="text-muted">Students haven't submitted this assignment yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Common Issues -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Common Issues & Feedback</h5>
+                </div>
+                <div class="card-body">
+                    {% if common_issues %}
+                        <div class="row">
+                            {% for issue in common_issues %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="border p-3 rounded">
+                                        <h6>{{ issue.category|title }}</h6>
+                                        <p class="text-muted">{{ issue.description }}</p>
+                                        <small class="text-primary">{{ issue.count }} students affected</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No common issues identified yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Score Distribution Chart
+const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+const scoreChart = new Chart(scoreCtx, {
+    type: 'bar',
+    data: {
+        labels: ['90-100', '80-89', '70-79', '60-69', 'Below 60'],
+        datasets: [{
+            label: 'Number of Students',
+            data: [
+                {{ score_distribution.excellent|default:0 }},
+                {{ score_distribution.good|default:0 }},
+                {{ score_distribution.average|default:0 }},
+                {{ score_distribution.poor|default:0 }},
+                {{ score_distribution.failing|default:0 }}
+            ],
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#fd7e14',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Timeline Chart
+const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+const timelineChart = new Chart(timelineCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for item in submission_timeline %}'{{ item.date|date:"M d" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Submissions',
+            data: [{% for item in submission_timeline %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

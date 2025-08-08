@@ -14,22 +14,25 @@
                     </h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ url_for('student.student_dashboard') }}" class="list-group-item list-group-item-action active border-0 fw-medium">
+                    <a href="{% url 'essays:dashboard' %}" class="list-group-item list-group-item-action active border-0 fw-medium">
                         <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
                     </a>
-                    <a href="{{ url_for('student.upload_essay') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'essays:upload' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-cloud-upload-alt me-3" style="width: 20px;"></i>Upload Essay
                     </a>
-                    <a href="{{ url_for('student.student_essays_list') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'essays:essays_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-file-alt me-3" style="width: 20px;"></i>My Essays
                     </a>
-                    <a href="{{ url_for('student.view_assignments') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'assignments:student_assignments' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-tasks me-3" style="width: 20px;"></i>Assignments
                     </a>
-                    <a href="{{ url_for('student.student_progress') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'essays:progress' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Progress Analytics
                     </a>
-                    <a href="{{ url_for('student.student_requests') }}" class="list-group-item list-group-item-action border-0 fw-medium position-relative">
+                    <a href="/teacher-requests/" style="display: block; padding: 10px; background: red; color: white; text-decoration: none; margin: 5px 0;" onclick="console.log('Simple link clicked!'); return true;">
+                        🔔 TEACHER REQUESTS (TEST LINK)
+                    </a>
+                    <a href="{% url 'accounts:teacher_requests' %}" class="list-group-item list-group-item-action border-0 fw-medium position-relative" onclick="console.log('Dashboard Teacher Requests clicked!'); return true;">
                         <i class="fas fa-bell me-3" style="width: 20px;"></i>Teacher Requests
                         {% if pending_requests_count > 0 %}
                             <span class="position-absolute top-50 end-0 translate-middle-y me-3">
@@ -37,7 +40,7 @@
                             </span>
                         {% endif %}
                     </a>
-                    <a href="{{ url_for('student.student_profile') }}" class="list-group-item list-group-item-action border-0 fw-medium">
+                    <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action border-0 fw-medium">
                         <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Profile
                     </a>
                 </div>
@@ -52,7 +55,7 @@
                     <h2 class="fw-bold mb-2">Welcome back, {{ session.username }}! 👋</h2>
                     <p class="text-secondary mb-0">Ready to improve your writing today?</p>
                 </div>
-                <a href="{{ url_for('student.upload_essay') }}" class="btn btn-primary btn-lg shadow-lg">
+                <a href="{% url 'essays:upload' %}" class="btn btn-primary btn-lg shadow-lg">
                     <i class="fas fa-plus me-2"></i>New Essay
                 </a>
             </div>
@@ -65,7 +68,7 @@
                     <div class="flex-grow-1">
                         <h6 class="alert-heading mb-1">🎉 New Teacher Feedback Available!</h6>
                         <p class="mb-2">You have {{ essays_with_feedback|length }} essay(s) with new teacher feedback.</p>
-                        <a href="{{ url_for('student.student_essays_list') }}" class="btn btn-success btn-sm">
+                        <a href="{% url 'essays:essays_list' %}" class="btn btn-success btn-sm">
                             <i class="fas fa-eye me-1"></i>View All Feedback
                         </a>
                     </div>
@@ -140,7 +143,7 @@
                         </div>
                         <div class="card-body p-4">
                             <div class="d-grid gap-3">
-                                <a href="{{ url_for('student.upload_essay') }}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
+                                <a href="{% url 'essays:upload' %}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
                                     <i class="fas fa-upload me-3"></i>
                                     <div>
                                         <div class="fw-bold">Upload New Essay</div>
@@ -148,7 +151,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('student.view_assignments') }}" class="btn btn-outline-info btn-lg d-flex align-items-center">
+                                <a href="{% url 'assignments:student_assignments' %}" class="btn btn-outline-info btn-lg d-flex align-items-center">
                                     <i class="fas fa-tasks me-3"></i>
                                     <div>
                                         <div class="fw-bold">View Assignments</div>
@@ -156,7 +159,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('student.student_essays_list') }}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
+                                <a href="{% url 'essays:essays_list' %}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
                                     <i class="fas fa-file-alt me-3"></i>
                                     <div>
                                         <div class="fw-bold">My Essays</div>
@@ -164,7 +167,7 @@
                                     </div>
                                 </a>
                                 
-                                <a href="{{ url_for('student.student_progress') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">
+                                <a href="{% url 'essays:progress' %}" class="btn btn-outline-success btn-lg d-flex align-items-center">
                                     <i class="fas fa-chart-bar me-3"></i>
                                     <div>
                                         <div class="fw-bold">Progress Report</div>
@@ -219,7 +222,7 @@
                                     <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
                                     <h6 class="text-muted">No essays submitted yet</h6>
                                     <p class="text-secondary">Upload your first essay to get started!</p>
-                                    <a href="{{ url_for('student.upload_essay') }}" class="btn btn-primary">
+                                    <a href="{% url 'essays:upload' %}" class="btn btn-primary">
                                         <i class="fas fa-plus me-2"></i>Upload Essay
                                     </a>
                                 </div>
@@ -284,7 +287,7 @@
                                 <div class="d-flex justify-content-between align-items-center border-bottom py-2">
                                     <div>
                                         <h6 class="mb-1">
-                                            <a href="{{ url_for('student.view_essay', essay_id=submission.id) }}" class="text-decoration-none">
+                                            <a href="{% url 'essays:view_essay' submission.id %}" class="text-decoration-none">
                                                 {{ submission.title }}
                                             </a>
                                         </h6>
@@ -301,7 +304,7 @@
                                         {% endif %}
                                         {% if submission.teacher_feedback %}
                                             <div class="mt-1">
-                                                <a href="{{ url_for('student.student_feedback', essay_id=submission.id) }}" class="btn btn-sm btn-outline-info">
+                                                <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-outline-info">
                                                     <i class="fas fa-comment me-1"></i>View Feedback
                                                 </a>
                                             </div>
@@ -310,7 +313,7 @@
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <p class="text-muted text-center">No submissions yet. <a href="{{ url_for('student.upload_essay') }}">Upload your first essay!</a></p>
+                            <p class="text-muted text-center">No submissions yet. <a href="{% url 'essays:upload' %}">Upload your first essay!</a></p>
                         {% endif %}
                     </div>
                 </div>
@@ -338,7 +341,7 @@
                                         </span>
                                         {% if assignment.status == 'Submitted' %}
                                             <div class="mt-1">
-                                                <a href="{{ url_for('student.view_assignments') }}" class="btn btn-sm btn-outline-info">
+                                                <a href="{% url 'assignments:student_assignments' %}" class="btn btn-sm btn-outline-info">
                                                     <i class="fas fa-eye me-1"></i>View Details
                                                 </a>
                                             </div>

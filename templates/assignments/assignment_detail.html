@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Assignment: {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>{{ assignment.title }}</h3>
+                    <span class="badge {% if assignment.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                        {% if assignment.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>Description</h5>
+                            <p>{{ assignment.description|linebreaks }}</p>
+                            
+                            <h5>Requirements</h5>
+                            <p>{{ assignment.requirements|linebreaks }}</p>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <p><strong>Essay Type:</strong> {{ assignment.essay_type|title }}</p>
+                                    <p><strong>Word Count:</strong> {{ assignment.word_count_min }} - {{ assignment.word_count_max }} words</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Created:</strong> {{ assignment.created_at|date:"M d, Y" }}</p>
+                                    <p><strong>Due Date:</strong> 
+                                        <span {% if assignment.is_overdue %}class="text-danger"{% endif %}>
+                                            {{ assignment.due_date|date:"M d, Y g:i A" }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6>Assignment Status</h6>
+                                    {% if user.userprofile.user_type == 'student' %}
+                                        {% if submission %}
+                                            <div class="alert alert-success">
+                                                <i class="fas fa-check-circle"></i> Submitted
+                                                <small class="d-block">{{ submission.submitted_at|date:"M d, Y g:i A" }}</small>
+                                            </div>
+                                            <a href="{% url 'essays:view_essay' submission.essay_analysis.id %}" class="btn btn-primary btn-sm">
+                                                View Analysis
+                                            </a>
+                                        {% else %}
+                                            {% if assignment.is_overdue %}
+                                                <div class="alert alert-danger">
+                                                    <i class="fas fa-exclamation-triangle"></i> Overdue
+                                                </div>
+                                            {% else %}
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-clock"></i> Not Submitted
+                                                </div>
+                                                <a href="{% url 'assignments:submit_assignment' assignment.id %}" class="btn btn-primary">
+                                                    Submit Assignment
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% else %}
+                                        <p><strong>Teacher:</strong> {{ assignment.teacher.get_full_name }}</p>
+                                        <a href="{% url 'assignments:assignment_submissions' assignment.id %}" class="btn btn-primary">
+                                            View Submissions
+                                        </a>
+                                        <a href="{% url 'assignments:edit_assignment' assignment.id %}" class="btn btn-secondary mt-1">
+                                            Edit Assignment
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

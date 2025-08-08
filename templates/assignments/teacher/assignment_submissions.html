@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Assignment Submissions - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="color: #1e2839;">{{ assignment.title }} - Submissions</h2>
+        <p class="text-muted mb-0">
+            <span class="badge bg-secondary me-2">{{ assignment.get_essay_type_display }}</span>
+            Due: {{ assignment.due_date|date:"F d, Y" }}
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'accounts:my_students' %}" class="btn btn-info me-2">
+            <i class="fas fa-users me-2"></i>My Students
+        </a>
+        <a href="{% url 'assignments:assignment_detail' assignment.id %}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-eye me-2"></i>View Assignment
+        </a>
+        <a href="{% url 'accounts:index' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Submissions</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">{{ page_obj.paginator.count }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">With Feedback</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {% comment %}Count submissions with feedback{% endcomment %}
+                    -
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Avg. Score</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {% comment %}Calculate average score{% endcomment %}
+                    -
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Pending Review</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {% comment %}Count pending submissions{% endcomment %}
+                    -
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submissions Table -->
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Pending Review</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    -
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submissions Table -->
+<div class="card">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Student Submissions</h6>
+            <small class="text-light">
+                <i class="fas fa-info-circle me-1"></i>
+                AI analyzes essays first, then you can provide feedback
+            </small>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if page_obj.object_list %}
+            <!-- Action Guide -->
+            <div class="alert alert-info mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <i class="fas fa-eye text-primary me-2"></i>
+                        <strong>View:</strong> See essay with AI analysis
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-comment text-success me-2"></i>
+                        <strong>Feedback:</strong> Add your teacher feedback
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        <strong>Grade:</strong> Assign official grade
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Essay Title</th>
+                            <th>Score</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in page_obj.object_list %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                        <strong>{{ submission.student.get_full_name|default:submission.student.username }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ submission.file_name|default:"Essay Submission" }}</strong>
+                                        {% if submission.teacher_feedback %}
+                                            <br><small class="text-muted">
+                                                <i class="fas fa-comment text-success me-1"></i>Feedback provided
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if submission.get_final_score %}
+                                        <span class="badge bg-{% if submission.get_final_score >= 80 %}success{% elif submission.get_final_score >= 60 %}warning{% else %}danger{% endif %}">
+                                            {{ submission.get_final_score|floatformat:0 }}/100
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">Not scored</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ submission.submitted_at|date:"m/d/Y" }}<br>
+                                        {{ submission.submitted_at|time:"g:i A" }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if submission.teacher_score %}
+                                        <span class="badge bg-success">Graded</span>
+                                    {% elif submission.essay_analysis %}
+                                        {% if submission.essay_analysis.teacher_feedback %}
+                                            <span class="badge bg-info">Feedback Given</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Pending Review</span>
+                                        {% endif %}
+                                    {% elif submission.status == 'submitted' %}
+                                        <span class="badge bg-warning">Pending Review</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ submission.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Assignment actions">
+                                        {% if submission.essay_analysis %}
+                                        <a href="{% url 'essays:view_essay' submission.essay_analysis.id %}" 
+                                           class="btn btn-outline-primary btn-sm" 
+                                           title="View essay with AI analysis"
+                                           data-bs-toggle="tooltip">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'accounts:give_feedback' submission.essay_analysis.id %}" 
+                                           class="btn btn-outline-success btn-sm" 
+                                           title="{% if submission.essay_analysis.teacher_feedback %}Edit feedback{% else %}Give feedback{% endif %}"
+                                           data-bs-toggle="tooltip">
+                                            <i class="fas fa-comment"></i>
+                                        </a>
+                                        {% else %}
+                                        <span class="btn btn-outline-secondary btn-sm disabled" 
+                                              title="AI analysis in progress"
+                                              data-bs-toggle="tooltip">
+                                            <i class="fas fa-robot"></i>
+                                        </span>
+                                        {% endif %}
+                                        <a href="{% url 'assignments:grade_submission' submission.id %}" 
+                                           class="btn btn-outline-warning btn-sm" 
+                                           title="{% if submission.teacher_score %}Edit grade{% else %}Grade assignment{% endif %}"
+                                           data-bs-toggle="tooltip">
+                                            <i class="fas fa-star"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No submissions yet</h5>
+                <p class="text-muted">Students haven't submitted essays for this assignment yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Add confirmation for grading actions
+    document.querySelectorAll('a[href*="grade_submission"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to grade this submission?')) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Auto-refresh page every 30 seconds to check for new submissions
+    setInterval(function() {
+        // Only refresh if no modal is open
+        if (!document.querySelector('.modal.show')) {
+            location.reload();
+        }
+    }, 30000);
+});
+
+// Helper function to show processing state
+function showProcessing(button) {
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
+    
+    setTimeout(function() {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }, 2000);
+}
+</script>
+{% endblock %}

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 style="color: #1e2839;">My Progress</h2>
-    <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{% url 'essays:dashboard' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
     </a>
 </div>
@@ -183,12 +183,12 @@
                                 </td>
                                 <td>{{ essay[8].strftime('%m/%d/%Y') }}</td>
                                 <td>
-                                    <a href="{{ url_for('student.view_essay', essay_id=essay[0]) }}" 
+                                    <a href="{% url 'essays:view_essay' essay.0 %}" 
                                        class="btn btn-sm btn-outline-primary me-1">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     {% if essay[9] %}
-                                        <a href="{{ url_for('student.student_feedback', essay_id=essay[0]) }}" 
+                                        <a href="{% url 'accounts:profile' %}" 
                                            class="btn btn-sm btn-outline-info">
                                             <i class="fas fa-comment"></i>
                                         </a>
@@ -204,7 +204,7 @@
                 <i class="fas fa-chart-line fa-4x mb-3" style="color: #dee2e6;"></i>
                 <h5 class="text-muted">No progress data available</h5>
                 <p class="text-muted">Upload your first essay to start tracking progress!</p>
-                <a href="{{ url_for('student.upload_essay') }}" class="btn" style="background-color: #1e2839; color: white;">
+                <a href="{% url 'essays:upload' %}" class="btn" style="background-color: #1e2839; color: white;">
                     <i class="fas fa-upload me-2"></i>Upload Essay
                 </a>
             </div>

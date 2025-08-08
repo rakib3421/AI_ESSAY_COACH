@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}AI Essay Coach - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary mb-3">Welcome to AI Essay Coach</h1>
+            <p class="lead text-muted">
+                Transform your writing with AI-powered feedback and personalized improvement suggestions.
+            </p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-user-graduate fa-3x text-primary"></i>
+                        </div>
+                        <h4 class="card-title">For Students</h4>
+                        <p class="card-text">
+                            Get instant AI feedback on your essays, track your progress, and improve your writing skills.
+                        </p>
+                        <a href="{% url 'accounts:signup' %}" class="btn btn-primary">Get Started as Student</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-chalkboard-teacher fa-3x text-success"></i>
+                        </div>
+                        <h4 class="card-title">For Teachers</h4>
+                        <p class="card-text">
+                            Manage assignments, track student progress, and provide personalized feedback efficiently.
+                        </p>
+                        <a href="{% url 'accounts:signup' %}" class="btn btn-success">Get Started as Teacher</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <p class="mb-3">Already have an account?</p>
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

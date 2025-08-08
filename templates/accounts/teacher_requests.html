@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Requests - AI Essay Coach{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card shadow-lg border-0 sticky-top" style="top: 110px;">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="fas fa-compass me-3"></i>Navigation
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'essays:dashboard' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
+                    </a>
+                    <a href="{% url 'essays:upload' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-cloud-upload-alt me-3" style="width: 20px;"></i>Upload Essay
+                    </a>
+                    <a href="{% url 'essays:essays_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-file-alt me-3" style="width: 20px;"></i>My Essays
+                    </a>
+                    <a href="{% url 'assignments:student_assignments' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-tasks me-3" style="width: 20px;"></i>Assignments
+                    </a>
+                    <a href="{% url 'essays:progress' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Progress Analytics
+                    </a>
+                    <a href="{% url 'accounts:teacher_requests' %}" class="list-group-item list-group-item-action active border-0 fw-medium">
+                        <i class="fas fa-bell me-3" style="width: 20px;"></i>Teacher Requests
+                    </a>
+                    <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold" style="color: #1e2839;">
+                    <i class="fas fa-bell me-3"></i>Teacher Assignment Requests
+                </h2>
+            </div>
+
+            <div class="row">
+                {% if requests %}
+                    {% for request in requests %}
+                        <div class="col-lg-8 mb-4">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header d-flex justify-content-between align-items-center" 
+                                     style="background: linear-gradient(135deg, #1e2839 0%, #3a4b5c 100%); color: white;">
+                                    <h6 class="mb-0 fw-bold">
+                                        <i class="fas fa-user-tie me-2"></i>Assignment Request
+                                    </h6>
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>Pending
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 60px; height: 60px;">
+                                            <i class="fas fa-user-tie fa-2x text-muted"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">{{ request.teacher.get_full_name|default:request.teacher.username }}</h5>
+                                            <small class="text-muted">{{ request.teacher.email }}</small>
+                                            <br><small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Sent {{ request.created_at|date:"F d, Y \a\t g:i A" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if request.message %}
+                                        <div class="alert alert-light border-start border-primary border-4 mb-3">
+                                            <h6 class="fw-bold">Message from {{ request.teacher.get_full_name|default:request.teacher.username }}:</h6>
+                                            <p class="mb-0">{{ request.message }}</p>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>{{ request.teacher.get_full_name|default:request.teacher.username }}</strong> wants to assign you as their student. 
+                                        This will allow them to:
+                                        <ul class="mt-2 mb-0">
+                                            <li>Create assignments for you</li>
+                                            <li>View your essay submissions</li>
+                                            <li>Provide feedback on your work</li>
+                                            <li>Track your progress</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <form method="POST" action="{% url 'accounts:reject_teacher_request' request.id %}" 
+                                              style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger" 
+                                                    onclick="return confirm('Are you sure you want to reject this request?')">
+                                                <i class="fas fa-times me-2"></i>Reject
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{% url 'accounts:accept_teacher_request' request.id %}" 
+                                              style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success" 
+                                                    onclick="return confirm('Accept assignment request from {{ request.teacher.get_full_name|default:request.teacher.username }}?')">
+                                                <i class="fas fa-check me-2"></i>Accept
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-4x mb-3" style="color: #dee2e6;"></i>
+                            <h4 class="text-muted">No pending teacher requests</h4>
+                            <p class="text-muted">You don't have any pending assignment requests from teachers.</p>
+                            <a href="{% url 'essays:dashboard' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

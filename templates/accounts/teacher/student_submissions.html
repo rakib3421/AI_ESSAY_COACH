@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.get_full_name|default:student.username }} - Submissions{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 style="color: #1e2839;">
+                <i class="fas fa-user me-2"></i>{{ student.get_full_name|default:student.username }}
+            </h2>
+            <p class="text-muted mb-0">
+                <i class="fas fa-envelope me-2"></i>{{ student.email }}
+            </p>
+        </div>
+        <a href="{% url 'accounts:my_students' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Students
+        </a>
+    </div>
+
+    <!-- Assignment Submissions -->
+    {% if assignment_submissions %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-tasks me-2"></i>Assignment Submissions ({{ assignment_submissions.count }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Assignment</th>
+                            <th>Essay Type</th>
+                            <th>AI Score</th>
+                            <th>Teacher Score</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in assignment_submissions %}
+                        <tr>
+                            <td>
+                                <strong>{{ submission.assignment.title }}</strong>
+                                <br>
+                                <small class="text-muted">Due: {{ submission.assignment.due_date|date:"M d, Y" }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ submission.assignment.get_essay_type_display }}</span>
+                            </td>
+                            <td>
+                                {% if submission.essay_analysis %}
+                                <span class="badge bg-info">{{ submission.essay_analysis.overall_score|floatformat:1 }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if submission.teacher_score %}
+                                <span class="badge bg-success">{{ submission.teacher_score|floatformat:1 }}</span>
+                                {% else %}
+                                <span class="text-muted">Not graded</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if submission.status == 'submitted' %}
+                                <span class="badge bg-warning">Submitted</span>
+                                {% elif submission.status == 'graded' %}
+                                <span class="badge bg-success">Graded</span>
+                                {% elif submission.status == 'returned' %}
+                                <span class="badge bg-primary">Returned</span>
+                                {% endif %}
+                                
+                                {% if submission.is_late %}
+                                <br><small class="text-danger">Late submission</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ submission.submitted_at|date:"M d, Y H:i" }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    {% if submission.essay_analysis %}
+                                    <a href="{% url 'accounts:give_feedback' submission.essay_analysis.id %}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-comment"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'assignments:grade_submission' submission.id %}" 
+                                       class="btn btn-outline-success">
+                                        <i class="fas fa-star"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Regular Essay Submissions -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-file-alt me-2"></i>Essay Submissions ({{ essay_analyses.count }})
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if essay_analyses %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Essay Type</th>
+                            <th>AI Score</th>
+                            <th>Grammar</th>
+                            <th>Clarity</th>
+                            <th>Structure</th>
+                            <th>Content</th>
+                            <th>Feedback</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for analysis in essay_analyses %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary">{{ analysis.get_essay_type_display }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ analysis.overall_score|floatformat:1 }}</span>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ analysis.grammar_score|floatformat:1 }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ analysis.clarity_score|floatformat:1 }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ analysis.structure_score|floatformat:1 }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ analysis.content_score|floatformat:1 }}</small>
+                            </td>
+                            <td>
+                                {% if analysis.teacher_feedback %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check"></i> Given
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-clock"></i> Pending
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ analysis.created_at|date:"M d, Y H:i" }}</small>
+                            </td>
+                            <td>
+                                <a href="{% url 'accounts:give_feedback' analysis.id %}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    {% if analysis.teacher_feedback %}
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                    {% else %}
+                                    <i class="fas fa-comment me-1"></i>Feedback
+                                    {% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No submissions yet</h5>
+                <p class="text-muted">This student hasn't submitted any essays yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -17,10 +17,11 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% load static %}
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="{{ url_for('static', filename='js/app.js') }}" as="script">
+    <link rel="preload" href="{% static 'js/app.js' %}" as="script">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -30,7 +31,7 @@
     
     <nav class="navbar navbar-expand-lg fixed-top" role="navigation" aria-label="Main navigation">
         <div class="container-fluid px-4">
-            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('auth.index') }}" aria-label="AI Essay Revision - Home">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'accounts:index' %}" aria-label="AI Essay Revision - Home">
                 <div class="d-flex align-items-center justify-content-center rounded-circle me-3" 
                      style="width: 40px; height: 40px; background: var(--primary-gradient);">
                     <i class="fas fa-graduation-cap text-white" aria-hidden="true"></i>
@@ -48,26 +49,26 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto" role="menubar">
-                    {% if session.user_id %}
-                        {% if session.role == 'student' %}
+                    {% if user.is_authenticated %}
+                        {% if user.role == 'student' %}
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('student.student_dashboard') }}" role="menuitem" aria-label="Student Dashboard">
+                                <a class="nav-link px-3" href="{% url 'essays:dashboard' %}" role="menuitem" aria-label="Student Dashboard">
                                     <i class="fas fa-chart-line me-2" aria-hidden="true"></i>Dashboard
                                 </a>
                             </li>
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('student.upload_essay') }}" role="menuitem" aria-label="Upload Essay for Analysis">
+                                <a class="nav-link px-3" href="{% url 'essays:upload' %}" role="menuitem" aria-label="Upload Essay for Analysis">
                                     <i class="fas fa-cloud-upload-alt me-2" aria-hidden="true"></i>Upload
                                 </a>
                             </li>
                         {% else %}
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('teacher.teacher_dashboard') }}" role="menuitem" aria-label="Teacher Dashboard">
+                                <a class="nav-link px-3" href="{% url 'analytics:teacher_dashboard' %}" role="menuitem" aria-label="Teacher Dashboard">
                                     <i class="fas fa-chart-line me-2" aria-hidden="true"></i>Dashboard
                                 </a>
                             </li>
                             <li class="nav-item" role="none">
-                                <a class="nav-link px-3" href="{{ url_for('teacher.create_assignment') }}" role="menuitem" aria-label="Create New Assignment">
+                                <a class="nav-link px-3" href="{% url 'assignments:create_assignment' %}" role="menuitem" aria-label="Create New Assignment">
                                     <i class="fas fa-plus-circle me-2" aria-hidden="true"></i>Assignment
                                 </a>
                             </li>
@@ -75,28 +76,28 @@
                         
                         <li class="nav-item dropdown" role="none">
                             <a class="nav-link dropdown-toggle px-3 d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" 
-                               aria-expanded="false" aria-haspopup="true" aria-label="User menu for {{ session.username }}">
+                               aria-expanded="false" aria-haspopup="true" aria-label="User menu for {{ user.username }}">
                                 <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" 
                                      style="width: 32px; height: 32px; background: var(--accent-gradient);">
                                     <i class="fas fa-user text-white" aria-hidden="true"></i>
                                 </div>
-                                <span class="fw-medium">{{ session.username }}</span>
+                                <span class="fw-medium">{{ user.username }}</span>
                             </a>
                             <ul class="dropdown-menu shadow-lg border-0 mt-2" aria-labelledby="navbarDropdown" role="menu">
-                                <li role="none"><a class="dropdown-item" href="#" role="menuitem" aria-label="User Settings"><i class="fas fa-cog me-3" aria-hidden="true"></i>Settings</a></li>
+                                <li role="none"><a class="dropdown-item" href="{% url 'accounts:settings' %}" role="menuitem" aria-label="User Settings"><i class="fas fa-cog me-3" aria-hidden="true"></i>Settings</a></li>
                                 <li role="none"><a class="dropdown-item" href="#" role="menuitem" aria-label="Help & Support"><i class="fas fa-question-circle me-3" aria-hidden="true"></i>Help</a></li>
                                 <li role="none"><hr class="dropdown-divider my-2"></li>
-                                <li role="none"><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" role="menuitem" aria-label="Logout"><i class="fas fa-sign-out-alt me-3" aria-hidden="true"></i>Logout</a></li>
+                                <li role="none"><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" role="menuitem" aria-label="Logout"><i class="fas fa-sign-out-alt me-3" aria-hidden="true"></i>Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item" role="none">
-                            <a class="nav-link px-3" href="{{ url_for('auth.login') }}" role="menuitem" aria-label="Login to your account">
+                            <a class="nav-link px-3" href="{% url 'accounts:login' %}" role="menuitem" aria-label="Login to your account">
                                 <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>Login
                             </a>
                         </li>
                         <li class="nav-item" role="none">
-                            <a class="btn btn-primary ms-2" href="{{ url_for('auth.signup') }}" role="menuitem" aria-label="Create new account">
+                            <a class="btn btn-primary ms-2" href="{% url 'accounts:signup' %}" role="menuitem" aria-label="Create new account">
                                 <i class="fas fa-user-plus me-2" aria-hidden="true"></i>Sign Up
                             </a>
                         </li>
@@ -110,21 +111,25 @@
         <!-- Screen reader announcement area for dynamic content -->
         <div id="sr-announcements" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
         
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div role="alert" aria-label="System messages" class="mb-4">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show animate-slide-up" role="alert">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-3" aria-hidden="true"></i>
-                                <div class="flex-grow-1">{{ message }}</div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close message"></button>
-                            </div>
+        {% if messages %}
+            <div role="alert" aria-label="System messages" class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate-slide-up" role="alert">
+                        <div class="d-flex align-items-center">
+                            {% if message.tags == 'error' %}
+                                <i class="fas fa-exclamation-triangle me-3" aria-hidden="true"></i>
+                            {% elif message.tags == 'success' %}
+                                <i class="fas fa-check-circle me-3" aria-hidden="true"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle me-3" aria-hidden="true"></i>
+                            {% endif %}
+                            <div class="flex-grow-1">{{ message }}</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close message"></button>
                         </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
         {% block content %}{% endblock %}
     </main>
@@ -136,7 +141,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{% static 'js/app.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

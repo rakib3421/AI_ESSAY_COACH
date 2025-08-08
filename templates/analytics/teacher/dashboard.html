@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Teacher Dashboard</h2>
+                    <p class="text-muted">Welcome back, {{ user.get_full_name }}!</p>
+                </div>
+                <div>
+                    <a href="{% url 'accounts:my_students' %}" class="btn btn-primary me-2">
+                        <i class="fas fa-users me-2"></i>My Students
+                    </a>
+                    <a href="{% url 'assignments:create_assignment' %}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Create Assignment
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Students</h6>
+                            <h2>{{ total_students }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Assignments</h6>
+                            <h2>{{ total_assignments }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tasks fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Submissions</h6>
+                            <h2>{{ total_submissions }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Avg Score</h6>
+                            <h2>{{ avg_score|floatformat:1 }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Navigation -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0 text-info">
+                                <i class="fas fa-rocket me-2"></i>Quick Actions
+                            </h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a href="{% url 'accounts:my_students' %}" class="btn btn-info me-2">
+                                <i class="fas fa-users me-2"></i>Manage Students
+                            </a>
+                            <a href="{% url 'accounts:add_student' %}" class="btn btn-outline-info me-2">
+                                <i class="fas fa-user-plus me-2"></i>Add Student
+                            </a>
+                            <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Assignment
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Submissions -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Recent Submissions</h5>
+                    <div>
+                        <a href="{% url 'accounts:my_students' %}" class="btn btn-sm btn-success me-2">
+                            <i class="fas fa-users me-1"></i>My Students
+                        </a>
+                        <a href="{% url 'analytics:students_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if recent_submissions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Essay</th>
+                                        <th>Score</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for submission in recent_submissions %}
+                                        <tr>
+                                            <td>{{ submission.student.get_full_name }}</td>
+                                            <td>{{ submission.file_name|truncatechars:30 }}</td>
+                                            <td>
+                                                <span class="badge {% if submission.analysis.overall_score >= 80 %}bg-success{% elif submission.analysis.overall_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ submission.analysis.overall_score }}/100
+                                                </span>
+                                            </td>
+                                            <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{% url 'essays:view_essay' submission.analysis.id %}" 
+                                                       class="btn btn-outline-primary btn-sm" 
+                                                       title="View Essay">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'accounts:give_feedback' submission.analysis.id %}" 
+                                                       class="btn btn-outline-success btn-sm" 
+                                                       title="Give Feedback">
+                                                        <i class="fas fa-comment"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No submissions yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Assignments -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Recent Assignments</h5>
+                    <a href="{% url 'assignments:assignments_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if assignments %}
+                        {% for assignment in assignments %}
+                            <div class="border-bottom py-2">
+                                <h6 class="mb-1">{{ assignment.title }}</h6>
+                                <small class="text-muted">
+                                    Due: {{ assignment.due_date|date:"M d, Y" }}
+                                    {% if assignment.is_overdue %}
+                                        <span class="text-danger">(Overdue)</span>
+                                    {% endif %}
+                                </small>
+                                <div class="mt-1">
+                                    <a href="{% url 'assignments:assignment_detail' assignment.id %}" class="btn btn-xs btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No assignments created yet.</p>
+                        <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary btn-sm">Create First Assignment</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary w-100">
+                                <i class="fas fa-plus"></i> Create Assignment
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'analytics:students_list' %}" class="btn btn-info w-100">
+                                <i class="fas fa-users"></i> View Students
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'analytics:analytics_overview' %}" class="btn btn-success w-100">
+                                <i class="fas fa-chart-bar"></i> Analytics
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'analytics:export_analytics_data' %}" class="btn btn-secondary w-100">
+                                <i class="fas fa-download"></i> Export Data
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

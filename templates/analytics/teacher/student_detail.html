@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Detail - {{ student.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:students_list' %}">Students</a></li>
+                    <li class="breadcrumb-item active">{{ student.get_full_name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Student Info -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                        <h3 class="mb-0">{{ student.first_name|first }}{{ student.last_name|first }}</h3>
+                    </div>
+                    <h4>{{ student.get_full_name }}</h4>
+                    <p class="text-muted">{{ student.email }}</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-6">
+                            <h5 class="text-primary">{{ total_essays }}</h5>
+                            <small class="text-muted">Total Essays</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-success">{{ avg_score|floatformat:1 }}</h5>
+                            <small class="text-muted">Average Score</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Chart -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6>Performance Overview</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" width="300" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Essays List -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Recent Essays</h5>
+                    <span class="badge bg-primary">{{ total_essays }} total</span>
+                </div>
+                <div class="card-body">
+                    {% if essays %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Essay</th>
+                                        <th>Type</th>
+                                        <th>Score</th>
+                                        <th>Grammar</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for essay in essays %}
+                                        <tr>
+                                            <td>{{ essay.file_name|truncatechars:30 }}</td>
+                                            <td>{{ essay.analysis.essay_type|title }}</td>
+                                            <td>
+                                                <span class="badge {% if essay.analysis.overall_score >= 80 %}bg-success{% elif essay.analysis.overall_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ essay.analysis.overall_score }}/100
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if essay.analysis.grammar_score >= 80 %}bg-success{% elif essay.analysis.grammar_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ essay.analysis.grammar_score }}/100
+                                                </span>
+                                            </td>
+                                            <td>{{ essay.submitted_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'essays:view_essay' essay.analysis.id %}" class="btn btn-sm btn-outline-primary">
+                                                    View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                                    </li>
+                                    
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <h6>No Essays Yet</h6>
+                            <p class="text-muted">This student hasn't submitted any essays yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Assignment Submissions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Assignment Submissions</h5>
+                </div>
+                <div class="card-body">
+                    {% if assignment_submissions %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Assignment</th>
+                                        <th>Score</th>
+                                        <th>Grade</th>
+                                        <th>Submitted</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for submission in assignment_submissions %}
+                                        <tr>
+                                            <td>{{ submission.assignment.title }}</td>
+                                            <td>{{ submission.essay_analysis.overall_score }}/100</td>
+                                            <td>
+                                                {% if submission.grade %}
+                                                    <span class="badge bg-success">{{ submission.grade }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'assignments:grade_submission' submission.id %}" class="btn btn-xs btn-outline-primary">
+                                                    Grade
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No assignment submissions yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [{% for item in score_history %}'{{ item.date|date:"M d" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Overall Score',
+            data: [{% for item in score_history %}{{ item.score }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -4,7 +4,7 @@ A comprehensive web application that provides AI-powered essay analysis and revi
 
 ![AI Essay Coach](https://img.shields.io/badge/Version-2.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.8+-green)
-![Flask](https://img.shields.io/badge/Flask-2.0+-red)
+![Django](https://img.shields.io/badge/Django-5.2+-green)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7+-orange)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
@@ -37,7 +37,7 @@ A comprehensive web application that provides AI-powered essay analysis and revi
 ## 🛠️ Technology Stack
 
 ### Backend
-- **🐍 Python Flask**: Modular web framework with blueprint architecture
+- **🐍 Python Django**: Robust web framework with modular app architecture
 - **🗄️ MySQL**: Relational database with connection pooling
 - **🤖 OpenAI GPT-4**: Advanced AI model for essay analysis
 - **🔐 Security**: Werkzeug password hashing, session management
@@ -102,8 +102,8 @@ A comprehensive web application that provides AI-powered essay analysis and revi
    # OpenAI API
    OPENAI_API_KEY=your_openai_api_key
 
-   # Flask Configuration
-   SECRET_KEY=your_flask_secret_key
+   # Django Configuration
+   SECRET_KEY=your_django_secret_key
    
    # Optional: Performance Settings
    DB_POOL_ENABLED=true
@@ -113,18 +113,18 @@ A comprehensive web application that provides AI-powered essay analysis and revi
 5. **Setup database**
 
    ```bash
-   python setup_database.py
+   python manage.py migrate
    ```
 
 6. **Run the application**
 
    ```bash
-   python app.py
+   python manage.py runserver
    ```
 
 7. **Access the application**
 
-   Open your browser to `http://localhost:5000`
+   Open your browser to `http://localhost:8000`
 
 ## 📚 Usage
 
@@ -243,11 +243,11 @@ Essays are evaluated on a **100-point scale** across four key dimensions:
 
 ## 🔒 Security Features
 
-- **🔐 Password Security**: Werkzeug-based password hashing with salt
-- **🛡️ Session Management**: Secure Flask session handling
+- **🔐 Password Security**: Django's built-in password hashing with salt
+- **🛡️ Session Management**: Secure Django session handling
 - **👤 Role-Based Access**: Student/Teacher permission system
 - **🧹 Input Validation**: Comprehensive data sanitization
-- **💉 SQL Injection Prevention**: Parameterized queries throughout
+- **💉 SQL Injection Prevention**: Django ORM with parameterized queries
 - **📁 File Security**: Safe file upload and processing
 - **🔍 XSS Protection**: Cross-site scripting prevention
 
@@ -255,14 +255,15 @@ Essays are evaluated on a **100-point scale** across four key dimensions:
 
 ```
 AI_ESSAY_COACH/
-├── 📄 app.py                 # Main Flask application
-├── 🔧 config.py             # Configuration management
-├── 🗄️ db.py                 # Database operations
-├── 🤖 ai.py                 # AI analysis engine
-├── 🛠️ utils.py              # Utility functions
-├── 🔐 auth_routes.py        # Authentication routes
-├── 👨‍🎓 student_routes.py     # Student portal routes
-├── 👩‍🏫 teacher_routes.py     # Teacher portal routes
+├── 📄 manage.py             # Django management script
+├── 🔧 essay_coach/          # Django project settings
+│   ├── settings.py          # Configuration management
+│   ├── urls.py              # URL routing
+│   └── wsgi.py              # WSGI configuration
+├── �️ essays/               # Essays Django app
+├── � accounts/             # User authentication app
+├── � assignments/          # Assignments app
+├── � analytics/            # Analytics app
 ├── 📊 monitoring.py         # Performance monitoring
 ├── 🔗 db_pool.py            # Database connection pooling
 ├── 📦 requirements.txt      # Python dependencies

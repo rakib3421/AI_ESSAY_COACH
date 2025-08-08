@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Create Assignment - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h4 class="mb-0"><i class="fas fa-plus me-2"></i>Create New Assignment</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Assignment Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.essay_type.id_for_label }}" class="form-label">Essay Type</label>
+                            {{ form.essay_type }}
+                            {% if form.essay_type.errors %}
+                                <div class="text-danger">{{ form.essay_type.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Select the type of essay for this assignment.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+                            {{ form.due_date }}
+                            {% if form.due_date.errors %}
+                                <div class="text-danger">{{ form.due_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.max_score.id_for_label }}" class="form-label">Maximum Score</label>
+                            {{ form.max_score }}
+                            {% if form.max_score.errors %}
+                                <div class="text-danger">{{ form.max_score.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Maximum points possible for this assignment (default: 100).
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.instructions.id_for_label }}" class="form-label">Assignment Instructions</label>
+                        {{ form.instructions }}
+                        {% if form.instructions.errors %}
+                            <div class="text-danger">{{ form.instructions.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            Detailed instructions, rubric details, formatting requirements, etc.
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Assignment Features</h6>
+                        <ul class="mb-0">
+                            <li>Students will receive AI-powered feedback based on the essay type</li>
+                            <li>You can provide additional feedback and comments</li>
+                            <li>Progress tracking and scoring will be automatic</li>
+                            <li>Students can export their revised essays</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn" style="background-color: #1e2839; color: white;">
+                            <i class="fas fa-plus me-2"></i>Create Assignment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Essay Type Information -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card border-0" style="background-color: #f8f9fa;">
+                    <div class="card-body">
+                        <h6><i class="fas fa-gavel me-2"></i>Argumentative</h6>
+                        <small class="text-muted">
+                            AI checks thesis clarity, evidence quality, counterarguments, and logical flow
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0" style="background-color: #f8f9fa;">
+                    <div class="card-body">
+                        <h6><i class="fas fa-book me-2"></i>Narrative</h6>
+                        <small class="text-muted">
+                            AI analyzes narrative structure, dialogue, imagery, and storytelling elements
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0" style="background-color: #f8f9fa;">
+                    <div class="card-body">
+                        <h6><i class="fas fa-microscope me-2"></i>Literary Analysis</h6>
+                        <small class="text-muted">
+                            AI checks citations, present tense usage, and analytical depth
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Student Progress - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1e2839;">My Progress</h2>
+    <a href="{% url 'essays:dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Progress Overview -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Essays</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">{{ stats.total_essays }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Average Score</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">{{ stats.avg_score }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Best Score</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">{{ stats.best_score }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Improvement</h5>
+                <h3 class="display-6 mb-0" style="color: #1e2839;">
+                    {% if stats.improvement != 0 %}
+                        {% if stats.improvement > 0 %}+{% endif %}{{ stats.improvement }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Chart -->
+<div class="card mb-4">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Score Progression</h6>
+    </div>
+    <div class="card-body">
+        <canvas id="progressChart" height="100"></canvas>
+    </div>
+</div>
+
+<!-- Score Breakdown -->
+<div class="card mb-4">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Score Breakdown</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="categoryChart" height="200"></canvas>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    {% if submissions %}
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Content</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {% widthratio stats.content_avg 20 100 %}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ stats.content_avg }}/20</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Structure</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {% widthratio stats.structure_avg 25 100 %}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ stats.structure_avg }}/25</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Clarity</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {% widthratio stats.clarity_avg 25 100 %}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ stats.clarity_avg }}/25</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="text-center">
+                                <h6>Grammar</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width: {% widthratio stats.grammar_avg 30 100 %}%; background-color: #1e2839;"></div>
+                                </div>
+                                <small>{{ stats.grammar_avg }}/30</small>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">No data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Essay History -->
+<div class="card">
+    <div class="card-header" style="background-color: #1e2839; color: white;">
+        <h6 class="mb-0"><i class="fas fa-history me-2"></i>Essay History</h6>
+    </div>
+    <div class="card-body">
+        {% if submissions %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Content</th>
+                            <th>Structure</th>
+                            <th>Clarity</th>
+                            <th>Grammar</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submissions %}
+                            <tr>
+                                <td>{{ submission.file_name|default:"Untitled" }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ submission.analysis.essay_type|title }}
+                                    </span>
+                                </td>
+                                <td>{{ submission.analysis.content_score|default:"-"|floatformat:0 }}/20</td>
+                                <td>{{ submission.analysis.structure_score|default:"-"|floatformat:0 }}/25</td>
+                                <td>{{ submission.analysis.clarity_score|default:"-"|floatformat:0 }}/25</td>
+                                <td>{{ submission.analysis.grammar_score|default:"-"|floatformat:0 }}/30</td>
+                                <td>
+                                    <strong>{{ submission.analysis.overall_score|default:0|floatformat:0 }}/100</strong>
+                                </td>
+                                <td>{{ submission.submitted_at|date:"m/d/Y" }}</td>
+                                <td>
+                                    <a href="{% url 'essays:view_essay' analysis_id=submission.analysis.id %}" 
+                                       class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if submission.analysis.teacher_feedback %}
+                                        <a href="#" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-comment"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-chart-line fa-4x mb-3" style="color: #dee2e6;"></i>
+                <h5 class="text-muted">No progress data available</h5>
+                <p class="text-muted">Upload your first essay to start tracking progress!</p>
+                <a href="{% url 'essays:upload' %}" class="btn" style="background-color: #1e2839; color: white;">
+                    <i class="fas fa-upload me-2"></i>Upload Essay
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Progress Chart Data
+const progressData = {{ progress_data|safe }};
+
+// Progress Chart
+const progressCtx = document.getElementById('progressChart').getContext('2d');
+
+let chartLabels = [];
+let chartData = [];
+
+if (progressData && progressData.length > 0) {
+    chartLabels = progressData.map(data => new Date(data[0]).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}));
+    chartData = progressData.map(data => parseFloat(data[1]));
+} else {
+    chartLabels = ['No Data'];
+    chartData = [0];
+}
+
+const progressChart = new Chart(progressCtx, {
+    type: 'line',
+    data: {
+        labels: chartLabels,
+        datasets: [{
+            label: 'Overall Score',
+            data: chartData,
+            borderColor: '#1e2839',
+            backgroundColor: 'rgba(30, 40, 57, 0.1)',
+            tension: 0.1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+// Category Chart data from stats
+const categoryData = [
+    {{ stats.content_avg|default:0 }},
+    {{ stats.structure_avg|default:0 }},
+    {{ stats.clarity_avg|default:0 }},
+    {{ stats.grammar_avg|default:0 }}
+];
+
+// Category Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'radar',
+    data: {
+        labels: ['Content', 'Structure', 'Clarity', 'Grammar'],
+        datasets: [{
+            label: 'Current Performance',
+            data: categoryData,
+            backgroundColor: 'rgba(30, 40, 57, 0.2)',
+            borderColor: '#1e2839',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            r: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

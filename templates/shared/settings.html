@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {{ "Student" if session.role == 'student' else "Teacher" }} Settings - AI Essay Revision
+    {{ "Student" if user.userprofile.user_type == 'student' else "Teacher" }} Settings - AI Essay Revision
 {% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-lg-3">
-        {% if session.role == 'student' %}
+        {% if user.userprofile.user_type == 'student' %}
             {% include 'components/student_nav.html' %}
         {% else %}
             {% include 'components/teacher_nav.html' %}

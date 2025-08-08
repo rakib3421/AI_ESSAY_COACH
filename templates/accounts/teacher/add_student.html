@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Add Student - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 style="color: #1e2839;">Add Student</h2>
+                <a href="{% url 'accounts:my_students' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to My Students
+                </a>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Send Assignment Request to Student</h5>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="identifier" class="form-label">
+                                <i class="fas fa-user me-2"></i>Student Username or Email
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="identifier" 
+                                   name="identifier" 
+                                   placeholder="Enter username or email address"
+                                   required>
+                            <small class="form-text text-muted">
+                                Enter the student's username or email address to send them an assignment request.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">
+                                <i class="fas fa-message me-2"></i>Optional Message
+                            </label>
+                            <textarea class="form-control" 
+                                      id="message" 
+                                      name="message" 
+                                      rows="3"
+                                      placeholder="Add a personal message to your request (optional)"></textarea>
+                            <small class="form-text text-muted">
+                                This message will be sent to the student along with your assignment request.
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'accounts:my_students' %}" class="btn btn-outline-secondary me-md-2">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Send Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4 border-info">
+                <div class="card-body">
+                    <h6 class="card-title text-info">
+                        <i class="fas fa-info-circle me-2"></i>How it works
+                    </h6>
+                    <ul class="mb-0">
+                        <li>Enter the student's username or email address</li>
+                        <li>Add an optional personal message</li>
+                        <li>The student will receive a notification about your request</li>
+                        <li>Once they accept, you can assign them essays and provide feedback</li>
+                        <li>You'll be able to view all their essay submissions and track their progress</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

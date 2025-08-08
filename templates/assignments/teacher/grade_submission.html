@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Grade Submission{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'assignments:assignment_submissions' submission.assignment.id %}">Submissions</a></li>
+                    <li class="breadcrumb-item active">Grade Submission</li>
+                </ol>
+            </nav>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>Grade Submission: {{ submission.assignment.title }}</h3>
+                    <small class="text-muted">Student: {{ submission.student.get_full_name }}</small>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>Essay Content</h5>
+                            <div class="border p-3 mb-3" style="max-height: 400px; overflow-y: auto;">
+                                {{ submission.submission_text|linebreaks }}
+                            </div>
+                            
+                            <h5>AI Analysis</h5>
+                            {% if submission.essay_analysis %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h6>Overall Score</h6>
+                                                <h3 class="text-primary">{{ submission.essay_analysis.overall_score }}/100</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h6>Grammar Score</h6>
+                                                <h4>{{ submission.essay_analysis.grammar_score }}/100</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <h6>Key Issues</h6>
+                                    <ul>
+                                        {% for issue in submission.essay_analysis.suggestions %}
+                                            <li>{{ issue }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Grade & Feedback</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        {{ form.as_p }}
+                                        <button type="submit" class="btn btn-primary">Save Grade</button>
+                                        <a href="{% url 'assignments:assignment_submissions' submission.assignment.id %}" class="btn btn-secondary">Cancel</a>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

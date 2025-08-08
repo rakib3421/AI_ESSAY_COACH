@@ -616,10 +616,19 @@ function renderScores(scores, reasons) {
     const container = document.getElementById('scores-container');
     const scoreEntries = Object.entries(scores);
     
+    // Define maximum scores for each rubric category
+    const maxScores = {
+        'ideas': 20,
+        'organization': 25,
+        'style': 25,
+        'grammar': 30
+    };
+    
     let html = '';
     scoreEntries.forEach(([dimension, score]) => {
         const reason = reasons[dimension] || 'No explanation provided';
-        const percentage = Math.round(score);
+        const maxScore = maxScores[dimension] || 100;
+        const percentage = Math.round((score / maxScore) * 100);
         const color = percentage >= 80 ? 'success' : percentage >= 60 ? 'warning' : 'danger';
         
         // Split enhanced reason into parts if it contains STRENGTHS/AREAS FOR IMPROVEMENT
@@ -644,7 +653,7 @@ function renderScores(scores, reasons) {
             <div class="score-item mb-4">
                 <div class="score-header">
                     <span class="fw-bold">${dimension.charAt(0).toUpperCase() + dimension.slice(1)}</span>
-                    <span class="badge bg-${color} fs-6">${score}/100</span>
+                    <span class="badge bg-${color} fs-6">${score}/${maxScore}</span>
                 </div>
                 <div class="score-progress mb-2">
                     <div class="score-progress-bar bg-${color}" style="width: ${percentage}%"></div>

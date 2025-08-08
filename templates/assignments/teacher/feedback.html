@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Provide Feedback - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h4 class="mb-0">{{ essay[1] }} by {{ essay[10] }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="badge bg-secondary me-2">{{ essay[3].replace('_', ' ').title() }}</span>
+                    <span class="badge bg-success">Score: {{ essay[9] or 0 }}/100</span>
+                </div>
+                
+                <div id="essay-content" class="border rounded p-3 mb-4" style="min-height: 400px; background-color: #fafafa;">
+                    {{ essay[2]|nl2br|safe }}
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="feedback" class="form-label">
+                            <i class="fas fa-comment me-2"></i>Teacher Feedback
+                        </label>
+                        <textarea class="form-control" id="feedback" name="feedback" rows="6" 
+                                  placeholder="Provide constructive feedback for the student...">{{ essay[5] or '' }}</textarea>
+                    </div>
+                    
+                    <!-- Rubric Score Override Section -->
+                    <div class="mb-4">
+                        <h6><i class="fas fa-edit me-2"></i>Override Rubric Scores (Optional)</h6>
+                        <p class="small text-muted">Leave blank to keep AI-generated scores, or provide your own assessment.</p>
+                        
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="ideas_score" class="form-label">Ideas & Content (0-30)</label>
+                                <input type="number" class="form-control" id="ideas_score" name="ideas_score" 
+                                       min="0" max="30" step="0.5" value="{{ essay[6] or '' }}" 
+                                       placeholder="Auto: {{ essay[6] or 0 }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="organization_score" class="form-label">Organization (0-25)</label>
+                                <input type="number" class="form-control" id="organization_score" name="organization_score" 
+                                       min="0" max="25" step="0.5" value="{{ essay[7] or '' }}" 
+                                       placeholder="Auto: {{ essay[7] or 0 }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="style_score" class="form-label">Style & Voice (0-20)</label>
+                                <input type="number" class="form-control" id="style_score" name="style_score" 
+                                       min="0" max="20" step="0.5" value="{{ essay[8] or '' }}" 
+                                       placeholder="Auto: {{ essay[8] or 0 }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="grammar_score" class="form-label">Grammar (0-25)</label>
+                                <input type="number" class="form-control" id="grammar_score" name="grammar_score" 
+                                       min="0" max="25" step="0.5" value="{{ essay[9] or '' }}" 
+                                       placeholder="Auto: {{ essay[9] or 0 }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-info">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Total score will be automatically calculated from the four components above.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn" style="background-color: #1e2839; color: white;">
+                            <i class="fas fa-save me-2"></i>Save Feedback
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- AI Feedback -->
+        <div class="card mb-3">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-robot me-2"></i>AI Analysis</h6>
+            </div>
+            <div class="card-body">
+                <div style="max-height: 300px; overflow-y: auto;">
+                    {% if essay[4] %}
+                        {{ essay[4]|nl2br|safe }}
+                    {% else %}
+                        <p class="text-muted">No AI feedback available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scores Breakdown -->
+        <div class="card">
+            <div class="card-header" style="background-color: #1e2839; color: white;">
+                <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Score Breakdown</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <small class="text-muted">Ideas (30%)</small>
+                    <div class="progress progress-sm">
+                        <div class="progress-bar" style="width: {{ (essay[6] or 0) * 100 / 30 }}%; background-color: #1e2839;"></div>
+                    </div>
+                    <small>{{ essay[6] or 0 }}/30</small>
+                </div>
+                
+                <div class="mb-2">
+                    <small class="text-muted">Organization (25%)</small>
+                    <div class="progress progress-sm">
+                        <div class="progress-bar" style="width: {{ (essay[7] or 0) * 100 / 25 }}%; background-color: #1e2839;"></div>
+                    </div>
+                    <small>{{ essay[7] or 0 }}/25</small>
+                </div>
+                
+                <div class="mb-2">
+                    <small class="text-muted">Style (20%)</small>
+                    <div class="progress progress-sm">
+                        <div class="progress-bar" style="width: {{ (essay[8] or 0) * 100 / 20 }}%; background-color: #1e2839;"></div>
+                    </div>
+                    <small>{{ essay[8] or 0 }}/20</small>
+                </div>
+                
+                <div class="mb-2">
+                    <small class="text-muted">Grammar (25%)</small>
+                    <div class="progress progress-sm">
+                        <div class="progress-bar" style="width: {{ (essay[9] or 0) * 100 / 25 }}%; background-color: #1e2839;"></div>
+                    </div>
+                    <small>{{ essay[9] or 0 }}/25</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

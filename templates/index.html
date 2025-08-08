@@ -18,12 +18,12 @@
                         and strengthen arguments while preserving your unique voice.
                     </p>
                     
-                    {% if not session.user_id %}
+                    {% if not user.is_authenticated %}
                         <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
-                            <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg px-4 animate-scale-in">
+                            <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-lg px-4 animate-scale-in">
                                 <i class="fas fa-rocket me-2"></i>Start Writing Better
                             </a>
-                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4 animate-scale-in">
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg px-4 animate-scale-in">
                                 <i class="fas fa-sign-in-alt me-2"></i>Sign In
                             </a>
                         </div>
@@ -89,7 +89,7 @@
     </div>
 </div>
 
-{% if session.user_id %}
+{% if user.is_authenticated %}
 <!-- Quick Analysis Section for Logged In Users -->
 <div class="container mb-5">
     <div class="row justify-content-center">
@@ -156,7 +156,7 @@
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                             </button>
-                            <a href="{{ url_for('student.upload_essay') }}" class="btn btn-outline-primary btn-lg px-4">
+                            <a href="{% url 'essays:upload' %}" class="btn btn-outline-primary btn-lg px-4">
                                 <i class="fas fa-cloud-upload-alt me-2"></i>Upload File
                             </a>
                         </div>
@@ -313,7 +313,7 @@
     </div>
 </div>
 
-{% if not session.user_id %}
+{% if not user.is_authenticated %}
 <!-- CTA Section -->
 <div class="container mb-5">
     <div class="card shadow-xl border-0" style="background: var(--primary-gradient);">
@@ -321,10 +321,10 @@
             <h3 class="text-white fw-bold mb-3">Ready to Transform Your Writing?</h3>
             <p class="text-white opacity-75 mb-4 lead">Join thousands of students and educators using AI Essay Coach to improve their writing skills.</p>
             <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                <a href="{{ url_for('auth.signup') }}" class="btn btn-light btn-lg px-5">
+                <a href="{% url 'accounts:signup' %}" class="btn btn-light btn-lg px-5">
                     <i class="fas fa-rocket me-2"></i>Get Started Free
                 </a>
-                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg px-4">
                     <i class="fas fa-sign-in-alt me-2"></i>Sign In
                 </a>
             </div>

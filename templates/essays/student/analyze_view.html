@@ -1,0 +1,1244 @@
+{% extends "base.html" %}
+
+{% block title %}Essay Analysis - AI Essay Coach{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analysis-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .analysis-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: none;
+    }
+    
+    .analysis-header {
+        background: linear-gradient(135deg, #1e2839 0%, #2c3e50 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+    }
+    
+    .essay-content {
+        font-family: 'Georgia', serif;
+        line-height: 1.8;
+        font-size: 16px;
+        padding: 2rem;
+        background: #fafbfc;
+        border-radius: 10px;
+        margin: 1.5rem;
+        max-height: 70vh;
+        overflow-y: auto;
+        position: relative;
+    }
+    
+    .suggestion-word {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 3px;
+        padding: 2px 4px;
+        position: relative;
+        display: inline;
+    }
+    
+    .suggestion-delete {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        text-decoration: line-through;
+    }
+    
+    .suggestion-add {
+        background: linear-gradient(135deg, #51cf66, #40c057);
+        color: white;
+        border-bottom: 2px solid #2b8a3e;
+    }
+    
+    .suggestion-replace {
+        background: linear-gradient(135deg, #339af0, #228be6);
+        color: white;
+        border-bottom: 2px solid #1971c2;
+    }
+    
+    .suggestion-word:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+    
+    .score-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: none;
+        transition: transform 0.3s ease;
+        margin-bottom: 1rem;
+    }
+    
+    .score-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .score-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+        margin: 0 auto 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .score-excellent { background: linear-gradient(135deg, #51cf66, #40c057); }
+    .score-good { background: linear-gradient(135deg, #339af0, #228be6); }
+    .score-average { background: linear-gradient(135deg, #ffd43b, #fab005); }
+    .score-poor { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+    
+    .checklist-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #e9ecef;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .checklist-item.completed {
+        border-left-color: #51cf66;
+        background: #f8f9fa;
+    }
+    
+    .checklist-item.active {
+        border-left-color: #339af0;
+        box-shadow: 0 4px 15px rgba(51, 154, 240, 0.15);
+        transform: translateX(5px);
+    }
+    
+    .checklist-item:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: translateX(3px);
+    }
+    
+    .suggestion-summary {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .suggestion-item {
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid #e9ecef;
+        background: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .suggestion-item:hover {
+        transform: translateX(3px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .suggestion-delete-item { border-left-color: #ff6b6b; }
+    .suggestion-add-item { border-left-color: #51cf66; }
+    .suggestion-replace-item { border-left-color: #339af0; }
+    
+    .analysis-controls {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem;
+    }
+    
+    .btn-reanalyze {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-reanalyze:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        flex-direction: column;
+    }
+    
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid #e9ecef;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .progress-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .progress-step {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .progress-step.active {
+        background: #667eea;
+        transform: scale(1.2);
+    }
+    
+    .suggestion-modal .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .suggestion-modal .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border: none;
+    }
+    
+    .export-options {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-export {
+        background: linear-gradient(135deg, #51cf66, #40c057);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-export:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(81, 207, 102, 0.3);
+        color: white;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .legend-sample {
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    /* Score color classes for progress bars */
+    .score-excellent {
+        background: linear-gradient(135deg, #51cf66, #40c057) !important;
+    }
+    
+    .score-good {
+        background: linear-gradient(135deg, #339af0, #228be6) !important;
+    }
+    
+    .score-average {
+        background: linear-gradient(135deg, #ffd43b, #fab005) !important;
+    }
+    
+    .score-poor {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-container">
+    <div class="container-fluid">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <h4 id="loadingText">Analyzing your essay with AI...</h4>
+            <p id="loadingSubtext">This may take a few moments</p>
+            <div class="progress-indicator">
+                <div class="progress-step active"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Main Essay Content -->
+            <div class="col-lg-8">
+                <div class="analysis-card">
+                    <div class="analysis-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-1" id="essay-title">
+                                <i class="fas fa-file-alt me-2"></i>
+                                {{ title if title else 'Essay Analysis' }}
+                            </h1>
+                            <p class="mb-0 opacity-75">
+                                <span id="essay-type-badge" class="badge bg-light text-dark">
+                                    Auto-Detect
+                                </span>
+                                <span class="mx-2">•</span>
+                                <span id="word-count">0 words</span>
+                                <span class="mx-2">•</span>
+                                <span id="analysis-time">Just now</span>
+                            </p>
+                        </div>
+                        <div class="export-options">
+                            <button class="btn btn-export btn-sm" id="exportBtn" onclick="exportEssay()">
+                                <i class="fas fa-download me-1"></i>Export
+                            </button>
+                            <button class="btn btn-outline-light btn-sm" onclick="shareAnalysis()">
+                                <i class="fas fa-share me-1"></i>Share
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Essay Content with Suggestions -->
+                    <div id="essay-content" class="essay-content">
+                        <div class="text-center py-5">
+                            <div class="loading-spinner"></div>
+                            <p class="mt-3 text-muted">Preparing your essay for analysis...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Analysis Controls -->
+                    <div class="analysis-controls">
+                        <div class="row align-items-center">
+                            <div class="col-md-9">
+                                <h2 class="h6 mb-3">Adjust Analysis Settings</h2>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label small">Essay Type</label>
+                                        <select id="essayType" class="form-select form-select-sm">
+                                            <option value="auto">Auto-detect</option>
+                                            <option value="argumentative">Argumentative</option>
+                                            <option value="narrative">Narrative</option>
+                                            <option value="literary_analysis">Literary Analysis</option>
+                                            <option value="hybrid">Hybrid</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small">Coaching Level</label>
+                                        <select id="coachingLevel" class="form-select form-select-sm">
+                                            <option value="light">Light</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="intensive">Intensive</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small">Suggestions</label>
+                                        <select id="suggestionLevel" class="form-select form-select-sm">
+                                            <option value="low">Conservative</option>
+                                            <option value="medium">Balanced</option>
+                                            <option value="high">Comprehensive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-reanalyze" onclick="reanalyzeEssay()" id="reanalyzeBtn">
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                    <i class="fas fa-sync-alt me-1"></i>Re-analyze
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Suggestion Legend -->
+                        <div class="mt-3 pt-3 border-top">
+                            <h2 class="h6 mb-2">Suggestion Types:</h2>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="legend-item">
+                                        <span class="legend-sample suggestion-delete">Delete</span>
+                                        <small>Remove this text</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="legend-item">
+                                        <span class="legend-sample suggestion-add">Add</span>
+                                        <small>Insert this text</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="legend-item">
+                                        <span class="legend-sample suggestion-replace">Replace</span>
+                                        <small>Change this text</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Click on any highlighted text to see the suggestion details and accept/reject it.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Rubric Scores -->
+                <div class="score-card">
+                    <h2 class="h5 mb-3"><i class="fas fa-chart-bar me-2"></i>Rubric Scores</h2>
+                    <div id="scores-container">
+                        <div class="text-center py-3">
+                            <div class="loading-spinner"></div>
+                            <p class="small mt-2 mb-0">Calculating scores...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Revision Checklist -->
+                <div class="score-card">
+                    <h2 class="h5 mb-3"><i class="fas fa-tasks me-2"></i>Revision Checklist</h2>
+                    <div id="checklist-container">
+                        <div class="text-center py-3">
+                            <div class="loading-spinner"></div>
+                            <p class="small mt-2 mb-0">Creating checklist...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Suggestion Summary -->
+                <div class="suggestion-summary">
+                    <h2 class="h5 mb-3"><i class="fas fa-list me-2"></i>AI Suggestions</h2>
+                    <div id="suggestion-summary">
+                        <div class="text-center py-3">
+                            <div class="loading-spinner"></div>
+                            <p class="small mt-2 mb-0">Generating suggestions...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="score-card">
+                    <h2 class="h5 mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h2>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-sm" onclick="acceptAllSuggestions()">
+                            <i class="fas fa-check-double me-1"></i>Accept All
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="rejectAllSuggestions()">
+                            <i class="fas fa-times me-1"></i>Reject All
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="showStatistics()">
+                            <i class="fas fa-chart-line me-1"></i>Statistics
+                        </button>
+                        <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Suggestion Modal -->
+<div class="modal fade suggestion-modal" id="suggestionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-lightbulb me-2"></i>AI Suggestion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="suggestion-content">
+                    <!-- Suggestion details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="rejectBtn">Reject</button>
+                <button type="button" class="btn btn-success" id="acceptBtn">Accept</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Page-specific variables (avoiding conflicts with global app.js variables)
+let essayText = '';
+let currentPageAnalysis = null; // Use page-specific variable instead of global currentAnalysis
+let acceptedSuggestionIndices = new Set();
+let rejectedSuggestionIndices = new Set(); // Renamed to avoid conflicts
+let localSuggestionModal = null;
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Analyze view DOM loaded, initializing...');
+    
+    // Initialize our local modal first
+    const modalElement = document.getElementById('suggestionModal');
+    if (modalElement) {
+        localSuggestionModal = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: true
+        });
+        console.log('Local suggestion modal initialized');
+    } else {
+        console.error('Suggestion modal element not found');
+    }
+    
+    // Then initialize the analysis view
+    initializeAnalysisView();
+});
+
+function initializeAnalysisView() {
+    console.log('Starting initializeAnalysisView...');
+    
+    // Debug: Check what template variables we have
+    console.log('Template variables check:');
+    {% if essay_text %}
+        console.log('essay_text is available');
+    {% else %}
+        console.log('essay_text is NOT available');
+    {% endif %}
+    
+    {% if analysis %}
+        console.log('analysis is available');
+    {% else %}
+        console.log('analysis is NOT available');
+    {% endif %}
+    
+    {% if title %}
+        console.log('title is available');
+    {% else %}
+        console.log('title is NOT available');
+    {% endif %}
+    
+    // Get essay data from template variables
+    {% if essay_text and analysis %}
+        // Data passed from backend
+        essayText = {{ essay_text | tojson }};
+        const analysisData = {{ analysis | tojson }};
+        const essayTitle = {{ title | tojson }};
+        
+        console.log('Essay text length:', essayText ? essayText.length : 'null');
+        console.log('Analysis data:', analysisData);
+        console.log('Essay title:', essayTitle);
+        
+        if (essayText && analysisData) {
+            console.log('Loading analysis data from template variables');
+            currentPageAnalysis = analysisData;
+            displayAnalysis(analysisData);
+            updateWordCount();
+            
+            // Update title if provided
+            if (essayTitle) {
+                const titleElement = document.getElementById('essay-title');
+                if (titleElement) {
+                    titleElement.innerHTML = `<i class="fas fa-file-alt me-2"></i>${essayTitle}`;
+                }
+            }
+        } else {
+            console.error('Missing essay text or analysis data');
+            showToast('Analysis data is incomplete. Please try uploading again.', 'error');
+            setTimeout(() => {
+                window.location.href = '/student/upload';
+            }, 3000);
+        }
+    {% else %}
+        // Check session storage for analysis data as fallback
+        console.log('No template variables, checking session storage...');
+        const analysisData = sessionStorage.getItem('analysisData');
+        if (analysisData) {
+            console.log('Loading analysis data from session storage');
+            const data = JSON.parse(analysisData);
+            essayText = data.essay || '';
+            currentPageAnalysis = data;
+            displayAnalysis(data);
+            updateWordCount();
+            sessionStorage.removeItem('analysisData');
+        } else {
+            // No data available, show error and redirect
+            console.warn('No analysis data found in template variables or session storage');
+            showToast('No analysis data found. Please upload an essay first.', 'error');
+            setTimeout(() => {
+                window.location.href = '/student/upload';
+            }, 2000);
+        }
+    {% endif %}
+    
+    // Hide loading overlay after a short delay
+    setTimeout(() => {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
+    }, 1000);
+}
+
+function displayAnalysis(analysis) {
+    if (!analysis) {
+        console.error('No analysis data provided to displayAnalysis');
+        showToast('Analysis data is missing. Please try uploading again.', 'error');
+        return;
+    }
+    
+    console.log('Displaying analysis:', analysis);
+    currentPageAnalysis = analysis;
+    
+    // Update essay type badge
+    const essayTypeBadge = document.getElementById('essay-type-badge');
+    if (essayTypeBadge) {
+        const essayType = analysis.essay_type || 'Unknown';
+        essayTypeBadge.textContent = essayType.replace('_', ' ').toUpperCase();
+    }
+    
+    // Display tagged essay
+    displayEssayWithSuggestions(analysis);
+    
+    // Display scores
+    if (analysis.scores) {
+        displayScores(analysis.scores, analysis.score_reasons);
+    } else {
+        console.warn('No scores found in analysis data');
+    }
+    
+    // Display suggestion summary
+    if (analysis.suggestions) {
+        displaySuggestionSummary(analysis.suggestions);
+    } else {
+        console.warn('No suggestions found in analysis data');
+    }
+    
+    // Display checklist
+    if (analysis.checklist_steps) {
+        displayChecklist(analysis.checklist_steps);
+    } else {
+        console.warn('No checklist steps found in analysis data');
+    }
+}
+
+function displayEssayWithSuggestions(analysis) {
+    const container = document.getElementById('essay-content');
+    if (!container) {
+        console.error('Essay content container not found');
+        return;
+    }
+    
+    let contentToDisplay = '';
+    
+    // Check if we have tagged essay
+    if (analysis.tagged_essay) {
+        contentToDisplay = processTaggedText(analysis.tagged_essay);
+    } else if (essayText) {
+        // Fallback to original essay text if no tagged version
+        console.warn('No tagged essay found, using original text');
+        contentToDisplay = `<p>${essayText.replace(/\n/g, '</p><p>')}</p>`;
+    } else {
+        console.error('No essay text available');
+        contentToDisplay = '<p class="text-muted text-center py-5">No essay content available.</p>';
+    }
+    
+    container.innerHTML = contentToDisplay;
+    
+    // Add click handlers to suggestions if they exist
+    addSuggestionClickHandlers();
+    
+    // Mark the container as having local handlers to prevent global interference
+    container.setAttribute('data-local-handlers', 'true');
+}
+
+function processTaggedText(taggedText) {
+    let processed = taggedText;
+    
+    // Process delete tags with unique class
+    processed = processed.replace(/<delete>(.*?)<\/delete>/g, 
+        '<span class="suggestion-word suggestion-delete analyze-view-suggestion" data-type="delete" data-original="$1" title="Click to see suggestion">$1</span>');
+    
+    // Process add tags with unique class
+    processed = processed.replace(/<add>(.*?)<\/add>/g, 
+        '<span class="suggestion-word suggestion-add analyze-view-suggestion" data-type="add" data-suggestion="$1" title="Click to see suggestion">$1</span>');
+    
+    // Process replace tags with unique class
+    processed = processed.replace(/<replace>(.*?)\|(.*?)<\/replace>/g, 
+        '<span class="suggestion-word suggestion-replace analyze-view-suggestion" data-type="replace" data-original="$1" data-suggestion="$2" title="Click to see suggestion">$1</span>');
+    
+    return processed;
+}
+
+function addSuggestionClickHandlers() {
+    // Target only our specific suggestion elements
+    const suggestions = document.querySelectorAll('.analyze-view-suggestion');
+    console.log(`Adding click handlers to ${suggestions.length} analyze-view suggestions`);
+    
+    suggestions.forEach((element, index) => {
+        // Remove any existing event listeners first
+        element.removeEventListener('click', handleSuggestionClick);
+        
+        // Clear any existing onclick handlers
+        element.onclick = null;
+        
+        // Add our specific click handler
+        element.addEventListener('click', function(event) {
+            // Prevent event bubbling to avoid conflicts with global handlers
+            event.stopPropagation();
+            event.preventDefault();
+            
+            console.log('Analyze view suggestion clicked:', { element, index, type: this.dataset.type });
+            showSuggestionModal(this, index);
+        }, { capture: true }); // Use capture to handle before other handlers
+        
+        // Mark as handled by analyze view
+        element.setAttribute('data-analyze-view-handled', 'true');
+    });
+}
+
+function showSuggestionModal(element, index) {
+    // Validate element and its data attributes
+    if (!element || !element.dataset) {
+        console.error('Invalid element passed to showSuggestionModal:', element);
+        return;
+    }
+    
+    const type = element.dataset.type;
+    if (!type) {
+        console.error('Element missing data-type attribute:', element);
+        return;
+    }
+    
+    const original = element.dataset.original || element.textContent;
+    const suggestion = element.dataset.suggestion || '';
+    
+    console.log('Showing suggestion modal for:', { type, original, suggestion, index });
+    
+    // Find corresponding suggestion explanation
+    let explanation = 'No explanation provided.';
+    if (currentPageAnalysis && currentPageAnalysis.suggestions) {
+        const suggestionData = currentPageAnalysis.suggestions.find(s => 
+            s.text && (s.text.includes(original) || s.text.includes(suggestion))
+        );
+        if (suggestionData) {
+            explanation = suggestionData.reason || explanation;
+        }
+    }
+    
+    // Build modal content
+    let modalContent = `
+        <div class="suggestion-details">
+            <h6 class="text-uppercase text-muted small mb-3">
+                <i class="fas fa-${type === 'delete' ? 'minus' : type === 'add' ? 'plus' : 'exchange-alt'} me-2"></i>
+                ${type.charAt(0).toUpperCase() + type.slice(1)} Suggestion
+            </h6>
+    `;
+    
+    if (type === 'delete') {
+        modalContent += `
+            <div class="mb-3">
+                <strong>Remove:</strong> 
+                <span class="text-danger">"${original}"</span>
+            </div>
+        `;
+    } else if (type === 'add') {
+        modalContent += `
+            <div class="mb-3">
+                <strong>Add:</strong> 
+                <span class="text-success">"${suggestion}"</span>
+            </div>
+        `;
+    } else if (type === 'replace') {
+        modalContent += `
+            <div class="mb-3">
+                <strong>Change:</strong> 
+                <span class="text-danger">"${original}"</span> 
+                <i class="fas fa-arrow-right mx-2"></i>
+                <span class="text-success">"${suggestion}"</span>
+            </div>
+        `;
+    }
+    
+    modalContent += `
+            <div class="mb-3">
+                <strong>Explanation:</strong>
+                <p class="mb-0">${explanation}</p>
+            </div>
+        </div>
+    `;
+    
+    const contentElement = document.getElementById('suggestion-content');
+    if (!contentElement) {
+        console.error('Suggestion content element not found');
+        return;
+    }
+    
+    contentElement.innerHTML = modalContent;
+    
+    // Set up accept/reject buttons
+    const acceptBtn = document.getElementById('acceptBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    
+    if (acceptBtn) {
+        acceptBtn.onclick = () => {
+            acceptSuggestion(element, index);
+            localSuggestionModal.hide();
+        };
+    }
+    
+    if (rejectBtn) {
+        rejectBtn.onclick = () => {
+            rejectSuggestion(element, index);
+            localSuggestionModal.hide();
+        };
+    }
+    
+    if (localSuggestionModal) {
+        localSuggestionModal.show();
+    } else {
+        console.error('Local suggestion modal not initialized');
+    }
+}
+
+function acceptSuggestion(element, index) {
+    acceptedSuggestionIndices.add(index);
+    element.style.opacity = '0.6';
+    element.style.textDecoration = 'none';
+    element.classList.add('accepted');
+    
+    // Apply the suggestion
+    if (element.dataset.type === 'delete') {
+        element.style.display = 'none';
+    } else if (element.dataset.type === 'replace') {
+        element.textContent = element.dataset.suggestion;
+        element.classList.remove('suggestion-replace');
+        element.classList.add('suggestion-accepted');
+    }
+    
+    updateSuggestionCounts();
+    showToast('Suggestion accepted', 'success');
+}
+
+function rejectSuggestion(element, index) {
+    rejectedSuggestionIndices.add(index);
+    element.style.opacity = '0.4';
+    element.classList.add('rejected');
+    element.classList.remove('suggestion-word', 'analyze-view-suggestion');
+    element.onclick = null;
+    
+    updateSuggestionCounts();
+    showToast('Suggestion rejected', 'info');
+}
+
+function displayScores(scores, reasons) {
+    const container = document.getElementById('scores-container');
+    if (!container) {
+        console.error('Scores container not found');
+        return;
+    }
+    
+    if (!scores) {
+        console.warn('No scores provided');
+        container.innerHTML = '<p class="text-muted text-center py-3">No scores available.</p>';
+        return;
+    }
+    
+    let html = '';
+    
+    const dimensions = [
+        { key: 'ideas', label: 'Ideas', max: 30 },
+        { key: 'organization', label: 'Organization', max: 25 },
+        { key: 'style', label: 'Style', max: 20 },
+        { key: 'grammar', label: 'Grammar', max: 25 }
+    ];
+    
+    let totalWeightedScore = 0;
+    
+    dimensions.forEach(dim => {
+        const score = scores[dim.key] || 0;
+        
+        // Convert percentage score to weighted points
+        const weightedPoints = Math.round((score / 100) * dim.max);
+        const percentage = score; // Original percentage for color calculation
+        const colorClass = getScoreColorClass(percentage);
+        const reason = reasons && reasons[dim.key] ? reasons[dim.key] : 'No feedback available.';
+        
+        totalWeightedScore += weightedPoints;
+        
+        html += `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-semibold">${dim.label}</span>
+                    <span class="badge bg-light text-dark">${weightedPoints}/${dim.max}</span>
+                </div>
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar ${colorClass}" style="width: ${percentage}%"></div>
+                </div>
+                <small class="text-muted">${reason.substring(0, 100)}...</small>
+            </div>
+        `;
+    });
+    
+    // Add overall weighted score
+    const overallColorClass = getScoreColorClass(totalWeightedScore);
+    
+    html += `
+        <div class="mt-4 pt-3 border-top">
+            <div class="text-center">
+                <div class="score-circle ${overallColorClass} mx-auto">
+                    ${totalWeightedScore}
+                </div>
+                <h6 class="mb-0">Overall Score</h6>
+                <small class="text-muted">Out of 100 (Weighted)</small>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+function displaySuggestionSummary(suggestions) {
+    if (!suggestions || suggestions.length === 0) {
+        document.getElementById('suggestion-summary').innerHTML = 
+            '<p class="text-muted text-center py-3">No suggestions generated.</p>';
+        return;
+    }
+    
+    const container = document.getElementById('suggestion-summary');
+    let html = '';
+    
+    suggestions.forEach((suggestion, index) => {
+        const typeClass = `suggestion-${suggestion.type}-item`;
+        const icon = suggestion.type === 'delete' ? 'minus' : 
+                    suggestion.type === 'add' ? 'plus' : 'exchange-alt';
+        
+        html += `
+            <div class="suggestion-item ${typeClass}" data-index="${index}">
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-${icon} mt-1 me-2"></i>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">${suggestion.text || 'Suggestion'}</div>
+                        <div class="text-muted small">${(suggestion.reason || '').substring(0, 80)}...</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function displayChecklist(steps) {
+    if (!steps || steps.length === 0) {
+        document.getElementById('checklist-container').innerHTML = 
+            '<p class="text-muted text-center py-3">No checklist available.</p>';
+        return;
+    }
+    
+    const container = document.getElementById('checklist-container');
+    let html = '';
+    
+    steps.forEach((step, index) => {
+        const isCompleted = step.completed || false;
+        const isActive = index === 0 || (steps[index - 1] && steps[index - 1].completed);
+        
+        html += `
+            <div class="checklist-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}" 
+                 data-step="${index}">
+                <div class="d-flex align-items-start">
+                    <div class="me-2">
+                        <i class="fas fa-${isCompleted ? 'check-circle text-success' : 'circle text-muted'}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">${step.name}</div>
+                        <div class="text-muted small">${step.description}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function getScoreColorClass(score) {
+    if (score >= 90) return 'score-excellent';
+    if (score >= 80) return 'score-good';
+    if (score >= 70) return 'score-average';
+    return 'score-poor';
+}
+
+function updateWordCount() {
+    if (essayText) {
+        const words = essayText.trim().split(/\s+/).length;
+        const wordCountElement = document.getElementById('word-count');
+        if (wordCountElement) {
+            wordCountElement.textContent = `${words} words`;
+        }
+    }
+}
+
+function updateSuggestionCounts() {
+    // Update any suggestion counters in the UI (use our specific class)
+    const totalSuggestions = document.querySelectorAll('.analyze-view-suggestion').length;
+    const acceptedCount = acceptedSuggestionIndices.size;
+    const rejectedCount = rejectedSuggestionIndices.size;
+    
+    console.log('Suggestion counts:', { total: totalSuggestions, accepted: acceptedCount, rejected: rejectedCount });
+    
+    // Could add a progress indicator here
+}
+
+function reanalyzeEssay() {
+    if (!essayText) return;
+    
+    const btn = document.getElementById('reanalyzeBtn');
+    const spinner = btn.querySelector('.spinner-border');
+    
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+    
+    // Show progress message based on essay length
+    const essayLength = essayText.length;
+    let timeoutMessage = 'Analyzing essay...';
+    let estimatedTime = 30;
+    
+    if (essayLength > 3000) {
+        timeoutMessage = 'Analyzing long essay... This may take up to 2 minutes.';
+        estimatedTime = 120;
+    } else if (essayLength > 2000) {
+        timeoutMessage = 'Analyzing essay... This may take up to 90 seconds.';
+        estimatedTime = 90;
+    } else if (essayLength > 1000) {
+        timeoutMessage = 'Analyzing essay... This may take up to 60 seconds.';
+        estimatedTime = 60;
+    }
+    
+    showToast(timeoutMessage, 'info');
+    
+    // Set a progress timer
+    const progressTimer = setTimeout(() => {
+        showToast('Analysis is taking longer than expected. Please wait...', 'warning');
+    }, estimatedTime * 1000);
+    
+    const analysisData = {
+        essay: essayText,
+        essay_type: document.getElementById('essayType').value,
+        coaching_level: document.getElementById('coachingLevel').value,
+        suggestion_aggressiveness: document.getElementById('suggestionLevel').value
+    };
+    
+    // Set a longer timeout for the fetch request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), (estimatedTime + 60) * 1000); // Add 60s buffer
+    
+    fetch('/student/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(analysisData),
+        signal: controller.signal
+    })
+    .then(response => response.json())
+    .then(data => {
+        clearTimeout(progressTimer);
+        clearTimeout(timeoutId);
+        
+        if (data.error) {
+            showToast(data.error, 'error');
+        } else {
+            displayAnalysis(data);
+            
+            // Show appropriate success message
+            let successMsg = 'Essay analyzed successfully!';
+            if (data.fallback_used) {
+                successMsg = 'Basic analysis completed. AI service was unavailable, but we provided structural feedback.';
+            } else if (data.processing_info && data.processing_info.essay_length > 3000) {
+                successMsg = 'Complex essay analyzed successfully!';
+            }
+            
+            showToast(successMsg, 'success');
+        }
+    })
+    .catch(error => {
+        clearTimeout(progressTimer);
+        clearTimeout(timeoutId);
+        
+        let errorMsg = 'Failed to analyze essay. Please try again.';
+        if (error.name === 'AbortError') {
+            errorMsg = 'Analysis timed out. Your essay may be too complex. Try shortening it or try again later.';
+        } else if (error.message && error.message.includes('timeout')) {
+            errorMsg = 'Request timed out. Please try again with a shorter essay or check your connection.';
+        }
+        
+        showToast(errorMsg, 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        spinner.classList.add('d-none');
+    });
+}
+
+function exportEssay() {
+    if (!currentPageAnalysis || !essayText) {
+        showToast('No analysis data available for export', 'error');
+        return;
+    }
+    
+    const exportBtn = document.getElementById('exportBtn');
+    const originalText = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exporting...';
+    exportBtn.disabled = true;
+    
+    // Get the essay title
+    const titleElement = document.getElementById('essay-title');
+    const essayTitle = titleElement ? titleElement.textContent.replace('📝', '').trim() : 'Essay Analysis';
+    
+    // Prepare export data
+    const exportData = {
+        essay: essayText,
+        analysis: currentPageAnalysis,
+        acceptedSuggestions: Array.from(acceptedSuggestionIndices || []),
+        title: essayTitle
+    };
+    
+    fetch('/student/export-essay', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(exportData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Export failed');
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        // Generate filename
+        const currentDate = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+        const safeTitle = essayTitle.replace(/[^\w\s-]/g, '').trim().slice(0, 50);
+        a.download = `${safeTitle}_${currentDate}_analysis.docx`;
+        
+        // Trigger download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Essay exported successfully as .docx file!', 'success');
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        showToast('Failed to export essay. Please try again.', 'error');
+    })
+    .finally(() => {
+        exportBtn.innerHTML = originalText;
+        exportBtn.disabled = false;
+    });
+}
+
+function shareAnalysis() {
+    // Implement share functionality
+    showToast('Share functionality coming soon!', 'info');
+}
+
+function acceptAllSuggestions() {
+    document.querySelectorAll('.analyze-view-suggestion').forEach((element, index) => {
+        if (!acceptedSuggestionIndices.has(index) && !rejectedSuggestionIndices.has(index)) {
+            acceptSuggestion(element, index);
+        }
+    });
+}
+
+function rejectAllSuggestions() {
+    document.querySelectorAll('.analyze-view-suggestion').forEach((element, index) => {
+        if (!acceptedSuggestionIndices.has(index) && !rejectedSuggestionIndices.has(index)) {
+            rejectSuggestion(element, index);
+        }
+    });
+}
+
+function showStatistics() {
+    // Show statistics modal or navigate to stats page
+    showToast('Statistics view coming soon!', 'info');
+}
+
+function showToast(message, type = 'info') {
+    // Create and show a toast notification
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    // Add to page
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.appendChild(toast);
+    
+    // Show toast
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Remove after hidden
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}My Students - AI Essay Revision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #1e2839;">My Students</h2>
+        <a href="{% url 'accounts:add_student' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>Add Student
+        </a>
+    </div>
+
+    <!-- Pending Requests -->
+    {% if pending_requests %}
+    <div class="card mb-4 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-clock me-2"></i>Pending Requests ({{ pending_requests.count }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for request in pending_requests %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ request.student.get_full_name|default:request.student.username }}</h6>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-envelope me-1"></i>{{ request.student.email }}
+                            </p>
+                            <p class="text-muted small">
+                                <i class="fas fa-calendar me-1"></i>Sent: {{ request.created_at|date:"M d, Y" }}
+                            </p>
+                            {% if request.message %}
+                            <p class="small">"{{ request.message|truncatewords:15 }}"</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Assigned Students -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-users me-2"></i>Assigned Students ({{ assignments.count }})
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if assignments %}
+            <div class="row">
+                {% for assignment in assignments %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-user me-2"></i>{{ assignment.student.get_full_name|default:assignment.student.username }}
+                            </h6>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-envelope me-1"></i>{{ assignment.student.email }}
+                            </p>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-calendar me-1"></i>Assigned: {{ assignment.assigned_at|date:"M d, Y" }}
+                            </p>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'accounts:student_submissions' assignment.student.id %}" 
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fas fa-file-alt me-2"></i>View Submissions
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No students assigned yet</h5>
+                <p class="text-muted">Start by adding students to see their submissions and provide feedback.</p>
+                <a href="{% url 'accounts:add_student' %}" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Add Your First Student
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Submissions -->
+    {% if recent_submissions %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-clock me-2"></i>Recent Submissions
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Essay Type</th>
+                            <th>Score</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in recent_submissions %}
+                        <tr>
+                            <td>
+                                <strong>{{ submission.student.get_full_name|default:submission.student.username }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ submission.get_essay_type_display }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ submission.overall_score|floatformat:1 }}</span>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ submission.created_at|date:"M d, Y H:i" }}</small>
+                            </td>
+                            <td>
+                                <a href="{% url 'accounts:give_feedback' submission.id %}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-comment me-1"></i>Feedback
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

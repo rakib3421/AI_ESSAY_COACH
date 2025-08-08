@@ -8,7 +8,6 @@ import logging
 import json
 import uuid
 import time
-from flask import session, redirect, url_for, flash
 from functools import wraps
 from docx import Document
 from docx.shared import RGBColor, Pt
@@ -238,7 +237,7 @@ class FileStreamer:
         Save uploaded file using streaming for large files
         
         Args:
-            file_storage: FileStorage object from form upload
+            file_storage: Django file upload object from form upload
             save_path (str): Path where to save the file
             
         Returns:
@@ -423,7 +422,7 @@ def validate_file_upload(file):
     Comprehensive file upload validation
     
     Args:
-        file: Flask file upload object
+        file: Django file upload object
     
     Returns:
         tuple: (bool, str) - (is_valid, error_message)
@@ -473,7 +472,7 @@ def is_file_size_valid(file):
     Check if file size is within limits with error handling
     
     Args:
-        file: Flask file upload object
+        file: Django file upload object
     
     Returns:
         bool: True if file size is valid, False otherwise
@@ -562,37 +561,6 @@ def extract_text_from_file(file_path):
     except Exception as e:
         logger.error(f"Unexpected error extracting text from file {file_path}: {e}")
         return None, f"Unexpected error processing file: {e}"
-
-def get_current_user():
-    """Get current user information from session"""
-    if 'user_id' not in session:
-        return None
-    return {
-        'id': session['user_id'],
-        'username': session['username'],
-        'role': session['role']
-    }
-
-def login_required(f):
-    """Decorator to require login"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            return redirect(url_for('auth.login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-def role_required(role):
-    """Decorator to require specific role"""
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if 'role' not in session or session['role'] != role:
-                flash('Access denied. Insufficient permissions.', 'error')
-                return redirect(url_for('auth.login'))
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
 
 def sanitize_text(text):
     """Remove or replace invalid XML characters for Word document compatibility."""
@@ -952,10 +920,10 @@ def calculate_scores_with_rubric(text_analysis, rubric_config=None):
 
 def extract_text_from_filestorage(file_storage):
     """
-    Extract text from Flask FileStorage object
+    Extract text from Django file upload object
     
     Args:
-        file_storage: Flask FileStorage object from request.files
+        file_storage: Django file upload object from request.FILES
     
     Returns:
         str: Extracted text content

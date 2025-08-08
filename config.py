@@ -92,9 +92,6 @@ class Config:
     AI_MAX_TOKENS = 2000
     AI_TEMPERATURE = 0.7
     
-    # Session configuration
-    PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
-    
     # Application features
     FEATURES = {
         'file_upload': True,

@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics Overview{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Analytics Overview</h2>
+                <div>
+                    <a href="{% url 'analytics:export_analytics_data' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-download"></i> Export Data
+                    </a>
+                    <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ total_students }}</h3>
+                    <p class="mb-0">Total Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ total_submissions }}</h3>
+                    <p class="mb-0">Total Submissions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ avg_score|floatformat:1 }}</h3>
+                    <p class="mb-0">Average Score</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ total_assignments }}</h3>
+                    <p class="mb-0">Total Assignments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Performance Trends -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Performance Trends</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceTrends" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Score Distribution -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Score Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="scoreDistribution" width="300" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <!-- Top Performing Students -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top Performing Students</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_students %}
+                        <div class="list-group list-group-flush">
+                            {% for student in top_students %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ student.get_full_name }}</h6>
+                                        <small class="text-muted">{{ student.essay_count }} essays</small>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">{{ student.avg_score|floatformat:1 }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No student data available yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_submissions %}
+                        {% for submission in recent_submissions %}
+                            <div class="border-bottom py-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="mb-1">{{ submission.student.get_full_name }}</h6>
+                                        <small class="text-muted">{{ submission.file_name|truncatechars:30 }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge {% if submission.analysis.overall_score >= 80 %}bg-success{% elif submission.analysis.overall_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ submission.analysis.overall_score }}
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">{{ submission.submitted_at|date:"M d, Y" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No recent activity.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Essay Type Analysis -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Essay Type Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Essay Type</th>
+                                    <th>Total Submissions</th>
+                                    <th>Average Score</th>
+                                    <th>Best Score</th>
+                                    <th>Common Issues</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type_data in essay_type_stats %}
+                                    <tr>
+                                        <td>{{ type_data.essay_type|title }}</td>
+                                        <td>{{ type_data.total_submissions }}</td>
+                                        <td>{{ type_data.avg_score|floatformat:1 }}</td>
+                                        <td>{{ type_data.best_score }}</td>
+                                        <td>{{ type_data.common_issues|truncatechars:50 }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No data available yet</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Performance Trends Chart
+const trendsCtx = document.getElementById('performanceTrends').getContext('2d');
+const trendsChart = new Chart(trendsCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for item in performance_trends %}'{{ item.date|date:"M d" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Average Score',
+            data: [{% for item in performance_trends %}{{ item.avg_score|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+// Score Distribution Chart
+const distCtx = document.getElementById('scoreDistribution').getContext('2d');
+const distChart = new Chart(distCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['90-100', '80-89', '70-79', '60-69', 'Below 60'],
+        datasets: [{
+            data: [
+                {{ score_distribution.excellent|default:0 }},
+                {{ score_distribution.good|default:0 }},
+                {{ score_distribution.average|default:0 }},
+                {{ score_distribution.poor|default:0 }},
+                {{ score_distribution.failing|default:0 }}
+            ],
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#fd7e14',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
