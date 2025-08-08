@@ -98,8 +98,23 @@
                                 </div>
                             </div>
                             
-                            <!-- Analysis Options -->
-                            <div class="row">
+                            <!-- File Upload -->
+                            <div class="mb-4">
+                                <label for="essay_file" class="form-label">Upload Essay File <span class="text-danger" aria-label="required">*</span></label>
+                                <input type="file" class="form-control" id="essay_file" name="essay_file" 
+                                       accept=".txt,.doc,.docx,.pdf" required
+                                       aria-describedby="file-help">
+                                <div id="file-help" class="form-text">
+                                    Supported formats: .txt, .doc, .docx, .pdf (Max size: 5MB)
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn" style="background-color: #1e2839; color: white;"
+                                        aria-label="Submit assignment for analysis">
+                                    <i class="fas fa-upload me-2" aria-hidden="true"></i>Submit Assignment
+                                </button>
+                            </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="coaching_level" class="form-label">Coaching Level</label>
