@@ -4584,3 +4584,27 @@ Traceback (most recent call last):
     raise TemplateSyntaxError(
 django.template.exceptions.TemplateSyntaxError: Could not parse the remainder: '[1]' from 'assignment[1]'
 "GET /assignments/submit/1/ HTTP/1.1" 500 245953
+"GET /assignments/submit/1/ HTTP/1.1" 200 30342
+"POST /assignments/submit/1/ HTTP/1.1" 302 0
+"GET /assignments/detail/1/ HTTP/1.1" 200 9306
+"GET /assignments/submissions/1/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 34403
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 33652
+"GET /static/js/app.js HTTP/1.1" 304 0
+"GET /static/css/style.css HTTP/1.1" 200 47570
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 6569
+"GET /essays/list/ HTTP/1.1" 200 56926
+"GET /essays/upload/ HTTP/1.1" 200 28501
+"POST /essays/upload/ HTTP/1.1" 302 0
+"GET /essays/view/20/ HTTP/1.1" 200 63827
+"POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
+"POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
+"POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
+"POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
+"POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
+"POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
+"POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
