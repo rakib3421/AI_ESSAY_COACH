@@ -4825,3 +4825,9 @@ Watching for file changes with StatReloader
 "GET /essays/list/ HTTP/1.1" 200 56920
 "GET /essays/view/11/ HTTP/1.1" 200 63395
 "GET /essays/view/20/ HTTP/1.1" 200 63078
+"GET /essays/view/11/ HTTP/1.1" 200 63395
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30213
+"GET /essays/upload/ HTTP/1.1" 200 28501
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30213
