@@ -69,7 +69,7 @@
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{{ url_for('teacher.teacher_dashboard') }}" class="btn btn-outline-secondary">
+                        <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                         </a>
                         <button type="submit" class="btn" style="background-color: #1e2839; color: white;">

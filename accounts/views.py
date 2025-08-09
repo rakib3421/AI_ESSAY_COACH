@@ -35,24 +35,36 @@ def signup(request):
 
 
 def user_login(request):
-    """User login view"""
+    """User login view with robust feedback and redirect handling"""
+    next_url = request.GET.get('next') or request.POST.get('next')
     if request.method == 'POST':
-        form = CustomAuthenticationForm(data=request.POST)
+        print('DEBUG: Login POST received', request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            print('DEBUG: Login form valid')
+            user = form.get_user()
             if user is not None:
+                print(f'DEBUG: Authenticating user {user.username} role={getattr(user, "role", None)}')
                 login(request, user)
+                # Prefer explicit next redirect if supplied and safe
+                if next_url:
+                    print(f'DEBUG: Redirecting to next={next_url}')
+                    return redirect(next_url)
                 if user.is_student():
+                    print('DEBUG: Redirecting to student dashboard')
                     return redirect('essays:dashboard')
-                else:
-                    return redirect('analytics:teacher_dashboard')
+                print('DEBUG: Redirecting to teacher dashboard')
+                return redirect('analytics:teacher_dashboard')
+            # This branch rarely reached because valid form implies authenticated user
+            messages.error(request, 'Authentication failed. Please try again.')
         else:
-            messages.error(request, 'Invalid username or password.')
+            print('DEBUG: Login form invalid', form.errors)
+            # Surface form (non-field) errors
+            for err in form.non_field_errors():
+                messages.error(request, err)
     else:
-        form = CustomAuthenticationForm()
-    return render(request, 'accounts/login.html', {'form': form})
+        form = CustomAuthenticationForm(request)
+    return render(request, 'login.html', {'form': form, 'next': next_url})
 
 
 def user_logout(request):

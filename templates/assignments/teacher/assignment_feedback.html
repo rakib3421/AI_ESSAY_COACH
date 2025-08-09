@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% extends "base.html" %}
 
 {% block title %}Provide Assignment Feedback - AI Essay Revision{% endblock %}
@@ -12,7 +13,7 @@
             <strong>Due:</strong> {{ assignment[2].strftime('%B %d, %Y') }}
         </p>
     </div>
-    <a href="{{ url_for('view_assignment_submissions', assignment_id=assignment_id) }}" class="btn btn-outline-secondary">
+    <a href="{% url 'assignments:assignment_submissions' assignment_id %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Submissions
     </a>
 </div>
@@ -83,7 +84,7 @@
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{{ url_for('view_assignment_submissions', assignment_id=assignment_id) }}" 
+                        <a href="{% url 'assignments:assignment_submissions' assignment_id %}" 
                            class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back to Submissions
                         </a>
@@ -141,7 +142,7 @@
                 <div class="mb-2">
                     <small class="text-muted">Ideas (30%)</small>
                     <div class="progress progress-sm">
-                        <div class="progress-bar" style="width: {{ (essay[6] or 0) * 100 / 30 }}%; background-color: #1e2839;"></div>
+                        <div class="progress-bar" style="width: {{ ideas_pct }}%; background-color: #1e2839;"></div>
                     </div>
                     <small>{{ essay[6] or 0 }}/30</small>
                 </div>
@@ -149,7 +150,7 @@
                 <div class="mb-2">
                     <small class="text-muted">Organization (25%)</small>
                     <div class="progress progress-sm">
-                        <div class="progress-bar" style="width: {{ (essay[7] or 0) * 100 / 25 }}%; background-color: #1e2839;"></div>
+                        <div class="progress-bar" style="width: {{ organization_pct }}%; background-color: #1e2839;"></div>
                     </div>
                     <small>{{ essay[7] or 0 }}/25</small>
                 </div>
@@ -157,7 +158,7 @@
                 <div class="mb-2">
                     <small class="text-muted">Style (20%)</small>
                     <div class="progress progress-sm">
-                        <div class="progress-bar" style="width: {{ (essay[8] or 0) * 100 / 20 }}%; background-color: #1e2839;"></div>
+                        <div class="progress-bar" style="width: {{ style_pct }}%; background-color: #1e2839;"></div>
                     </div>
                     <small>{{ essay[8] or 0 }}/20</small>
                 </div>
@@ -165,7 +166,7 @@
                 <div class="mb-2">
                     <small class="text-muted">Grammar (25%)</small>
                     <div class="progress progress-sm">
-                        <div class="progress-bar" style="width: {{ (essay[9] or 0) * 100 / 25 }}%; background-color: #1e2839;"></div>
+                        <div class="progress-bar" style="width: {{ grammar_pct }}%; background-color: #1e2839;"></div>
                     </div>
                     <small>{{ essay[9] or 0 }}/25</small>
                 </div>

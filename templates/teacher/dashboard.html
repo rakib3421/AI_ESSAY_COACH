@@ -1,394 +1,110 @@
+<!DOCTYPE html>
 {% extends "base.html" %}
-
 {% block title %}Teacher Dashboard - AI Essay Coach{% endblock %}
-
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <!-- Modern Sidebar Navigation -->
+        <!-- Sidebar -->
         <div class="col-lg-3 col-md-4 mb-4">
-            <div class="card shadow-lg border-0 sticky-top" style="top: 110px;">
-                <div class="card-header bg-gradient-primary text-white py-3">
-                    <h5 class="mb-0 fw-bold d-flex align-items-center">
-                        <i class="fas fa-chalkboard-teacher me-3"></i>Teacher Portal
-                    </h5>
-                </div>
+            <div class="card shadow-lg border-0 sticky-top" style="top:110px;">
+                <div class="card-header bg-gradient-primary text-white py-3"><h5 class="mb-0 fw-bold d-flex align-items-center"><i class="fas fa-chalkboard-teacher me-3"></i>Teacher Portal</h5></div>
                 <div class="list-group list-group-flush">
-                    <a href="{% url 'analytics:teacher_dashboard' %}" class="list-group-item list-group-item-action active border-0 fw-medium">
-                        <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
-                    </a>
-                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
-                        <i class="fas fa-file-alt me-3" style="width: 20px;"></i>Submissions
-                    </a>
-                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
-                        <i class="fas fa-list-alt me-3" style="width: 20px;"></i>All Essays
-                    </a>
-                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
-                        <i class="fas fa-users me-3" style="width: 20px;"></i>Students
-                    </a>
-                    <a href="{% url 'assignments:create_assignment' %}" class="list-group-item list-group-item-action border-0 fw-medium">
-                        <i class="fas fa-plus-circle me-3" style="width: 20px;"></i>Create Assignment
-                    </a>
-                    {# <a href="{% url 'analytics:analytics_overview' %}" class="list-group-item list-group-item-action border-0 fw-medium">
-                        <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Analytics
-                    </a> #}
-                    <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action border-0 fw-medium">
-                        <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Settings
-                    </a>
+                    <a href="{% url 'analytics:teacher_dashboard' %}" class="list-group-item list-group-item-action active border-0 fw-medium"><i class="fas fa-chart-line me-3" style="width:20px;"></i>Dashboard</a>
+                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium"><i class="fas fa-file-alt me-3" style="width:20px;"></i>Submissions</a>
+                      <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium"><i class="fas fa-list-alt me-3" style="width:20px;"></i>All Essays</a>
+                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium"><i class="fas fa-users me-3" style="width:20px;"></i>Students</a>
+                    <a href="{% url 'assignments:create_assignment' %}" class="list-group-item list-group-item-action border-0 fw-medium"><i class="fas fa-plus-circle me-3" style="width:20px;"></i>Create Assignment</a>
+                    <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action border-0 fw-medium"><i class="fas fa-user-cog me-3" style="width:20px;"></i>Settings</a>
                 </div>
             </div>
         </div>
-        
-        <!-- Main Content -->
+        <!-- Main -->
         <div class="col-lg-9 col-md-8">
-            <!-- Welcome Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="fw-bold mb-2">Teacher Dashboard 📚</h2>
                     <p class="text-secondary mb-0">Manage assignments and track student progress</p>
                 </div>
-                <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary btn-lg shadow-lg">
-                    <i class="fas fa-plus me-2"></i>New Assignment
-                </a>
+                <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary btn-lg"><i class="fas fa-plus me-2"></i>New Assignment</a>
             </div>
-
-            <!-- Quick Stats Cards -->
-            <div class="row g-4 mb-5 animate-slide-up">
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="card border-0 shadow-lg h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: var(--primary-gradient);">
-                                <i class="fas fa-file-alt fa-lg text-white"></i>
-                            </div>
-                            <div class="stat-number mb-1">{{ submissions|length or 0 }}</div>
-                            <div class="stat-label">Total Submissions</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="card border-0 shadow-lg h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: var(--success-gradient);">
-                                <i class="fas fa-users fa-lg text-white"></i>
-                            </div>
-                            <div class="stat-number mb-1">{{ active_students or 0 }}</div>
-                            <div class="stat-label">Active Students</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="card border-0 shadow-lg h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: var(--info-gradient);">
-                                <i class="fas fa-tasks fa-lg text-white"></i>
-                            </div>
-                            <div class="stat-number mb-1">{{ assignments|length or 0 }}</div>
-                            <div class="stat-label">Assignments</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="card border-0 shadow-lg h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: var(--warning-gradient);">
-                                <i class="fas fa-clock fa-lg text-white"></i>
-                            </div>
-                            <div class="stat-number mb-1">{{ pending_reviews or 0 }}</div>
-                            <div class="stat-label">Pending Reviews</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content Grid -->
+            <!-- Stats -->
             <div class="row g-4 mb-5">
-                <!-- Recent Submissions -->
+                <div class="col-xl-3 col-lg-6 col-md-6"><div class="card border-0 shadow h-100"><div class="card-body text-center p-4"><div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:var(--primary-gradient);"><i class="fas fa-file-alt fa-lg text-white"></i></div><div class="stat-number mb-1">{{ submissions|length|default:0 }}</div><div class="stat-label">Total Submissions</div></div></div></div>
+                <div class="col-xl-3 col-lg-6 col-md-6"><div class="card border-0 shadow h-100"><div class="card-body text-center p-4"><div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:var(--success-gradient);"><i class="fas fa-users fa-lg text-white"></i></div><div class="stat-number mb-1">{{ active_students|default:0 }}</div><div class="stat-label">Active Students</div></div></div></div>
+                <div class="col-xl-3 col-lg-6 col-md-6"><div class="card border-0 shadow h-100"><div class="card-body text-center p-4"><div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:var(--info-gradient);"><i class="fas fa-tasks fa-lg text-white"></i></div><div class="stat-number mb-1">{{ assignments|length|default:0 }}</div><div class="stat-label">Assignments</div></div></div></div>
+                <div class="col-xl-3 col-lg-6 col-md-6"><div class="card border-0 shadow h-100"><div class="card-body text-center p-4"><div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:var(--warning-gradient);"><i class="fas fa-clock fa-lg text-white"></i></div><div class="stat-number mb-1">{{ pending_reviews|default:0 }}</div><div class="stat-label">Pending Reviews</div></div></div></div>
+            </div>
+            <!-- Recent + Actions -->
+            <div class="row g-4 mb-5">
                 <div class="col-lg-8">
-                    <div class="card border-0 shadow-lg h-100 animate-scale-in">
-                        <div class="card-header bg-gradient-primary text-white py-3">
-                            <h5 class="mb-0 fw-bold d-flex align-items-center">
-                                <i class="fas fa-clock me-3"></i>Recent Submissions
-                            </h5>
-                        </div>
+                    <div class="card border-0 shadow h-100">
+                        <div class="card-header bg-gradient-primary text-white py-3"><h5 class="mb-0 fw-bold d-flex align-items-center"><i class="fas fa-clock me-3"></i>Recent Submissions</h5></div>
                         <div class="card-body p-0">
-                            {% if submissions %}
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th class="fw-bold">Student</th>
-                                                <th class="fw-bold">Assignment</th>
-                                                <th class="fw-bold">Type</th>
-                                                <th class="fw-bold">Submitted</th>
-                                                <th class="fw-bold">Status</th>
-                                                <th class="fw-bold">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for submission in submissions[:10] %}
-                                                <tr>
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" 
-                                                                 style="width: 32px; height: 32px; background: var(--accent-gradient);">
-                                                                <i class="fas fa-user text-white"></i>
-                                                            </div>
-                                                            <span class="fw-medium">{{ submission.student_name or 'Unknown' }}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td>{{ submission.title or 'Untitled' }}</td>
-                                                    <td>
-                                                        <span class="badge bg-light text-dark px-2 py-1">
-                                                            {{ submission.essay_type|title or 'General' }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <small class="text-muted">
-                                                            {{ submission.created_at.strftime('%m/%d/%Y') if submission.created_at else 'N/A' }}
-                                                        </small>
-                                                    </td>
-                                                    <td>
-                                                        {% if submission.score %}
-                                                            <span class="badge rounded-pill px-3 py-2" 
-                                                                  style="background: var(--success-gradient);">
-                                                                {{ submission.score }}%
-                                                            </span>
-                                                        {% else %}
-                                                            <span class="badge bg-warning rounded-pill px-3 py-2">
-                                                                Pending
-                                                            </span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <div class="btn-group btn-group-sm">
-                                                            <a href="#" class="btn btn-outline-primary">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                            <a href="#" class="btn btn-outline-success">
-                                                                <i class="fas fa-comment"></i>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                            {% with recent=recent_submissions %}
+                            {% if recent %}
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light"><tr><th>Student</th><th>Assignment</th><th>Type</th><th>Submitted</th><th>Score</th><th>Actions</th></tr></thead>
+                                    <tbody>
+                                    {% for submission in recent %}
+                                    <tr>
+                                        <td>{{ submission.student_name|default:'Unknown' }}</td>
+                                        <td>{{ submission.title|default:'Untitled' }}</td>
+                                        <td><span class="badge bg-light text-dark px-2 py-1">{{ submission.essay_type_display|default:'General' }}</span></td>
+                                        <td><small class="text-muted">{{ submission.created_at|date:"m/d/Y"|default:"N/A" }}</small></td>
+                                        <td>{% include 'components/score_badge.html' with score=submission.score score_class=submission.score_class %}</td>
+                                        <td><div class="btn-group btn-group-sm"><a href="#" class="btn btn-outline-primary"><i class="fas fa-eye"></i></a><a href="#" class="btn btn-outline-success"><i class="fas fa-comment"></i></a></div></td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             {% else %}
-                                <div class="text-center py-5">
-                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                    <h6 class="text-muted">No submissions yet</h6>
-                                    <p class="text-secondary">Students will appear here when they submit essays</p>
+                            <div class="text-center py-5"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><h6 class="text-muted">No submissions yet</h6><p class="text-secondary">Students will appear here when they submit essays</p></div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="card h-100">
+                        <div class="card-header" style="background-color:#1e2839;color:white;"><h6 class="mb-0"><i class="fas fa-tasks me-2"></i>My Assignments</h6></div>
+                        <div class="card-body">
+                            {% if assignments %}
+                                {% for assignment in assignments %}
+                                <div class="border-bottom py-2">
+                                    <h6 class="mb-1">{{ assignment.1 }}</h6>
+                                    <small class="text-muted">{{ assignment.4 }} • Due: {{ assignment.3|date:"m/d/Y" }}</small>
+                                    <div class="mt-1">
+                                        <a href="{% url 'assignments:assignment_detail' assignment.0 %}" class="btn btn-outline-primary btn-sm me-1"><i class="fas fa-eye"></i></a>
+                                        <a href="{% url 'assignments:assignment_submissions' assignment.0 %}" class="btn btn-outline-success btn-sm me-1"><i class="fas fa-comments"></i> Feedback</a>
+                                        <a href="{% url 'assignments:edit_assignment' assignment.0 %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-edit"></i></a>
+                                    </div>
                                 </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted text-center">No assignments yet. <a href="{% url 'assignments:create_assignment' %}">Create one</a></p>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-                
-                <!-- Quick Actions -->
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-lg h-100 animate-scale-in" style="animation-delay: 0.2s;">
-                        <div class="card-header bg-gradient-secondary text-white py-3">
-                            <h5 class="mb-0 fw-bold d-flex align-items-center">
-                                <i class="fas fa-bolt me-3"></i>Quick Actions
-                            </h5>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="d-grid gap-3">
-                                <a href="{% url 'assignments:create_assignment' %}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
-                                    <i class="fas fa-plus-circle me-3"></i>
-                                    <div>
-                                        <div class="fw-bold">New Assignment</div>
-                                        <small class="text-muted">Create essay prompt</small>
-                                    </div>
-                                </a>
-                                
-                                <a href="{% url 'analytics:students_list' %}" class="btn btn-outline-info btn-lg d-flex align-items-center">
-                                    <i class="fas fa-file-alt me-3"></i>
-                                    <div>
-                                        <div class="fw-bold">Review Submissions</div>
-                                        <small class="text-muted">Grade and provide feedback</small>
-                                    </div>
-                                </a>
-                                
-                                {# <a href="{{ url_for('teacher_analytics') }}" class="btn btn-outline-success btn-lg d-flex align-items-center">
-                                    <i class="fas fa-chart-bar me-3"></i>
-                                    <div>
-                                        <div class="fw-bold">View Analytics</div>
-                                        <small class="text-muted">Track class performance</small>
-                                    </div>
-                                </a> #}
-                                
-                                <a href="{{ url_for('teacher.submissions') }}" class="btn btn-outline-warning btn-lg d-flex align-items-center">
-                                    <i class="fas fa-users me-3"></i>
-                                    <div>
-                                        <div class="fw-bold">Manage Students</div>
-                                        <small class="text-muted">View student submissions</small>
-                                    </div>
-                                </a>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header" style="background-color:#1e2839;color:white;"><h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Cohort Insights</h6></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 mb-3"><canvas id="scoreDistributionChart" data-chart="{{ score_chart_json|escapejs }}"></canvas></div>
+                                <div class="col-12"><canvas id="essayTypeChart" data-chart="{{ type_chart_json|escapejs }}"></canvas></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Active Assignments</h5>
-                        <h3 class="display-6 mb-0" style="color: #1e2839;">{{ assignments|length }}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Avg. Score</h5>
-                        <h3 class="display-6 mb-0" style="color: #1e2839;">
-                            {% set total_score = submissions|selectattr(3)|map(attribute=3)|sum %}
-                            {% set score_count = submissions|selectattr(3)|list|length %}
-                            {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Assigned Students</h5>
-                        <h3 class="display-6 mb-0" style="color: #1e2839;">{{ assigned_students_count or 0 }}</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- Recent Submissions -->
-            <div class="col-lg-8 mb-4">
-                <div class="card">
-                    <div class="card-header" style="background-color: #1e2839; color: white;">
-                        <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Recent Student Submissions</h6>
-                    </div>
-                    <div class="card-body">
-                        {% if submissions %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Student</th>
-                                            <th>Essay Title</th>
-                                            <th>Type</th>
-                                            <th>Score</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for submission in submissions %}
-                                            <tr>
-                                                <td>{{ submission[5] }}</td>
-                                                <td>{{ submission[1] }}</td>
-                                                <td>
-                                                    <span class="badge bg-secondary">
-                                                        {{ submission[2].replace('_', ' ').title() }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    {% if submission[3] %}
-                                                        <span class="badge bg-{{ 'success' if submission[3] >= 80 else 'warning' if submission[3] >= 60 else 'danger' }}">
-                                                            {{ submission[3] }}/100
-                                                        </span>
-                                                    {% else %}
-                                                        <span class="text-muted">-</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ submission[4].strftime('%m/%d/%Y') }}</td>
-                                                <td>
-                                                    <div class="btn-group btn-group-sm">
-                                                        {# <a href="{{ url_for('student.view_essay', essay_id=submission[0]) }}" class="btn btn-outline-primary btn-sm">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a> #}
-                                                        <a href="{{ url_for('teacher.teacher_feedback', essay_id=submission[0]) }}" class="btn btn-outline-success btn-sm">
-                                                            <i class="fas fa-comment"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% else %}
-                            <p class="text-muted text-center">No submissions yet.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Assignments -->
-            <div class="col-lg-4 mb-4">
-                <div class="card">
-                    <div class="card-header" style="background-color: #1e2839; color: white;">
-                        <h6 class="mb-0"><i class="fas fa-tasks me-2"></i>My Assignments</h6>
-                    </div>
-                    <div class="card-body">
-                        {% if assignments %}
-                            {% for assignment in assignments %}
-                                <div class="border-bottom py-2">
-                                    <h6 class="mb-1">{{ assignment[1] }}</h6>
-                                    <small class="text-muted">
-                                        {{ assignment[2].replace('_', ' ').title() }} • Due: {{ assignment[3].strftime('%m/%d/%Y') }}
-                                    </small>
-                                    <div class="mt-1">
-                                        <a href="{{ url_for('teacher.assignment_view', assignment_id=assignment[0]) }}" class="btn btn-outline-primary btn-sm me-1">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('teacher.assignment_submissions', assignment_id=assignment[0]) }}" class="btn btn-outline-success btn-sm me-1">
-                                            <i class="fas fa-comments"></i> Feedback
-                                        </a>
-                                        <a href="{{ url_for('teacher.edit_assignment', assignment_id=assignment[0]) }}" class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted text-center">
-                                No assignments created yet. 
-                                <a href="{{ url_for('teacher.create_assignment') }}">Create your first assignment!</a>
-                            </p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cohort Insights -->
-        <div class="card">
-            <div class="card-header" style="background-color: #1e2839; color: white;">
-                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Cohort Insights</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <canvas id="scoreDistributionChart" width="400" height="200"></canvas>
-                    </div>
-                    <div class="col-md-6">
-                        <canvas id="essayTypeChart" width="400" height="200"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        </div><!-- /main column -->
+    </div><!-- /row -->
+</div><!-- /container-fluid -->
 {% endblock %}
 
 {% block extra_js %}
@@ -419,60 +135,7 @@ function editAssignment(assignmentId) {
     window.location.href = '/teacher/assignment/' + assignmentId + '/edit';
 }
 
-// Charts
-const scoreCtx = document.getElementById('scoreDistributionChart').getContext('2d');
-const scoreChart = new Chart(scoreCtx, {
-    type: 'bar',
-    data: {
-        labels: ['0-59', '60-69', '70-79', '80-89', '90-100'],
-        datasets: [{
-            label: 'Number of Essays',
-            data: [2, 5, 8, 12, 3],
-            backgroundColor: 'rgba(30, 40, 57, 0.8)',
-            borderColor: '#1e2839',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            title: {
-                display: true,
-                text: 'Score Distribution'
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
-});
-
-const typeCtx = document.getElementById('essayTypeChart').getContext('2d');
-const typeChart = new Chart(typeCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Argumentative', 'Narrative', 'Literary Analysis', 'Hybrid'],
-        datasets: [{
-            data: [15, 8, 12, 5],
-            backgroundColor: [
-                '#1e2839',
-                '#6c757d',
-                '#adb5bd',
-                '#dee2e6'
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            title: {
-                display: true,
-                text: 'Essay Types'
-            }
-        }
-    }
-});
+function initCharts(){const s=document.getElementById('scoreDistributionChart');const t=document.getElementById('essayTypeChart');if(s&&s.dataset.chart){try{const c=JSON.parse(s.dataset.chart);new Chart(s.getContext('2d'),{type:'bar',data:c,options:{responsive:true,plugins:{title:{display:true,text:'Score Distribution'}},scales:{y:{beginAtZero:true}}}})}catch(e){console.error('Score chart parse error',e)}}if(t&&t.dataset.chart){try{const c=JSON.parse(t.dataset.chart);new Chart(t.getContext('2d'),{type:'doughnut',data:c,options:{responsive:true,plugins:{title:{display:true,text:'Essay Types'}}}})}catch(e){console.error('Type chart parse error',e)}}}
+document.addEventListener('DOMContentLoaded',initCharts);
 </script>
 {% endblock %}

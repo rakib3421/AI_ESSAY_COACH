@@ -6,13 +6,16 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 style="color: #1e2839;">Assignment Details</h2>
     <div>
-        <a href="{{ url_for('view_assignment_submissions', assignment_id=assignment[0]) }}" class="btn btn-success me-2">
+    {# Converted from Flask endpoint #}
+    <a href="{% url 'assignments:assignment_submissions' assignment.0 %}" class="btn btn-success me-2">
             <i class="fas fa-comments me-2"></i>View Submissions & Feedback
         </a>
-        <a href="{{ url_for('edit_assignment', assignment_id=assignment[0]) }}" class="btn btn-outline-primary me-2">
+    {# Converted from Flask endpoint #}
+    <a href="{% url 'assignments:edit_assignment' assignment.0 %}" class="btn btn-outline-primary me-2">
             <i class="fas fa-edit me-2"></i>Edit Assignment
         </a>
-        <a href="{{ url_for('teacher.teacher_dashboard') }}" class="btn btn-outline-secondary">
+    {# Converted from Flask endpoint #}
+    <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
         </a>
     </div>
@@ -86,8 +89,8 @@
                 </div>
                 
                 <div class="d-grid">
-                    <a href="{{ url_for('view_assignment_submissions', assignment_id=assignment[0]) }}" 
-                       class="btn btn-success">
+                          <a href="{% url 'assignments:assignment_submissions' assignment.0 %}" 
+                              class="btn btn-success">
                         <i class="fas fa-comments me-2"></i>Provide Feedback
                     </a>
                 </div>
@@ -101,8 +104,8 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{{ url_for('edit_assignment', assignment_id=assignment[0]) }}" 
-                       class="btn btn-outline-primary btn-sm">
+                          <a href="{% url 'assignments:edit_assignment' assignment.0 %}" 
+                              class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-edit me-2"></i>Edit Assignment
                     </a>
                     <button class="btn btn-outline-info btn-sm" onclick="exportSubmissions()">

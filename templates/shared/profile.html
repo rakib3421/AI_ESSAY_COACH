@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% extends "base.html" %}
 
 {% block title %}
@@ -79,17 +80,17 @@
                 <hr>
                 
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('student.student_settings') if session.role == 'student' else url_for('teacher.teacher_settings') }}" 
+                    <a href="{% url 'accounts:settings' %}" 
                        class="btn btn-primary">
                         <i class="fas fa-cog me-2"></i>Account Settings
                     </a>
                     
                     {% if session.role == 'student' %}
-                    <a href="{{ url_for('student.student_progress') }}" class="btn btn-outline-primary">
+                    <a href="{% url 'essays:progress' %}" class="btn btn-outline-primary">
                         <i class="fas fa-chart-line me-2"></i>View Progress
                     </a>
                     {% else %}
-                    <a href="{{ url_for('teacher.analytics') }}" class="btn btn-outline-primary">
+                    <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-primary">
                         <i class="fas fa-chart-line me-2"></i>View Analytics
                     </a>
                     {% endif %}

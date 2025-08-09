@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% extends "base.html" %}
 
 {% block title %}Teacher Feedback - AI Essay Revision{% endblock %}
@@ -5,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 style="color: #1e2839;">Teacher Feedback</h2>
-    <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{% url 'essays:dashboard' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
     </a>
 </div>
@@ -93,7 +94,7 @@
                     <div class="mb-3">
                         <small class="text-muted">Ideas & Content (30%)</small>
                         <div class="progress progress-sm mb-1">
-                            <div class="progress-bar bg-primary" style="width: {{ (essay[6] or 0) * 100 / 30 }}%"></div>
+                            <div class="progress-bar bg-primary" style="width: {{ rubric_org_pct }}%"></div>
                         </div>
                         <small><strong>{{ essay[6] or 0 }}/30</strong></small>
                     </div>
@@ -101,7 +102,7 @@
                     <div class="mb-3">
                         <small class="text-muted">Organization & Structure (25%)</small>
                         <div class="progress progress-sm mb-1">
-                            <div class="progress-bar bg-success" style="width: {{ (essay[7] or 0) * 100 / 25 }}%"></div>
+                            <div class="progress-bar bg-success" style="width: {{ rubric_content_pct }}%"></div>
                         </div>
                         <small><strong>{{ essay[7] or 0 }}/25</strong></small>
                     </div>
@@ -109,7 +110,7 @@
                     <div class="mb-3">
                         <small class="text-muted">Voice & Style (20%)</small>
                         <div class="progress progress-sm mb-1">
-                            <div class="progress-bar bg-warning" style="width: {{ (essay[8] or 0) * 100 / 20 }}%"></div>
+                            <div class="progress-bar bg-warning" style="width: {{ rubric_language_pct }}%"></div>
                         </div>
                         <small><strong>{{ essay[8] or 0 }}/20</strong></small>
                     </div>
@@ -117,7 +118,7 @@
                     <div class="mb-3">
                         <small class="text-muted">Grammar & Conventions (25%)</small>
                         <div class="progress progress-sm mb-1">
-                            <div class="progress-bar bg-info" style="width: {{ (essay[9] or 0) * 100 / 25 }}%"></div>
+                            <div class="progress-bar bg-info" style="width: {{ rubric_mechanics_pct }}%"></div>
                         </div>
                         <small><strong>{{ essay[9] or 0 }}/25</strong></small>
                     </div>
@@ -140,7 +141,7 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{{ url_for('student.view_essay', essay_id=essay[0]) }}" class="btn btn-primary">
+                    <a href="{% url 'essays:view_essay' essay.0 %}" class="btn btn-primary">
                         <i class="fas fa-eye me-2"></i>View Full Analysis
                     </a>
                     <button class="btn btn-outline-secondary" onclick="printFeedback()">

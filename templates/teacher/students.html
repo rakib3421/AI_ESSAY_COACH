@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% extends "base.html" %}
 
 {% block title %}Student Management - AI Essay Revision{% endblock %}
@@ -5,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 style="color: #1e2839;">Student Management</h2>
-    <a href="{{ url_for('teacher.teacher_dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
     </a>
 </div>
@@ -75,22 +76,20 @@
                                             <span class="badge bg-success">{{ student[5] or 0 }}</span>
                                         </td>
                                         <td>
-                                            {% if student[6] %}
-                                                <span class="badge bg-{{ 'success' if student[6] >= 80 else 'warning' if student[6] >= 60 else 'danger' }}">
-                                                    {{ "%.1f"|format(student[6]) }}
-                                                </span>
+                                            {% if student.6 %}
+                                                <span class="badge {{ student.6|floatformat:0|add:'0'|yesno:'bg-success,bg-warning' }}">{{ student.6 }}</span>
                                             {% else %}
                                                 <span class="text-muted">-</span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <a href="{{ url_for('view_student_essays', student_id=student[0]) }}" 
-                                                   class="btn btn-outline-primary btn-sm" title="View Essays">
+                                                                <a href="{% url 'analytics:student_detail' student.0 %}" 
+                                                                    class="btn btn-outline-primary btn-sm" title="View Essays">
                                                     <i class="fas fa-file-alt"></i>
                                                 </a>
-                                                <a href="{{ url_for('view_student_assignments', student_id=student[0]) }}" 
-                                                   class="btn btn-outline-success btn-sm" title="View Assignments">
+                                                                <a href="{% url 'analytics:student_detail' student.0 %}#assignments" 
+                                                                    class="btn btn-outline-success btn-sm" title="View Assignments">
                                                     <i class="fas fa-tasks"></i>
                                                 </a>
                                             </div>
@@ -156,8 +155,8 @@
                                 {% if student[4] == 'assigned' %}
                                     <span class="badge bg-success">Assigned</span>
                                 {% else %}
-                                    <button class="btn btn-sm btn-outline-primary" 
-                                            onclick="sendRequest({{ student[0] }}, '{{ student[1] }}')">
+                        <button class="btn btn-sm btn-outline-primary send-request-btn" 
+                            data-student-id="{{ student[0] }}" data-student-name="{{ student[1] }}">
                                         <i class="fas fa-plus me-1"></i>Assign
                                     </button>
                                 {% endif %}

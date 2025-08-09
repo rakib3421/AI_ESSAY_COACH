@@ -4,25 +4,25 @@
         <h6 class="mb-0"><i class="fas fa-bars me-2"></i>Navigation</h6>
     </div>
     <div class="list-group list-group-flush">
-        <a href="{{ url_for('student.student_dashboard') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'student.student_dashboard' }}">
+    <a href="{% url 'essays:dashboard' %}" class="list-group-item list-group-item-action">
             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
         </a>
-        <a href="{{ url_for('student.upload_essay') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'student.upload_essay' }}">
+    <a href="{% url 'essays:upload' %}" class="list-group-item list-group-item-action">
             <i class="fas fa-upload me-2"></i>Upload Essay
         </a>
-        <a href="{{ url_for('student.view_assignments') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'student.view_assignments' }}">
+    <a href="{% url 'assignments:student_assignments' %}" class="list-group-item list-group-item-action">
             <i class="fas fa-tasks me-2"></i>View Assignments
         </a>
-        <a href="{{ url_for('student.student_progress') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'student.student_progress' }}">
+    <a href="{% url 'essays:progress' %}" class="list-group-item list-group-item-action">
             <i class="fas fa-chart-line me-2"></i>Progress Analytics
         </a>
-        <a href="{{ url_for('student.student_requests') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'student.student_requests' }}">
+    <a href="#" class="list-group-item list-group-item-action disabled" title="Feature pending">
             <i class="fas fa-bell me-2"></i>Teacher Requests
         </a>
-        <a href="{{ url_for('student.student_profile') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'student.student_profile' }}">
+    <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action">
             <i class="fas fa-user me-2"></i>Profile
         </a>
-        <a href="{{ url_for('student.student_settings') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'student.student_settings' }}">
+    <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action">
             <i class="fas fa-cog me-2"></i>Settings
         </a>
     </div>

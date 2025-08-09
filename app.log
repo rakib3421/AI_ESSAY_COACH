@@ -4608,3 +4608,220 @@ Not Found: /favicon.ico
 "POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
 "POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
 "POST /essays/api/suggestions/accept/ HTTP/1.1" 200 64
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 6249
+"GET /static/css/style.css HTTP/1.1" 304 0
+"GET /login/ HTTP/1.1" 200 5786
+"POST /login/ HTTP/1.1" 200 6549
+"POST /login/ HTTP/1.1" 200 6549
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 6680
+"POST /login/ HTTP/1.1" 200 6549
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 6680
+C:\Users\rakib\Projects\ESSAY\essay_coach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\essay_coach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 6249
+"GET /login/ HTTP/1.1" 200 5786
+"POST /login/ HTTP/1.1" 200 6549
+"GET /signup/ HTTP/1.1" 200 6832
+"POST /signup/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 22400
+C:\Users\rakib\Projects\ESSAY\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+"GET /essays/upload/ HTTP/1.1" 200 28505
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+"GET /essays/list/ HTTP/1.1" 200 10557
+"GET /assignments/student/ HTTP/1.1" 200 9120
+"GET /essays/progress/ HTTP/1.1" 200 11308
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+"GET /teacher-requests/ HTTP/1.1" 200 9343
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+C:\Users\rakib\Projects\ESSAY\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /logout/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 6995
+Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\defaulttags.py", line 1035, in find_library
+    return parser.libraries[name]
+           ~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'form_extras'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\Projects\ESSAY\accounts\views.py", line 67, in user_login
+    return render(request, 'login.html', {'form': form, 'next': next_url})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\defaulttags.py", line 1097, in load
+    lib = find_library(parser, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\template\defaulttags.py", line 1037, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'form_extras' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_urls
+cache
+i18n
+l10n
+log
+static
+tz
+"GET /login/ HTTP/1.1" 500 193832
+"GET /login/ HTTP/1.1" 200 10204
+"POST /login/ HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+C:\Users\rakib\Projects\ESSAY\essays\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\assignments\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\assignments\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+"GET /essays/upload/ HTTP/1.1" 200 28505
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+"GET /essays/list/ HTTP/1.1" 200 10557
+"GET /assignments/student/ HTTP/1.1" 200 9120
+"GET /essays/progress/ HTTP/1.1" 200 11308
+"GET /profile/ HTTP/1.1" 200 7036
+"GET /profile/ HTTP/1.1" 200 7036
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+"GET /teacher-requests/ HTTP/1.1" 200 9343
+"GET /essays/dashboard/ HTTP/1.1" 200 21663
+C:\Users\rakib\Projects\ESSAY\essays\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\assignments\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\essays\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\assignments\views.py changed, reloading.
+Watching for file changes with StatReloader
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rakib\AppData\Local\Programs\Python\Python311\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Watching for file changes with StatReloader
+"GET /essays/dashboard/ HTTP/1.1" 200 21086
+"GET /essays/upload/ HTTP/1.1" 200 28505
+"GET /essays/list/ HTTP/1.1" 200 10557
+"GET /assignments/student/ HTTP/1.1" 200 9120
+"GET /essays/progress/ HTTP/1.1" 200 11308
+"GET /teacher-requests/ HTTP/1.1" 200 9343
+C:\Users\rakib\Projects\ESSAY\essays\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\assignments\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\assignments\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /?id=ac92bf8d-6456-4c24-92dc-734ee5e04817&vscodeBrowserReqId=1754729269488 HTTP/1.1" 200 6249
+"GET /teacher-requests/ HTTP/1.1" 200 9343
+"GET /essays/dashboard/ HTTP/1.1" 200 21086
+"GET /essays/list/ HTTP/1.1" 200 10557
+"GET /assignments/student/ HTTP/1.1" 200 9120
+"GET /essays/list/ HTTP/1.1" 200 10557
+"GET /assignments/student/ HTTP/1.1" 200 9120
+"GET /logout/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 6995
+"GET /login/ HTTP/1.1" 200 10204
+"POST /login/ HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21086
+"GET /logout/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 6995
+"GET /login/ HTTP/1.1" 200 10204
+"POST /login/ HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21086
+"GET /essays/list/ HTTP/1.1" 200 10557
+"GET /essays/upload/ HTTP/1.1" 200 28505
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 21086
+"GET /logout/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 6995
+- Broken pipe from ('127.0.0.1', 50594)
+"GET /login/ HTTP/1.1" 200 10204
+"POST /login/ HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30215
+"GET /essays/list/ HTTP/1.1" 200 56920
+"GET /essays/progress/ HTTP/1.1" 200 36674
+"GET /essays/view/20/ HTTP/1.1" 200 63078
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30202
+"GET /assignments/student/ HTTP/1.1" 200 11275
+"GET /essays/progress/ HTTP/1.1" 200 36674
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30202
+"GET /essays/list/ HTTP/1.1" 200 56920
+"GET /essays/view/11/ HTTP/1.1" 200 63395
+"GET /essays/view/20/ HTTP/1.1" 200 63078

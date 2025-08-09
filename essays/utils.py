@@ -20,6 +20,83 @@ import io
 
 logger = logging.getLogger(__name__)
 
+# --- Presentation Helper Functions (template logic extraction) ---
+
+ESSAY_TYPE_DISPLAY_MAP = {
+    'argumentative': 'Argumentative',
+    'expository': 'Expository',
+    'narrative': 'Narrative',
+    'descriptive': 'Descriptive',
+    'persuasive': 'Persuasive',
+    'compare_contrast': 'Compare & Contrast',
+    'cause_effect': 'Cause & Effect',
+    'process': 'Process',
+    'definition': 'Definition',
+    'classification': 'Classification',
+}
+
+def classify_score(score: float | int | None) -> tuple[str, str]:
+    """Return (score_class, display_value) tuple for a numeric score.
+
+    score_class maps to bootstrap background classes used in templates.
+    All threshold logic centralized here to keep templates logic-free.
+    """
+    if score is None:
+        return 'bg-secondary', 'Pending'
+    try:
+        val = float(score)
+    except (TypeError, ValueError):
+        return 'bg-secondary', 'Pending'
+    if val >= 80:
+        return 'bg-success', f"{int(val)}%"
+    if val >= 60:
+        return 'bg-warning', f"{int(val)}%"
+    return 'bg-danger', f"{int(val)}%"
+
+def display_essay_type(raw: str | None) -> str:
+    """Map internal essay_type code to user display label."""
+    if not raw:
+        return 'General'
+    return ESSAY_TYPE_DISPLAY_MAP.get(raw, raw.replace('_', ' ').title())
+
+def rubric_percent(score: float | int | None, maximum: float | int) -> int:
+    """Compute percent (0-100) for rubric bars safely."""
+    if not score and score != 0:
+        return 0
+    try:
+        pct = (float(score) / float(maximum)) * 100.0
+    except Exception:
+        return 0
+    return int(round(max(0.0, min(pct, 100.0))))
+
+def build_score_distribution(buckets: list[tuple[str, int]]) -> dict:
+    """Return chart.js ready dict from (label,count) pairs."""
+    labels = [b for b,_ in buckets]
+    data = [c for _,c in buckets]
+    return {
+        'labels': labels,
+        'datasets': [{
+            'label': 'Number of Essays',
+            'data': data,
+            'backgroundColor': 'rgba(30,40,57,0.8)',
+            'borderColor': '#1e2839',
+            'borderWidth': 1,
+        }]
+    }
+
+def build_type_distribution(type_counts: dict[str,int]) -> dict:
+    """Return doughnut chart config from mapping of essay type->count."""
+    labels = [display_essay_type(k) for k in type_counts.keys()]
+    data = list(type_counts.values())
+    palette = ['#1e2839','#6c757d','#adb5bd','#dee2e6','#0d6efd','#198754','#ffc107','#dc3545','#6610f2','#20c997']
+    return {
+        'labels': labels,
+        'datasets': [{
+            'data': data,
+            'backgroundColor': palette[:len(data)]
+        }]
+    }
+
 
 def role_required(role):
     """

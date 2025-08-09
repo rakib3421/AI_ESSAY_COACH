@@ -22,11 +22,13 @@
             </div>
             <div>
                 {% if student_id %}
-                <a href="{{ url_for('teacher.view_student_assignments', student_id=student_id) }}" class="btn btn-outline-success me-2">
+                {# Converted from Flask endpoint #}
+                <a href="{% url 'analytics:student_detail' student_id %}" class="btn btn-outline-success me-2">
                     <i class="fas fa-tasks me-2"></i>View Assignments
                 </a>
                 {% endif %}
-                <a href="{{ url_for('teacher.teacher_dashboard') }}" class="btn btn-outline-secondary">
+                {# Converted from Flask endpoint #}
+                <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                 </a>
             </div>
@@ -51,11 +53,11 @@
                             {% if submissions %}
                                 {% set total_score = submissions|selectattr(3)|map(attribute=3)|sum %}
                                 {% set score_count = submissions|selectattr(3)|list|length %}
-                                {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                                {{ avg_score }}
                             {% elif essays %}
                                 {% set total_score = essays|selectattr('total_score')|map(attribute='total_score')|sum %}
                                 {% set score_count = essays|selectattr('total_score')|list|length %}
-                                {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
+                                {{ avg_score }}
                             {% else %}
                                 0.0
                             {% endif %}
@@ -69,7 +71,7 @@
                         <h5 class="card-title">This Week</h5>
                         <h3 class="display-6 mb-0" style="color: #1e2839;">
                             {% if submissions %}
-                                {{ submissions|selectattr(4)|select('>', (moment().subtract(7, 'days').format('YYYY-MM-DD')))|list|length }}
+                                {{ submissions_this_week }}
                             {% else %}
                                 0
                             {% endif %}
@@ -198,12 +200,13 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="{{ url_for('teacher.view_submission', submission_id=item[0]) if submissions else url_for('teacher.view_essay', essay_id=item.id) }}" 
-                                               class="btn btn-sm btn-outline-primary">
+                                                          {# TODO: teacher.view_submission mapping unknown; fallback to essays:view_essay when not submissions #}
+                                                          <a href="{% if submissions %}#{% else %}{% url 'essays:view_essay' item.id %}{% endif %}" 
+                                                              class="btn btn-sm btn-outline-primary" title="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ url_for('teacher.provide_feedback', submission_id=item[0]) if submissions else url_for('teacher.provide_feedback', essay_id=item.id) }}" 
-                                               class="btn btn-sm btn-outline-success">
+                                                          {# TODO: teacher.provide_feedback mapping unknown; create a Django view and replace '#' #}
+                                                          <a href="#" class="btn btn-sm btn-outline-success" title="Feedback">
                                                 <i class="fas fa-comment"></i>
                                             </a>
                                         </div>

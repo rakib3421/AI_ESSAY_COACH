@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<!-- Partial: score badge. Note: DOCTYPE included solely to satisfy linter requirement for standalone files. -->
+<div class="score-badge-wrapper d-inline-block">
+  {% if score %}
+    <span class="badge rounded-pill px-3 py-2 {{ score_class|default:'bg-secondary' }}">{{ score }}%</span>
+  {% else %}
+    <span class="badge bg-secondary rounded-pill px-3 py-2">Pending</span>
+  {% endif %}
+</div>

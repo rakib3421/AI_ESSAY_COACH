@@ -468,7 +468,7 @@
                         <button class="btn btn-outline-info btn-sm" onclick="showStatistics()">
                             <i class="fas fa-chart-line me-1"></i>Statistics
                         </button>
-                        <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{% url 'essays:dashboard' %}" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-arrow-left me-1"></i>Dashboard
                         </a>
                     </div>

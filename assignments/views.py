@@ -281,36 +281,56 @@ def assignments_list(request):
 @role_required('student')
 def student_assignments(request):
     """List assignments for student"""
-    # Get all teachers assigned to this student
-    teacher_assignments = StudentTeacherAssignment.objects.filter(
-        student=request.user
-    ).select_related('teacher')
-    
-    teacher_ids = [ta.teacher.id for ta in teacher_assignments]
-    
-    # Get assignments from assigned teachers
-    assignments = Assignment.objects.filter(
-        teacher_id__in=teacher_ids,
-        is_active=True
-    ).order_by('-created_at')
-    
-    # Get student's submissions
-    submissions = AssignmentSubmission.objects.filter(
-        student=request.user
-    ).select_related('assignment')
-    
-    submitted_assignment_ids = {sub.assignment.id for sub in submissions}
-    
-    # Add submission status to assignments
-    for assignment in assignments:
-        assignment.is_submitted = assignment.id in submitted_assignment_ids
-        assignment.submission = next(
-            (sub for sub in submissions if sub.assignment.id == assignment.id),
-            None
-        )
-    
-    context = {
-        'assignments': assignments,
-    }
-    
-    return render(request, 'assignments/student/assignments_list.html', context)
+    try:
+        # Get all teachers assigned to this student
+        teacher_assignments = StudentTeacherAssignment.objects.filter(
+            student=request.user
+        ).select_related('teacher')
+        
+        teacher_ids = [ta.teacher.id for ta in teacher_assignments]
+        
+        # Get assignments from assigned teachers
+        assignments = Assignment.objects.filter(
+            teacher_id__in=teacher_ids,
+            is_active=True
+        ).order_by('-created_at')
+        
+        # Get student's submissions
+        submissions = AssignmentSubmission.objects.filter(
+            student=request.user
+        ).select_related('assignment', 'essay_analysis')
+        
+        submitted_assignment_ids = {sub.assignment.id for sub in submissions}
+        
+        # Add submission status to assignments
+        now = timezone.now()
+        for assignment in assignments:
+            assignment.is_submitted = assignment.id in submitted_assignment_ids
+            assignment.submission = next(
+                (sub for sub in submissions if sub.assignment.id == assignment.id),
+                None
+            )
+            # Provide an is_overdue attribute for templates (they sometimes call method or attr)
+            try:
+                assignment.is_overdue = assignment.due_date < now
+            except Exception:
+                assignment.is_overdue = False
+        
+        context = {
+            'assignments': assignments,
+            'teacher_assignments': teacher_assignments,
+            'total_assignments': assignments.count(),
+            'submitted_count': len(submitted_assignment_ids),
+            'pending_count': assignments.count() - len(submitted_assignment_ids),
+        }
+        
+        logger.info(f"Student assignments context: assignments count={assignments.count()}, teachers={len(teacher_ids)}")
+        return render(request, 'assignments/student/assignments_list.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error loading student assignments: {e}")
+        messages.error(request, 'Error loading assignments.')
+        return render(request, 'assignments/student/assignments_list.html', {
+            'assignments': [],
+            'error': True
+        })

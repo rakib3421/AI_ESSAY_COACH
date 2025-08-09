@@ -168,7 +168,9 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Login URLs
-LOGIN_URL = '/accounts/login/'
+# Since accounts.urls is included at the project root (''), the login view is at '/login/' not '/accounts/login/'.
+# Using the wrong path can cause Django to redirect to a non-existent URL and appear as a simple reload.
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 

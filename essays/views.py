@@ -387,14 +387,53 @@ def essays_list(request):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         
+        # Backwards compatibility: some legacy templates expected an "essays" list of tuples.
+        # We'll supply it so either template variant works. Tuple format (id, title, type, overall_score, submitted_at, status, has_feedback, content, structure, clarity, grammar)
+        essays_legacy = []
+        for s in submissions:
+            a = s.analysis
+            if not a:
+                continue
+            essays_legacy.append((
+                a.id,
+                s.file_name or f"Essay Analysis #{a.id}",
+                a.essay_type,
+                a.overall_score,
+                s.submitted_at,
+                'reviewed' if getattr(a, 'teacher_feedback', None) else 'analyzed',
+                bool(getattr(a, 'teacher_feedback', None)),
+                a.content_score,
+                a.structure_score,
+                a.clarity_score,
+                a.grammar_score,
+            ))
+
+        # Get assignment context for essays that are part of assignments
+        from assignments.models import AssignmentSubmission
+        assignment_submissions = AssignmentSubmission.objects.filter(
+            student=request.user
+        ).select_related('assignment', 'essay_analysis')
+        
+        assignment_context = {}
+        for asub in assignment_submissions:
+            if asub.essay_analysis:
+                assignment_context[asub.essay_analysis.id] = {
+                    'title': asub.assignment.title,
+                    'type': asub.assignment.essay_type,
+                    'due_date': asub.assignment.due_date
+                }
+
         context = {
             'page_obj': page_obj,
+            'essays': essays_legacy,
             'total_essays': total_essays,
             'average_score': average_score,
             'essays_with_feedback_count': essays_with_feedback.count(),
             'scored_essays_count': scored_essays.count(),
+            'assignment_context': assignment_context,
         }
         
+        logger.info(f"Essays list context: essays count={len(essays_legacy)}, page_obj={page_obj.object_list.count() if page_obj else 0}")
         return render(request, 'essays/student/essays.html', context)
         
     except Exception as e:
@@ -455,21 +494,39 @@ def progress(request):
             if grammar_scores:
                 grammar_avg = sum(grammar_scores) / len(grammar_scores)
         
-        # Prepare progress data for charts
+        # Prepare progress data for charts - recent 10 submissions
         progress_data = []
+        chart_data = []
         if submissions:
-            for submission in submissions:
-                if submission.analysis:
+            recent_submissions = submissions[:10]  # Get most recent 10
+            for i, submission in enumerate(reversed(recent_submissions)):  # Reverse for chronological order
+                if submission.analysis and submission.analysis.overall_score:
                     progress_data.append([
                         submission.submitted_at.isoformat(),
                         submission.analysis.overall_score
                     ])
+                    chart_data.append({
+                        'date': submission.submitted_at.strftime('%m/%d'),
+                        'score': submission.analysis.overall_score,
+                        'content': submission.analysis.content_score or 0,
+                        'structure': submission.analysis.structure_score or 0,
+                        'clarity': submission.analysis.clarity_score or 0,
+                        'grammar': submission.analysis.grammar_score or 0,
+                    })
         
+        # Get recent assignment submissions
+        from assignments.models import AssignmentSubmission
+        assignment_submissions = AssignmentSubmission.objects.filter(
+            student=request.user
+        ).select_related('assignment', 'essay_analysis').order_by('-submitted_at')[:5]
+
         context = {
             'progress_records': progress_records,
             'overall_progress': round(overall_progress, 1),
             'submissions': submissions,
             'progress_data': progress_data,
+            'chart_data': chart_data,
+            'assignment_submissions': assignment_submissions,
             'stats': {
                 'total_essays': total_essays,
                 'avg_score': round(avg_score, 1),

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% extends "base.html" %}
 
 {% block title %}Student Submissions - AI Essay Revision{% endblock %}
@@ -22,11 +23,11 @@
             </div>
             <div>
                 {% if student_id %}
-                <a href="{{ url_for('teacher.view_student_assignments', student_id=student_id) }}" class="btn btn-outline-success me-2">
+                <a href="{% url 'analytics:student_detail' student_id %}#assignments" class="btn btn-outline-success me-2">
                     <i class="fas fa-tasks me-2"></i>View Assignments
                 </a>
                 {% endif %}
-                <a href="{{ url_for('teacher.teacher_dashboard') }}" class="btn btn-outline-secondary">
+                <a href="{% url 'analytics:teacher_dashboard' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                 </a>
             </div>
@@ -48,17 +49,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Avg. Score</h5>
                         <h3 class="display-6 mb-0" style="color: #1e2839;">
-                            {% if submissions %}
-                                {% set total_score = submissions|selectattr(3)|map(attribute=3)|sum %}
-                                {% set score_count = submissions|selectattr(3)|list|length %}
-                                {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
-                            {% elif essays %}
-                                {% set total_score = essays|selectattr('total_score')|map(attribute='total_score')|sum %}
-                                {% set score_count = essays|selectattr('total_score')|list|length %}
-                                {{ "%.1f"|format(total_score / score_count if score_count > 0 else 0) }}
-                            {% else %}
-                                0.0
-                            {% endif %}
+                            {{ avg_score }}
                         </h3>
                     </div>
                 </div>
@@ -68,11 +59,7 @@
                     <div class="card-body">
                         <h5 class="card-title">This Week</h5>
                         <h3 class="display-6 mb-0" style="color: #1e2839;">
-                            {% if submissions %}
-                                {{ submissions|selectattr(4)|select('>', (moment().subtract(7, 'days').format('YYYY-MM-DD')))|list|length }}
-                            {% else %}
-                                0
-                            {% endif %}
+                            {{ submissions_this_week }}
                         </h3>
                     </div>
                 </div>
@@ -82,11 +69,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Needs Review</h5>
                         <h3 class="display-6 mb-0" style="color: #dc3545;">
-                            {% if submissions %}
-                                {{ submissions|rejectattr(7)|list|length }}
-                            {% else %}
-                                0
-                            {% endif %}
+                            {{ needs_review_count }}
                         </h3>
                     </div>
                 </div>
@@ -138,7 +121,6 @@
                 </h6>
             </div>
             <div class="card-body">
-                {% set items = submissions if submissions else essays %}
                 {% if items %}
                     <div class="table-responsive">
                         <table class="table table-hover" id="essaysTable">
@@ -157,52 +139,37 @@
                             <tbody>
                                 {% for item in items %}
                                 <tr class="essay-row" 
-                                    data-type="{{ item[2] if submissions else item.essay_type }}"
-                                    data-score="{{ item[3] if submissions else item.total_score }}"
-                                    data-student="{{ item[5] if submissions else item.student_name }}">
+                                    data-type="{{ item.2_display }}"
+                                    data-score="{{ item.score }}"
+                                    data-student="{{ item.student_name }}">
                                     {% if not student_id %}
                                     <td>
-                                        <strong>{{ item[5] if submissions else item.student_name }}</strong>
+                                        <strong>{{ item.student_name }}</strong>
                                     </td>
                                     {% endif %}
                                     <td>
                                         <span class="badge bg-primary">
-                                            {{ (item[2] if submissions else item.essay_type).replace('_', ' ').title() }}
+                                            {{ item.2_display }}
                                         </span>
                                     </td>
                                     <td>
-                                        {% set score = item[3] if submissions else item.total_score %}
-                                        {% if score %}
-                                            <span class="badge {% if score >= 90 %}bg-success{% elif score >= 80 %}bg-info{% elif score >= 70 %}bg-warning{% else %}bg-danger{% endif %}">
-                                                {{ score }}/100
-                                            </span>
-                                        {% else %}
-                                            <span class="text-muted">Not scored</span>
-                                        {% endif %}
+                                        {% include 'components/score_badge.html' with score=item.score score_class=item.score_class %}
                                     </td>
                                     <td>
                                         <small class="text-muted">
-                                            {{ (item[4] if submissions else item.created_at).strftime('%m/%d/%Y at %I:%M %p') }}
+                                            {{ item.created_at|date:"m/d/Y" }}
                                         </small>
                                     </td>
                                     <td>
-                                        {% if submissions %}
-                                            {% if item[7] %}
-                                                <span class="badge bg-success">Reviewed</span>
-                                            {% else %}
-                                                <span class="badge bg-warning">Pending</span>
-                                            {% endif %}
-                                        {% else %}
-                                            <span class="badge bg-info">Analyzed</span>
-                                        {% endif %}
+                                        <span class="badge {{ item.status_badge_class }}">{{ item.status_display }}</span>
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="{{ url_for('teacher.view_submission', submission_id=item[0]) if submissions else url_for('teacher.view_essay', essay_id=item.id) }}" 
+                                            <a href="#" 
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ url_for('teacher.provide_feedback', submission_id=item[0]) if submissions else url_for('teacher.provide_feedback', essay_id=item.id) }}" 
+                                            <a href="#" 
                                                class="btn btn-sm btn-outline-success">
                                                 <i class="fas fa-comment"></i>
                                             </a>

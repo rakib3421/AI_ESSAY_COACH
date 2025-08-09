@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 import json
 import logging
 
-from essays.utils import role_required
+from essays.utils import role_required, classify_score, display_essay_type, rubric_percent, build_score_distribution, build_type_distribution
 from essays.models import EssayAnalysis, StudentSubmission
 from assignments.models import Assignment, AssignmentSubmission
 from accounts.models import CustomUser, StudentTeacherAssignment
@@ -28,15 +28,31 @@ def teacher_dashboard(request):
         student_ids = [sa.student.id for sa in student_assignments]
         students = CustomUser.objects.filter(id__in=student_ids)
         
-        # Get recent submissions from assigned students
-        recent_submissions = StudentSubmission.objects.filter(
+        # Recent submissions with presentation fields
+        recent_submissions_qs = StudentSubmission.objects.filter(
             student_id__in=student_ids
         ).select_related('analysis', 'student').order_by('-submitted_at')[:10]
+        recent_submissions = []
+        for sub in recent_submissions_qs:
+            analysis = sub.analysis
+            score_class, score_display = classify_score(analysis.overall_score if analysis else None)
+            recent_submissions.append({
+                'id': sub.id,
+                'student_name': sub.student.get_full_name() or sub.student.username,
+                'title': (analysis.detailed_feedback.get('title') if analysis and isinstance(analysis.detailed_feedback, dict) else '') or 'Untitled',
+                'essay_type_display': display_essay_type(analysis.essay_type if analysis else None),
+                'created_at': sub.submitted_at,
+                'score': None if score_display == 'Pending' else score_display.rstrip('%'),
+                'score_class': score_class,
+            })
         
         # Get teacher's assignments
-        assignments = Assignment.objects.filter(
+        assignments_qs = Assignment.objects.filter(
             teacher=request.user
         ).order_by('-created_at')[:5]
+        assignments = []
+        for a in assignments_qs:
+            assignments.append((a.id, a.title, a.essay_type, a.due_date, display_essay_type(a.essay_type)))
         
         # Statistics
         total_students = len(students)
@@ -48,6 +64,22 @@ def teacher_dashboard(request):
             student_id__in=student_ids
         ).aggregate(avg_score=Avg('overall_score'))['avg_score'] or 0
         
+        # Chart data (score distribution + type distribution)
+        analyses_qs = EssayAnalysis.objects.filter(student_id__in=student_ids)
+        # Score buckets
+        buckets = [
+            ('0-59', analyses_qs.filter(overall_score__lt=60).count()),
+            ('60-69', analyses_qs.filter(overall_score__gte=60, overall_score__lt=70).count()),
+            ('70-79', analyses_qs.filter(overall_score__gte=70, overall_score__lt=80).count()),
+            ('80-89', analyses_qs.filter(overall_score__gte=80, overall_score__lt=90).count()),
+            ('90-100', analyses_qs.filter(overall_score__gte=90).count()),
+        ]
+        score_chart = build_score_distribution(buckets)
+        # Type counts
+        type_counts_raw = analyses_qs.values('essay_type').annotate(count=Count('id'))
+        type_counts = {row['essay_type']: row['count'] for row in type_counts_raw}
+        type_chart = build_type_distribution(type_counts)
+
         context = {
             'recent_submissions': recent_submissions,
             'assignments': assignments,
@@ -55,6 +87,8 @@ def teacher_dashboard(request):
             'total_assignments': total_assignments,
             'total_submissions': total_submissions,
             'avg_score': round(avg_score, 1),
+            'score_chart_json': json.dumps(score_chart),
+            'type_chart_json': json.dumps(type_chart),
         }
         
         return render(request, 'analytics/teacher/dashboard.html', context)
@@ -74,7 +108,7 @@ def students_list(request):
         student_assignments = StudentTeacherAssignment.objects.filter(
             teacher=request.user
         ).select_related('student')
-        
+
         students_data = []
         for sa in student_assignments:
             student = sa.student
@@ -90,23 +124,22 @@ def students_list(request):
                 student=student
             ).select_related('analysis').order_by('-submitted_at').first()
             
+            score_class, score_display = classify_score(avg_score)
             students_data.append({
                 'student': student,
                 'total_submissions': total_submissions,
                 'avg_score': round(avg_score, 1),
+                'avg_score_class': score_class,
                 'recent_submission': recent_submission,
                 'assigned_at': sa.assigned_at,
             })
         
         # Sort by average score (descending)
         students_data.sort(key=lambda x: x['avg_score'], reverse=True)
-        
-        context = {
-            'students_data': students_data,
-        }
-        
+
+        context = {'students_data': students_data}
         return render(request, 'analytics/teacher/students.html', context)
-        
+
     except Exception as e:
         logger.error(f"Error loading students list: {e}")
         messages.error(request, 'Error loading students.')
