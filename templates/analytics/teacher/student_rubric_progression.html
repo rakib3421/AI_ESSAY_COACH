@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+
+{% block title %}Rubric Progression - {{ student.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:students_list' %}">Students</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'analytics:student_detail' student.id %}">{{ student.get_full_name }}</a></li>
+                    <li class="breadcrumb-item active">Rubric Progression</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Student Info Header -->
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3>{{ student.get_full_name }} - Rubric Score Progression</h3>
+                            <p class="text-muted mb-0">Detailed analysis of performance across all rubric components</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="d-flex justify-content-end">
+                                <div class="me-3">
+                                    <h6 class="text-muted mb-1">Total Essays</h6>
+                                    <h4 class="text-primary">{{ total_essays }}</h4>
+                                </div>
+                                {% if latest_analysis %}
+                                <div>
+                                    <h6 class="text-muted mb-1">Latest Overall Score</h6>
+                                    <h4 class="text-success">{{ latest_analysis.overall_score|floatformat:1 }}</h4>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Improvement Metrics -->
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Performance Improvement Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="text-primary mb-2">Grammar</h6>
+                                <h4 class="mb-1">
+                                    {% if improvement_metrics.grammar.trend == 'up' %}
+                                        <i class="fas fa-arrow-up text-success"></i>
+                                    {% elif improvement_metrics.grammar.trend == 'down' %}
+                                        <i class="fas fa-arrow-down text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-minus text-muted"></i>
+                                    {% endif %}
+                                    {{ improvement_metrics.grammar.improvement|floatformat:1 }}
+                                </h4>
+                                <small class="text-muted">Point change</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="text-success mb-2">Clarity</h6>
+                                <h4 class="mb-1">
+                                    {% if improvement_metrics.clarity.trend == 'up' %}
+                                        <i class="fas fa-arrow-up text-success"></i>
+                                    {% elif improvement_metrics.clarity.trend == 'down' %}
+                                        <i class="fas fa-arrow-down text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-minus text-muted"></i>
+                                    {% endif %}
+                                    {{ improvement_metrics.clarity.improvement|floatformat:1 }}
+                                </h4>
+                                <small class="text-muted">Point change</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="text-warning mb-2">Structure</h6>
+                                <h4 class="mb-1">
+                                    {% if improvement_metrics.structure.trend == 'up' %}
+                                        <i class="fas fa-arrow-up text-success"></i>
+                                    {% elif improvement_metrics.structure.trend == 'down' %}
+                                        <i class="fas fa-arrow-down text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-minus text-muted"></i>
+                                    {% endif %}
+                                    {{ improvement_metrics.structure.improvement|floatformat:1 }}
+                                </h4>
+                                <small class="text-muted">Point change</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded">
+                                <h6 class="text-info mb-2">Content</h6>
+                                <h4 class="mb-1">
+                                    {% if improvement_metrics.content.trend == 'up' %}
+                                        <i class="fas fa-arrow-up text-success"></i>
+                                    {% elif improvement_metrics.content.trend == 'down' %}
+                                        <i class="fas fa-arrow-down text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-minus text-muted"></i>
+                                    {% endif %}
+                                    {{ improvement_metrics.content.improvement|floatformat:1 }}
+                                </h4>
+                                <small class="text-muted">Point change</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Detailed Progression Chart -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Detailed Rubric Score Progression</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="showAllBtn">All Components</button>
+                        <button type="button" class="btn btn-outline-primary" id="showGrammarBtn">Grammar</button>
+                        <button type="button" class="btn btn-outline-primary" id="showClarityBtn">Clarity</button>
+                        <button type="button" class="btn btn-outline-primary" id="showStructureBtn">Structure</button>
+                        <button type="button" class="btn btn-outline-primary" id="showContentBtn">Content</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="rubricProgressionChart" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Analysis Insights -->
+    {% if latest_analysis %}
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6>Latest Strengths</h6>
+                </div>
+                <div class="card-body">
+                    {% if latest_analysis.strengths %}
+                        <ul class="list-unstyled">
+                            {% for strength in latest_analysis.strengths %}
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    {{ strength }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No specific strengths identified yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6>Areas for Improvement</h6>
+                </div>
+                <div class="card-body">
+                    {% if latest_analysis.areas_improvement %}
+                        <ul class="list-unstyled">
+                            {% for improvement in latest_analysis.areas_improvement %}
+                                <li class="mb-2">
+                                    <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                                    {{ improvement }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No specific improvement areas identified yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Rubric progression data
+const rubricData = {{ rubric_progression|safe }};
+
+// Chart configuration
+const ctx = document.getElementById('rubricProgressionChart').getContext('2d');
+
+const allDatasets = [
+    {
+        label: 'Grammar',
+        data: rubricData.grammar_scores,
+        borderColor: '#007bff',
+        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+        tension: 0.1,
+        pointRadius: 4,
+        pointHoverRadius: 6
+    },
+    {
+        label: 'Clarity',
+        data: rubricData.clarity_scores,
+        borderColor: '#28a745',
+        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+        tension: 0.1,
+        pointRadius: 4,
+        pointHoverRadius: 6
+    },
+    {
+        label: 'Structure',
+        data: rubricData.structure_scores,
+        borderColor: '#ffc107',
+        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+        tension: 0.1,
+        pointRadius: 4,
+        pointHoverRadius: 6
+    },
+    {
+        label: 'Content',
+        data: rubricData.content_scores,
+        borderColor: '#17a2b8',
+        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+        tension: 0.1,
+        pointRadius: 4,
+        pointHoverRadius: 6
+    }
+];
+
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: rubricData.dates.map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+        datasets: allDatasets
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                    }
+                }
+            }
+        },
+        interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Essay Submission Date'
+                }
+            },
+            y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                    display: true,
+                    text: 'Score (%)'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Button handlers for filtering
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = {
+        'showAllBtn': allDatasets,
+        'showGrammarBtn': [allDatasets[0]],
+        'showClarityBtn': [allDatasets[1]],
+        'showStructureBtn': [allDatasets[2]],
+        'showContentBtn': [allDatasets[3]]
+    };
+    
+    Object.keys(buttons).forEach(buttonId => {
+        document.getElementById(buttonId).addEventListener('click', function() {
+            // Update active button
+            document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update chart datasets
+            chart.data.datasets = buttons[buttonId];
+            chart.update();
+        });
+    });
+});
+</script>
+{% endblock %}

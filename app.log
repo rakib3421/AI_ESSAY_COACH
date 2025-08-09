@@ -4831,3 +4831,116 @@ Watching for file changes with StatReloader
 "GET /essays/upload/ HTTP/1.1" 200 28501
 "GET / HTTP/1.1" 302 0
 "GET /essays/dashboard/ HTTP/1.1" 200 30213
+"GET /essays/view/20/ HTTP/1.1" 200 63078
+"GET /essays/view/19/ HTTP/1.1" 200 62988
+"GET /essays/progress/ HTTP/1.1" 200 36674
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\analytics\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30233
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /essays/progress/ HTTP/1.1" 200 36674
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30233
+"GET /essays/upload/ HTTP/1.1" 200 28501
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30233
+"GET /essays/list/ HTTP/1.1" 200 56920
+"GET /essays/view/20/ HTTP/1.1" 200 63078
+"GET /assignments/student/ HTTP/1.1" 200 11275
+"GET /essays/view/19/ HTTP/1.1" 200 62988
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30233
+"GET /essays/upload/ HTTP/1.1" 200 28501
+"GET /essays/dashboard/ HTTP/1.1" 200 30233
+"GET /essays/upload/ HTTP/1.1" 200 28501
+"GET /assignments/student/ HTTP/1.1" 200 11275
+"GET /essays/progress/ HTTP/1.1" 200 36674
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30233
+"GET /essays/progress/ HTTP/1.1" 200 36674
+"GET / HTTP/1.1" 302 0
+"GET /essays/dashboard/ HTTP/1.1" 200 30234
+"GET /profile/ HTTP/1.1" 200 7030
+"GET /settings/ HTTP/1.1" 200 7506
+"POST /settings/ HTTP/1.1" 302 0
+"GET /profile/ HTTP/1.1" 200 7784
+"GET /logout/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 6995
+"GET /login/ HTTP/1.1" 200 10204
+"POST /login/ HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 17244
+C:\Users\rakib\Projects\ESSAY\analytics\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /analytics/analytics/ HTTP/1.1" 200 19948
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /teacher/my-students/ HTTP/1.1" 200 18694
+"GET /teacher/student/1/submissions/ HTTP/1.1" 200 46610
+"GET /teacher/feedback/20/ HTTP/1.1" 200 18169
+"POST /teacher/feedback/20/ HTTP/1.1" 302 0
+"GET /teacher/student/1/submissions/ HTTP/1.1" 200 47337
+"GET /assignments/grade/1/ HTTP/1.1" 200 13701
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /teacher/my-students/ HTTP/1.1" 200 18694
+"GET /teacher/student/1/submissions/ HTTP/1.1" 200 46601
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /analytics/students/ HTTP/1.1" 200 6915
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /assignments/list/ HTTP/1.1" 200 6998
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /assignments/create/ HTTP/1.1" 200 12920
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /analytics/analytics/ HTTP/1.1" 200 19948
+"GET /analytics/analytics/ HTTP/1.1" 200 19952
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 6680
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /analytics/analytics/ HTTP/1.1" 200 19952
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 63716
+"GET /profile/ HTTP/1.1" 200 7027
+"GET /logout/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 6995
+"GET /login/ HTTP/1.1" 200 10204
+"POST /login/ HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 62291
+"GET /analytics/analytics/ HTTP/1.1" 200 19967
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 62291
+"GET /teacher/add-student/ HTTP/1.1" 200 9888
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 62291
+"GET /analytics/export/ HTTP/1.1" 200 14060
+"GET /teacher/my-students/ HTTP/1.1" 200 21010
+"GET /teacher/student/1/submissions/ HTTP/1.1" 200 43590
+"GET /teacher/student/4/submissions/ HTTP/1.1" 200 9455
+"GET /teacher/student/2/submissions/ HTTP/1.1" 200 7175
+"GET / HTTP/1.1" 302 0
+"GET /analytics/dashboard/ HTTP/1.1" 200 62291
+"GET /assignments/list/ HTTP/1.1" 200 7004
+"GET /logout/ HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 6995

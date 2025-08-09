@@ -1,243 +1,359 @@
 {% extends 'base.html' %}
 
-{% block title %}Teacher Dashboard{% endblock %}
+{% block title %}Teacher Dashboard - AI Essay Coach{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2>Teacher Dashboard</h2>
-                    <p class="text-muted">Welcome back, {{ user.get_full_name }}!</p>
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card shadow-lg border-0 sticky-top" style="top: 110px;">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="fas fa-chalkboard-teacher me-3"></i>Teacher Portal
+                    </h5>
                 </div>
-                <div>
-                    <a href="{% url 'accounts:my_students' %}" class="btn btn-primary me-2">
-                        <i class="fas fa-users me-2"></i>My Students
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'analytics:teacher_dashboard' %}" class="list-group-item list-group-item-action active border-0 fw-medium">
+                        <i class="fas fa-chart-line me-3" style="width: 20px;"></i>Dashboard
                     </a>
-                    <a href="{% url 'assignments:create_assignment' %}" class="btn btn-success">
-                        <i class="fas fa-plus me-2"></i>Create Assignment
+                    <a href="{% url 'accounts:my_students' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-users me-3" style="width: 20px;"></i>My Students
+                    </a>
+                    <a href="{% url 'analytics:students_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-file-alt me-3" style="width: 20px;"></i>All Submissions
+                    </a>
+                    <a href="{% url 'assignments:assignments_list' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-tasks me-3" style="width: 20px;"></i>Assignments
+                    </a>
+                    <a href="{% url 'assignments:create_assignment' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-plus-circle me-3" style="width: 20px;"></i>Create Assignment
+                    </a>
+                    <a href="{% url 'analytics:analytics_overview' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-chart-bar me-3" style="width: 20px;"></i>Analytics
+                    </a>
+                    <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action border-0 fw-medium">
+                        <i class="fas fa-user-cog me-3" style="width: 20px;"></i>Profile
                     </a>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Students</h6>
-                            <h2>{{ total_students }}</h2>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Welcome Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in">
+                <div>
+                    <h2 class="fw-bold mb-2">Welcome back, {{ user.get_full_name|default:user.username }}! 👨‍🏫</h2>
+                    <p class="text-secondary mb-0">Manage your classroom and track student progress</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'accounts:my_students' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-users me-2"></i>Students
+                    </a>
+                    <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary btn-lg shadow-lg">
+                        <i class="fas fa-plus me-2"></i>New Assignment
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row g-4 mb-5">
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--primary-gradient);">
+                                <i class="fas fa-users fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ total_students|default:0 }}</div>
+                            <div class="stat-label">Active Students</div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--success-gradient);">
+                                <i class="fas fa-tasks fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ total_assignments|default:0 }}</div>
+                            <div class="stat-label">Assignments</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--info-gradient);">
+                                <i class="fas fa-file-alt fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ total_submissions|default:0 }}</div>
+                            <div class="stat-label">Submissions</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px; background: var(--warning-gradient);">
+                                <i class="fas fa-chart-line fa-lg text-white"></i>
+                            </div>
+                            <div class="stat-number mb-1">{{ avg_score|floatformat:1|default:0 }}%</div>
+                            <div class="stat-label">Average Score</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Assignments</h6>
-                            <h2>{{ total_assignments }}</h2>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-tasks fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Submissions</h6>
-                            <h2>{{ total_submissions }}</h2>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-file-alt fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Avg Score</h6>
-                            <h2>{{ avg_score|floatformat:1 }}</h2>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-chart-line fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Quick Navigation -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-info">
-                <div class="card-body py-3">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <h5 class="mb-0 text-info">
-                                <i class="fas fa-rocket me-2"></i>Quick Actions
+            <!-- Rubric Performance Overview -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-header bg-gradient-primary text-white py-3">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                <i class="fas fa-chart-bar me-3"></i>Rubric Performance Overview
                             </h5>
                         </div>
-                        <div class="col-md-6 text-end">
-                            <a href="{% url 'accounts:my_students' %}" class="btn btn-info me-2">
-                                <i class="fas fa-users me-2"></i>Manage Students
-                            </a>
-                            <a href="{% url 'accounts:add_student' %}" class="btn btn-outline-info me-2">
-                                <i class="fas fa-user-plus me-2"></i>Add Student
-                            </a>
-                            <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Create Assignment
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <!-- Recent Submissions -->
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>Recent Submissions</h5>
-                    <div>
-                        <a href="{% url 'accounts:my_students' %}" class="btn btn-sm btn-success me-2">
-                            <i class="fas fa-users me-1"></i>My Students
-                        </a>
-                        <a href="{% url 'analytics:students_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    {% if recent_submissions %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Essay</th>
-                                        <th>Score</th>
-                                        <th>Date</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for submission in recent_submissions %}
-                                        <tr>
-                                            <td>{{ submission.student.get_full_name }}</td>
-                                            <td>{{ submission.file_name|truncatechars:30 }}</td>
-                                            <td>
-                                                <span class="badge {% if submission.analysis.overall_score >= 80 %}bg-success{% elif submission.analysis.overall_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
-                                                    {{ submission.analysis.overall_score }}/100
-                                                </span>
-                                            </td>
-                                            <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{% url 'essays:view_essay' submission.analysis.id %}" 
-                                                       class="btn btn-outline-primary btn-sm" 
-                                                       title="View Essay">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{% url 'accounts:give_feedback' submission.analysis.id %}" 
-                                                       class="btn btn-outline-success btn-sm" 
-                                                       title="Give Feedback">
-                                                        <i class="fas fa-comment"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted">No submissions yet.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recent Assignments -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>Recent Assignments</h5>
-                    <a href="{% url 'assignments:assignments_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-                <div class="card-body">
-                    {% if assignments %}
-                        {% for assignment in assignments %}
-                            <div class="border-bottom py-2">
-                                <h6 class="mb-1">{{ assignment.title }}</h6>
-                                <small class="text-muted">
-                                    Due: {{ assignment.due_date|date:"M d, Y" }}
-                                    {% if assignment.is_overdue %}
-                                        <span class="text-danger">(Overdue)</span>
-                                    {% endif %}
-                                </small>
-                                <div class="mt-1">
-                                    <a href="{% url 'assignments:assignment_detail' assignment.id %}" class="btn btn-xs btn-outline-primary">View</a>
+                        <div class="card-body p-4">
+                            <div class="row g-4">
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4 border rounded-3 h-100" style="border-color: var(--primary-color) !important;">
+                                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; background: var(--primary-gradient);">
+                                            <i class="fas fa-spell-check text-white"></i>
+                                        </div>
+                                        <h6 class="text-primary mb-2 fw-bold">Grammar</h6>
+                                        <h4 class="mb-3 fw-bold">{{ rubric_averages.grammar|floatformat:1|default:0 }}%</h4>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ rubric_averages.grammar|default:0 }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4 border rounded-3 h-100" style="border-color: var(--success-color) !important;">
+                                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; background: var(--success-gradient);">
+                                            <i class="fas fa-lightbulb text-white"></i>
+                                        </div>
+                                        <h6 class="text-success mb-2 fw-bold">Clarity</h6>
+                                        <h4 class="mb-3 fw-bold">{{ rubric_averages.clarity|floatformat:1|default:0 }}%</h4>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ rubric_averages.clarity|default:0 }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4 border rounded-3 h-100" style="border-color: var(--warning-color) !important;">
+                                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; background: var(--warning-gradient);">
+                                            <i class="fas fa-sitemap text-white"></i>
+                                        </div>
+                                        <h6 class="text-warning mb-2 fw-bold">Structure</h6>
+                                        <h4 class="mb-3 fw-bold">{{ rubric_averages.structure|floatformat:1|default:0 }}%</h4>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ rubric_averages.structure|default:0 }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4 border rounded-3 h-100" style="border-color: var(--info-color) !important;">
+                                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; background: var(--info-gradient);">
+                                            <i class="fas fa-clipboard-list text-white"></i>
+                                        </div>
+                                        <h6 class="text-info mb-2 fw-bold">Content</h6>
+                                        <h4 class="mb-3 fw-bold">{{ rubric_averages.content|floatformat:1|default:0 }}%</h4>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ rubric_averages.content|default:0 }}%"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted">No assignments created yet.</p>
-                        <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary btn-sm">Create First Assignment</a>
-                    {% endif %}
+                            <div class="text-center mt-4">
+                                <a href="{% url 'analytics:analytics_overview' %}" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-chart-line me-2"></i>View Detailed Analytics
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Quick Actions -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Quick Actions</h5>
+
+            <!-- Main Content Grid -->
+            <div class="row g-4 mb-5">
+                <!-- Recent Submissions -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-header bg-gradient-primary text-white py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                    <i class="fas fa-clock me-3"></i>Recent Submissions
+                                </h5>
+                                <a href="{% url 'analytics:students_list' %}" class="btn btn-outline-light btn-sm">
+                                    <i class="fas fa-external-link-alt me-1"></i>View All
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if recent_submissions %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0 fw-bold text-dark">Student</th>
+                                                <th class="border-0 fw-bold text-dark">Essay</th>
+                                                <th class="border-0 fw-bold text-dark">Type</th>
+                                                <th class="border-0 fw-bold text-dark">Score</th>
+                                                <th class="border-0 fw-bold text-dark">Date</th>
+                                                <th class="border-0 fw-bold text-dark">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for submission in recent_submissions %}
+                                                <tr class="align-middle">
+                                                    <td class="px-4 py-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                                                 style="width: 40px; height: 40px; background: var(--accent-gradient);">
+                                                                <i class="fas fa-user text-white"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0 fw-medium">{{ submission.student_name|default:'Unknown' }}</h6>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <h6 class="mb-0">{{ submission.title|default:'Untitled'|truncatechars:25 }}</h6>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                                                            {{ submission.essay_type_display|default:'General' }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        {% if submission.score %}
+                                                            <span class="badge {{ submission.score_class }} px-3 py-2 rounded-pill">
+                                                                {{ submission.score }}%
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary px-3 py-2 rounded-pill">Pending</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <small class="text-muted">{{ submission.created_at|date:"M d, Y" }}</small>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="#" onclick="viewSubmission({{ submission.id }})" 
+                                                               class="btn btn-outline-primary" title="View Essay">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a href="#" onclick="provideFeedback({{ submission.id }})" 
+                                                               class="btn btn-outline-success" title="Provide Feedback">
+                                                                <i class="fas fa-comment"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">No submissions yet</h6>
+                                    <p class="text-secondary">Students will appear here when they submit essays</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary w-100">
-                                <i class="fas fa-plus"></i> Create Assignment
-                            </a>
+
+                <!-- Quick Actions & Assignments -->
+                <div class="col-lg-4">
+                    <!-- Quick Actions -->
+                    <div class="card border-0 shadow-lg mb-4">
+                        <div class="card-header bg-gradient-success text-white py-3">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                <i class="fas fa-bolt me-3"></i>Quick Actions
+                            </h5>
                         </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'analytics:students_list' %}" class="btn btn-info w-100">
-                                <i class="fas fa-users"></i> View Students
-                            </a>
+                        <div class="card-body p-4">
+                            <div class="d-grid gap-3">
+                                <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary btn-lg d-flex align-items-center">
+                                    <i class="fas fa-plus me-3"></i>Create Assignment
+                                </a>
+                                <a href="{% url 'accounts:my_students' %}" class="btn btn-outline-primary btn-lg d-flex align-items-center">
+                                    <i class="fas fa-users me-3"></i>Manage Students
+                                </a>
+                                <a href="{% url 'accounts:add_student' %}" class="btn btn-outline-info btn-lg d-flex align-items-center">
+                                    <i class="fas fa-user-plus me-3"></i>Add Student
+                                </a>
+                                <a href="{% url 'analytics:export_analytics_data' %}" class="btn btn-outline-secondary btn-lg d-flex align-items-center">
+                                    <i class="fas fa-download me-3"></i>Export Data
+                                </a>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'analytics:analytics_overview' %}" class="btn btn-success w-100">
-                                <i class="fas fa-chart-bar"></i> Analytics
-                            </a>
+                    </div>
+
+                    <!-- Recent Assignments -->
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-header bg-gradient-info text-white py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                    <i class="fas fa-tasks me-3"></i>Recent Assignments
+                                </h5>
+                                <a href="{% url 'assignments:assignments_list' %}" class="btn btn-outline-light btn-sm">
+                                    <i class="fas fa-external-link-alt me-1"></i>View All
+                                </a>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'analytics:export_analytics_data' %}" class="btn btn-secondary w-100">
-                                <i class="fas fa-download"></i> Export Data
-                            </a>
+                        <div class="card-body p-4">
+                            {% if assignments %}
+                                <div class="space-y-3">
+                                    {% for assignment in assignments %}
+                                        <div class="border-bottom pb-3 mb-3 {% if forloop.last %}border-0 pb-0 mb-0{% endif %}">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 fw-bold">{{ assignment.1|truncatechars:25 }}</h6>
+                                                    <p class="text-muted mb-2 small">
+                                                        <i class="fas fa-tag me-1"></i>{{ assignment.4|default:'General' }}
+                                                    </p>
+                                                    <p class="text-muted mb-0 small">
+                                                        <i class="fas fa-calendar me-1"></i>Due: {{ assignment.3|date:"M d, Y" }}
+                                                    </p>
+                                                </div>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="#" onclick="viewAssignment({{ assignment.0 }})" 
+                                                       class="btn btn-outline-primary" title="View Assignment">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" onclick="viewAssignmentSubmissions({{ assignment.0 }})" 
+                                                       class="btn btn-outline-success" title="View Submissions">
+                                                        <i class="fas fa-file-alt"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">No assignments yet</h6>
+                                    <p class="text-secondary mb-3">Create your first assignment to get started</p>
+                                    <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>Create Assignment
+                                    </a>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -245,4 +361,161 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Function to view submission details
+function viewSubmission(submissionId) {
+    window.location.href = '/student/essay/' + submissionId;
+}
+
+// Function to provide feedback
+function provideFeedback(submissionId) {
+    window.location.href = '/teacher/feedback/' + submissionId;
+}
+
+// Function to view assignment
+function viewAssignment(assignmentId) {
+    window.location.href = '/teacher/assignment/' + assignmentId;
+}
+
+// Function to view assignment submissions
+function viewAssignmentSubmissions(assignmentId) {
+    window.location.href = '/teacher/assignment/' + assignmentId + '/submissions';
+}
+
+// Add animation classes when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add fade-in animation to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-fade-in');
+    });
+
+    // Add hover effects to navigation items
+    const navItems = document.querySelectorAll('.list-group-item');
+    navItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+});
+</script>
+
+<style>
+/* Additional CSS for animations and effects */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.5s ease-out forwards;
+    transform: scale(0.95);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Stat number styling */
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Custom table styling */
+.table tbody tr {
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress bar enhancements */
+.progress {
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 1s ease-in-out;
+}
+
+/* Button hover effects */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Card hover effects */
+.card:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar active item */
+.list-group-item.active {
+    background: var(--primary-gradient);
+    border-color: transparent;
+    color: white;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.25rem;
+        font-size: 1rem;
+    }
+}
+</style>
 {% endblock %}

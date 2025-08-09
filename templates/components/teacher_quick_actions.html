@@ -1,0 +1,24 @@
+<!-- Teacher Quick Actions Component -->
+<div class="card border-0 shadow-lg">
+    <div class="card-header bg-gradient-success text-white py-3">
+        <h6 class="mb-0 fw-bold d-flex align-items-center">
+            <i class="fas fa-bolt me-2"></i>Quick Actions
+        </h6>
+    </div>
+    <div class="card-body p-3">
+        <div class="d-grid gap-2">
+            <a href="{% url 'assignments:create_assignment' %}" class="btn btn-primary d-flex align-items-center">
+                <i class="fas fa-plus me-2"></i>Create Assignment
+            </a>
+            <a href="{% url 'accounts:my_students' %}" class="btn btn-outline-primary d-flex align-items-center">
+                <i class="fas fa-users me-2"></i>Manage Students
+            </a>
+            <a href="{% url 'accounts:add_student' %}" class="btn btn-outline-info d-flex align-items-center">
+                <i class="fas fa-user-plus me-2"></i>Add Student
+            </a>
+            <a href="{% url 'analytics:analytics_overview' %}" class="btn btn-outline-success d-flex align-items-center">
+                <i class="fas fa-chart-bar me-2"></i>Analytics
+            </a>
+        </div>
+    </div>
+</div>

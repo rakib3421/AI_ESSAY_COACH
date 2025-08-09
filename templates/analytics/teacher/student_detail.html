@@ -43,10 +43,23 @@
             <!-- Performance Chart -->
             <div class="card mt-3">
                 <div class="card-header">
-                    <h6>Performance Overview</h6>
+                    <h6>Rubric Score Progression</h6>
                 </div>
                 <div class="card-body">
                     <canvas id="performanceChart" width="300" height="200"></canvas>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <span class="badge bg-primary me-2">Grammar: {{ avg_grammar|floatformat:1 }}</span>
+                            <span class="badge bg-success me-2">Clarity: {{ avg_clarity|floatformat:1 }}</span>
+                            <span class="badge bg-warning me-2">Structure: {{ avg_structure|floatformat:1 }}</span>
+                            <span class="badge bg-info">Content: {{ avg_content|floatformat:1 }}</span>
+                        </small>
+                    </div>
+                    <div class="text-center mt-2">
+                        <a href="{% url 'analytics:student_rubric_progression' student.id %}" class="btn btn-sm btn-outline-primary">
+                            View Detailed Progression
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -181,26 +194,69 @@
 </div>
 
 <script>
-// Performance Chart
+// Rubric Performance Chart
 const ctx = document.getElementById('performanceChart').getContext('2d');
 const performanceChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: [{% for item in score_history %}'{{ item.date|date:"M d" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-        datasets: [{
-            label: 'Overall Score',
-            data: [{% for item in score_history %}{{ item.score }}{% if not forloop.last %},{% endif %}{% endfor %}],
-            borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: 'rgba(75, 192, 192, 0.1)',
-            tension: 0.1
-        }]
+        datasets: [
+            {
+                label: 'Grammar',
+                data: [{% for item in score_history %}{{ item.grammar_score }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'Clarity',
+                data: [{% for item in score_history %}{{ item.clarity_score }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'Structure',
+                data: [{% for item in score_history %}{{ item.structure_score }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#ffc107',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'Content',
+                data: [{% for item in score_history %}{{ item.content_score }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#17a2b8',
+                backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                tension: 0.1
+            }
+        ]
     },
     options: {
         responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 15
+                }
+            }
+        },
         scales: {
             y: {
                 beginAtZero: true,
-                max: 100
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        },
+        elements: {
+            point: {
+                radius: 4,
+                hoverRadius: 6
             }
         }
     }

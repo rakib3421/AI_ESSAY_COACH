@@ -64,7 +64,7 @@ def teacher_dashboard(request):
             student_id__in=student_ids
         ).aggregate(avg_score=Avg('overall_score'))['avg_score'] or 0
         
-        # Chart data (score distribution + type distribution)
+        # Chart data (score distribution + type distribution + rubric averages)
         analyses_qs = EssayAnalysis.objects.filter(student_id__in=student_ids)
         # Score buckets
         buckets = [
@@ -75,10 +75,19 @@ def teacher_dashboard(request):
             ('90-100', analyses_qs.filter(overall_score__gte=90).count()),
         ]
         score_chart = build_score_distribution(buckets)
+        
         # Type counts
         type_counts_raw = analyses_qs.values('essay_type').annotate(count=Count('id'))
         type_counts = {row['essay_type']: row['count'] for row in type_counts_raw}
         type_chart = build_type_distribution(type_counts)
+        
+        # Rubric averages for dashboard
+        rubric_averages = analyses_qs.aggregate(
+            avg_grammar=Avg('grammar_score'),
+            avg_clarity=Avg('clarity_score'),
+            avg_structure=Avg('structure_score'),
+            avg_content=Avg('content_score')
+        )
 
         context = {
             'recent_submissions': recent_submissions,
@@ -89,6 +98,12 @@ def teacher_dashboard(request):
             'avg_score': round(avg_score, 1),
             'score_chart_json': json.dumps(score_chart),
             'type_chart_json': json.dumps(type_chart),
+            'rubric_averages': {
+                'grammar': round(rubric_averages['avg_grammar'] or 0, 1),
+                'clarity': round(rubric_averages['avg_clarity'] or 0, 1),
+                'structure': round(rubric_averages['avg_structure'] or 0, 1),
+                'content': round(rubric_averages['avg_content'] or 0, 1),
+            },
         }
         
         return render(request, 'analytics/teacher/dashboard.html', context)
@@ -192,6 +207,19 @@ def student_detail(request, student_id):
         else:
             avg_score = avg_grammar = avg_clarity = avg_structure = avg_content = 0
         
+        # Score progression data for rubric components
+        score_history = []
+        for submission in submissions.order_by('submitted_at')[:20]:  # Last 20 submissions for progression
+            if submission.analysis:
+                score_history.append({
+                    'date': submission.submitted_at.strftime('%Y-%m-%d'),
+                    'overall_score': submission.analysis.overall_score,
+                    'grammar_score': submission.analysis.grammar_score,
+                    'clarity_score': submission.analysis.clarity_score,
+                    'structure_score': submission.analysis.structure_score,
+                    'content_score': submission.analysis.content_score,
+                })
+        
         # Essay type distribution
         essay_types = EssayAnalysis.objects.filter(
             student=student
@@ -206,6 +234,7 @@ def student_detail(request, student_id):
             'avg_clarity': round(avg_clarity, 1),
             'avg_structure': round(avg_structure, 1),
             'avg_content': round(avg_content, 1),
+            'score_history': score_history,
             'essay_types': essay_types,
         }
         
@@ -214,6 +243,79 @@ def student_detail(request, student_id):
     except Exception as e:
         logger.error(f"Error loading student detail: {e}")
         messages.error(request, 'Error loading student details.')
+        return redirect('analytics:students_list')
+
+
+@login_required
+@role_required('teacher')
+def student_rubric_progression(request, student_id):
+    """View detailed rubric score progression for a specific student"""
+    try:
+        student = get_object_or_404(CustomUser, id=student_id, role='student')
+        
+        # Check if student is assigned to this teacher
+        if not StudentTeacherAssignment.objects.filter(
+            teacher=request.user,
+            student=student
+        ).exists():
+            messages.error(request, 'This student is not assigned to you.')
+            return redirect('analytics:students_list')
+        
+        # Get all student's analyses ordered by date
+        analyses = EssayAnalysis.objects.filter(
+            student=student
+        ).order_by('created_at')
+        
+        # Prepare rubric progression data
+        rubric_progression = {
+            'dates': [],
+            'grammar_scores': [],
+            'clarity_scores': [],
+            'structure_scores': [],
+            'content_scores': [],
+            'overall_scores': []
+        }
+        
+        for analysis in analyses:
+            rubric_progression['dates'].append(analysis.created_at.strftime('%Y-%m-%d'))
+            rubric_progression['grammar_scores'].append(analysis.grammar_score)
+            rubric_progression['clarity_scores'].append(analysis.clarity_score)
+            rubric_progression['structure_scores'].append(analysis.structure_score)
+            rubric_progression['content_scores'].append(analysis.content_score)
+            rubric_progression['overall_scores'].append(analysis.overall_score)
+        
+        # Calculate improvement metrics
+        improvement_metrics = {}
+        for rubric_type in ['grammar', 'clarity', 'structure', 'content']:
+            scores = rubric_progression[f'{rubric_type}_scores']
+            if len(scores) >= 2:
+                improvement = scores[-1] - scores[0]  # Latest - First
+                improvement_metrics[rubric_type] = {
+                    'improvement': round(improvement, 1),
+                    'trend': 'up' if improvement > 0 else 'down' if improvement < 0 else 'stable'
+                }
+            else:
+                improvement_metrics[rubric_type] = {
+                    'improvement': 0,
+                    'trend': 'stable'
+                }
+        
+        # Get latest scores for comparison
+        latest_analysis = analyses.last() if analyses else None
+        
+        context = {
+            'student': student,
+            'rubric_progression': json.dumps(rubric_progression),
+            'improvement_metrics': improvement_metrics,
+            'latest_analysis': latest_analysis,
+            'total_essays': analyses.count(),
+        }
+        
+        return render(request, 'analytics/teacher/student_rubric_progression.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error loading student rubric progression: {e}")
+        messages.error(request, 'Error loading rubric progression.')
         return redirect('analytics:students_list')
 
 
@@ -250,19 +352,44 @@ def analytics_overview(request):
             student_id__in=student_ids
         ).values('essay_type').annotate(count=Count('id')).order_by('-count')
         
-        # Performance trends (last 10 submissions)
+        # Performance trends (last 10 submissions with rubric breakdown)
         recent_analyses = EssayAnalysis.objects.filter(
             student_id__in=student_ids
         ).order_by('-created_at')[:10]
         
-        trend_data = [
-            {
+        trend_data = []
+        rubric_trend_data = {
+            'grammar': [],
+            'clarity': [],
+            'structure': [],
+            'content': []
+        }
+        
+        for analysis in recent_analyses:
+            # Overall trend data
+            trend_data.append({
                 'date': analysis.created_at.strftime('%Y-%m-%d'),
                 'score': analysis.overall_score,
                 'student': analysis.student.username
-            }
-            for analysis in recent_analyses
-        ]
+            })
+            
+            # Rubric component trend data
+            rubric_trend_data['grammar'].append({
+                'date': analysis.created_at.strftime('%Y-%m-%d'),
+                'score': analysis.grammar_score
+            })
+            rubric_trend_data['clarity'].append({
+                'date': analysis.created_at.strftime('%Y-%m-%d'),
+                'score': analysis.clarity_score
+            })
+            rubric_trend_data['structure'].append({
+                'date': analysis.created_at.strftime('%Y-%m-%d'),
+                'score': analysis.structure_score
+            })
+            rubric_trend_data['content'].append({
+                'date': analysis.created_at.strftime('%Y-%m-%d'),
+                'score': analysis.content_score
+            })
         
         context = {
             'total_students': total_students,
@@ -277,6 +404,7 @@ def analytics_overview(request):
             },
             'essay_type_dist': essay_type_dist,
             'trend_data': json.dumps(trend_data),
+            'rubric_trend_data': json.dumps(rubric_trend_data),
         }
         
         return render(request, 'analytics/teacher/analytics.html', context)
@@ -382,6 +510,7 @@ def export_analytics_data(request):
         for analysis in analyses:
             export_data.append({
                 'student_username': analysis.student.username,
+                'student_name': analysis.student.get_full_name(),
                 'essay_type': analysis.essay_type,
                 'overall_score': analysis.overall_score,
                 'grammar_score': analysis.grammar_score,
